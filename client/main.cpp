@@ -1,6 +1,6 @@
-#include <iostream>
-
-int main() {
-    std::cout << "Client\n";
-    return 0;
-}
+/*
+** EPITECH PROJECT, 2026
+** myteams
+** File description:
+** main
+*/
