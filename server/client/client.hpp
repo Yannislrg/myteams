@@ -28,6 +28,7 @@ class Client {
   [[nodiscard]] const Context& getContext() const { return _context; }
   void setContext(const Context& context) { _context = context; }
 
+  [[nodiscard]] std::string& getReadBuffer() { return _readBuffer; }
   [[nodiscard]] const std::string& getReadBuffer() const { return _readBuffer; }
   void setReadBuffer(const std::string& readBuffer) {
     _readBuffer = readBuffer;
@@ -39,6 +40,16 @@ class Client {
   void setWriteBuffer(const std::string& writeBuffer) {
     _writeBuffer = writeBuffer;
   }
+
+  void appendToReadBuffer(const char* data, std::size_t len) {
+    _readBuffer.append(data, len);
+  }
+  void consumeFromReadBuffer(std::size_t n) { _readBuffer.erase(0, n); }
+
+  void appendToWriteBuffer(const std::string& data) {
+    _writeBuffer += data;
+  }
+  void consumeFromWriteBuffer(std::size_t n) { _writeBuffer.erase(0, n); }
 
  protected:
  private:

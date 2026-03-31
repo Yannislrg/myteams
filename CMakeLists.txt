@@ -17,6 +17,7 @@ set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
 set(SERVER_SRC
   server/main.cpp
   server/server.cpp
+  server/net/Poller.cpp
   server/sys/Errors.cpp
   server/sys/Posix.cpp
   server/client/client.cpp

@@ -7,12 +7,16 @@
 
 #pragma once
 
+#include <atomic>
 #include <cstdint>
+#include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include "client/client.hpp"
 #include "commands/commandHandling/commandHandling.hpp"
 #include "database/Database.hpp"
+#include "net/Poller.hpp"
 #include "saveManager/saveManager.hpp"
 
 class Server {
@@ -36,10 +40,10 @@ class Server {
     _serverFd = serverFileDescriptor;
   }
 
-  [[nodiscard]] const std::vector<Client>& getClients() const {
+  [[nodiscard]] const std::unordered_map<int, std::unique_ptr<Client>>&
+  getClients() const {
     return _clients;
   }
-  void setClients(std::vector<Client> clients) { _clients.swap(clients); }
 
   [[nodiscard]] Database& getDb() { return _db; }
   [[nodiscard]] const Database& getDb() const { return _db; }
@@ -59,8 +63,20 @@ class Server {
  private:
   Server();
 
+  void _acceptClient(Poller& poller);
+  void _parseCommands(Client& client);
+  void _handleRead(Client& client);
+  static void _handleWrite(Client& client);
+  void _disconnectClient(int clientFd, Poller& poller);
+  void _updatePollFlags(Poller& poller);
+  void _processClientEvent(Client& client, const PollEvent& pollEv,
+                           Poller& poller);
+  void _processEvent(const PollEvent& pollEv, Poller& poller);
+
+  static std::atomic<bool> _running;
+
   int _serverFd;
-  std::vector<Client> _clients;
+  std::unordered_map<int, std::unique_ptr<Client>> _clients;
   Database _db;
   SaveManager _saveManager;
   CommandHandling _commandHandling;

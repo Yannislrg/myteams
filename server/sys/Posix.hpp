@@ -26,12 +26,14 @@ class Posix {
   static void bind(int sockfd, const sockaddr_in6& addr);
   static void listen(int sockfd, int backlog);
   static int accept(int sockfd, struct sockaddr* addr, unsigned int* addrlen);
+  static int accept(int sockfd, sockaddr_in6& addr, unsigned int& addrlen);
   static void setsockopt(int sockfd, int level, int optname, const void* optval,
                          unsigned int optlen);
   static ssize_t read(int fileDescriptor, void* buf, std::size_t count);
   static ssize_t write(int fileDescriptor, const void* buf, std::size_t count);
   static int poll(struct pollfd* fds, uint64_t nfds, int timeout);
   static void close(int fileDescriptor);
+  static void setNonBlocking(int fileDescriptor);
 };
 
 }  // namespace sys
