@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "../Context.hpp"
 
 class Client {
@@ -51,6 +52,11 @@ class Client {
   }
   void consumeFromWriteBuffer(std::size_t n) { _writeBuffer.erase(0, n); }
 
+  [[nodiscard]] const std::vector<std::string>& getArgs() const {
+    return _args;
+  }
+  void setArgs(const std::vector<std::string>& args) { _args = args; }
+
  protected:
  private:
   int _fd;
@@ -58,4 +64,5 @@ class Client {
   Context _context;
   std::string _readBuffer;
   std::string _writeBuffer;
+  std::vector<std::string> _args;
 };

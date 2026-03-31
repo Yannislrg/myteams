@@ -9,6 +9,8 @@
 
 ICommand::ICommand() = default;
 
+ICommand::~ICommand() = default;
+
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ICommand::execute(Client& client, Server& server) {
   (void)client;
