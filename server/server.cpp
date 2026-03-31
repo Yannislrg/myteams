@@ -98,6 +98,9 @@ void Server::_handleRead(Client& client) {
   static constexpr std::size_t readBufferSize = 4096;
   std::array<char, readBufferSize> buf{};
   ssize_t bytesRead = sys::Posix::read(client.getFd(), buf.data(), buf.size());
+  if (bytesRead == -1) {
+    return;
+  }
   if (bytesRead == 0) {
     client.setFd(-1);
     return;

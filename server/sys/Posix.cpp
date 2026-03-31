@@ -75,7 +75,7 @@ ssize_t Posix::read(int fileDescriptor, void* buf, std::size_t count) {
   ssize_t bytesRead = ::read(fileDescriptor, buf, count);
   if (bytesRead == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
-      return 0;
+      return -1;
     }
     throwSystemError("read");
   }
