@@ -134,8 +134,13 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
 
 void Server::_updatePollFlags(Poller& poller) {
   for (const auto& [fileDescriptor, client] : _clients) {
+    bool needPollOut = !client->getWriteBuffer().empty();
+    if (needPollOut == client->isPollOutEnabled()) {
+      continue;
+    }
+    client->setPollOutEnabled(needPollOut);
     int evFlags = POLLIN;
-    if (!client->getWriteBuffer().empty()) {
+    if (needPollOut) {
       // NOLINTNEXTLINE(hicpp-signed-bitwise)
       evFlags |= POLLOUT;
     }

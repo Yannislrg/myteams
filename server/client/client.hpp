@@ -42,6 +42,9 @@ class Client {
     _writeBuffer = writeBuffer;
   }
 
+  [[nodiscard]] bool isPollOutEnabled() const { return _pollOutEnabled; }
+  void setPollOutEnabled(bool enabled) { _pollOutEnabled = enabled; }
+
   void appendToReadBuffer(const char* data, std::size_t len) {
     _readBuffer.append(data, len);
   }
@@ -65,4 +68,5 @@ class Client {
   std::string _readBuffer;
   std::string _writeBuffer;
   std::vector<std::string> _args;
+  bool _pollOutEnabled{false};
 };
