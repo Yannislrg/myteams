@@ -8,6 +8,7 @@
 #pragma once
 
 #include <map>
+#include <memory>
 #include <string>
 #include "../../client/client.hpp"
 #include "../ICommand.hpp"
@@ -17,7 +18,7 @@ class Server;
 class CommandHandling {
  public:
   CommandHandling();
-  ~CommandHandling();
+  ~CommandHandling() = default;
   CommandHandling(const CommandHandling& other) = delete;
   CommandHandling& operator=(const CommandHandling& other) = delete;
   CommandHandling(CommandHandling&& other) = delete;
@@ -27,5 +28,5 @@ class CommandHandling {
 
  protected:
  private:
-  std::map<std::string, ICommand*> _commands;
+  std::map<std::string, std::unique_ptr<ICommand>> _commands;
 };

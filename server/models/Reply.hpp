@@ -14,10 +14,10 @@ class Reply {
  public:
   Reply();
   ~Reply();
-  Reply(const Reply& other) = delete;
-  Reply& operator=(const Reply& other) = delete;
-  Reply(Reply&& other) = delete;
-  Reply& operator=(Reply&& other) = delete;
+  Reply(const Reply& other) = default;
+  Reply& operator=(const Reply& other) = default;
+  Reply(Reply&& other) = default;
+  Reply& operator=(Reply&& other) = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }

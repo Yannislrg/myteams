@@ -17,10 +17,10 @@ class Thread {
  public:
   Thread();
   ~Thread();
-  Thread(const Thread& other) = delete;
-  Thread& operator=(const Thread& other) = delete;
-  Thread(Thread&& other) = delete;
-  Thread& operator=(Thread&& other) = delete;
+  Thread(const Thread& other) = default;
+  Thread& operator=(const Thread& other) = default;
+  Thread(Thread&& other) = default;
+  Thread& operator=(Thread&& other) = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }

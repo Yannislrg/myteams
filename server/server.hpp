@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include "client/client.hpp"
@@ -16,14 +17,15 @@
 
 class Server {
  public:
-  Server();
-  ~Server();
   Server(const Server& other) = delete;
   Server& operator=(const Server& other) = delete;
   Server(Server&& other) = delete;
   Server& operator=(Server&& other) = delete;
 
+  ~Server();
+
   static Server& getInstance();
+  void init(uint16_t port);
   void run();
   void broadcast(const std::string& msg);
   void notifySubscribers(const std::string& team_uuid, const std::string& msg);
@@ -55,6 +57,8 @@ class Server {
   }
 
  private:
+  Server();
+
   int _serverFd;
   std::vector<Client> _clients;
   Database _db;
