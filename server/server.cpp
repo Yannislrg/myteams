@@ -24,9 +24,13 @@ Server& Server::getInstance() {
 
 Server::Server() : _serverFd(-1) {}
 
-Server::~Server() {
+Server::~Server() noexcept {
   if (_serverFd != -1) {
-    sys::Posix::close(_serverFd);
+    try {
+      sys::Posix::close(_serverFd);
+    } catch (const std::exception& e) {
+      std::cerr << "[server] error closing server socket: " << e.what() << "\n";
+    }
   }
 }
 

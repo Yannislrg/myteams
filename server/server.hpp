@@ -26,7 +26,7 @@ class Server {
   Server(Server&& other) = delete;
   Server& operator=(Server&& other) = delete;
 
-  ~Server();
+  ~Server() noexcept;
 
   static Server& getInstance();
   void init(uint16_t port);
