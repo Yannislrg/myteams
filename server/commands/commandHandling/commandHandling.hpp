@@ -17,7 +17,7 @@ class Server;
 
 class CommandHandling {
  public:
-  CommandHandling();
+  CommandHandling() = default;
   ~CommandHandling() = default;
   CommandHandling(const CommandHandling& other) = delete;
   CommandHandling& operator=(const CommandHandling& other) = delete;

@@ -8,8 +8,6 @@
 #include "commandHandling.hpp"
 #include <sstream>
 
-CommandHandling::CommandHandling() = default;
-
 namespace {
 std::vector<std::string> parseArgs(const std::string& raw) {
   std::vector<std::string> args;
