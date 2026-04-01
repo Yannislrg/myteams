@@ -35,14 +35,14 @@ Server::~Server() noexcept {
 }
 
 void Server::init(uint16_t port) {
-  const int opt = 1;
-  const int v6only = 0;
+  const int socketOption = 1;
+  const int ipv6Only = 0;
 
   _serverFd = sys::Posix::socket(AF_INET6, SOCK_STREAM, 0);
-  sys::Posix::setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &opt,
-                         sizeof(opt));
-  sys::Posix::setsockopt(_serverFd, IPPROTO_IPV6, IPV6_V6ONLY, &v6only,
-                         sizeof(v6only));
+  sys::Posix::setsockopt(_serverFd, SOL_SOCKET, SO_REUSEADDR, &socketOption,
+                         sizeof(socketOption));
+  sys::Posix::setsockopt(_serverFd, IPPROTO_IPV6, IPV6_V6ONLY, &ipv6Only,
+                         sizeof(ipv6Only));
   sys::Posix::setNonBlocking(_serverFd);
 
   sockaddr_in6 addr{};
@@ -75,16 +75,16 @@ void Server::_acceptClient(Poller& poller) {
 
   auto client = std::make_unique<Client>();
   client->setFd(clientFd);
-  poller.add(clientFd, POLLIN);
+  poller.addFileDescriptor(clientFd, POLLIN);
   _clients.emplace(clientFd, std::move(client));
 }
 
 void Server::_parseCommands(Client& client) {
-  std::string& rbuf = client.getReadBuffer();
-  std::size_t pos = 0;
-  std::size_t newline = rbuf.find('\n', pos);
-  while (newline != std::string::npos) {
-    std::string line = rbuf.substr(pos, newline - pos);
+  std::string& readBuffer = client.getReadBuffer();
+  std::size_t parsePos = 0;
+  std::size_t newlinePos = readBuffer.find('\n', parsePos);
+  while (newlinePos != std::string::npos) {
+    std::string line = readBuffer.substr(parsePos, newlinePos - parsePos);
     if (!line.empty() && line.back() == '\r') {
       line.pop_back();
     }
@@ -92,15 +92,16 @@ void Server::_parseCommands(Client& client) {
       std::cerr << "[fd=" << client.getFd() << "] cmd: " << line << "\n";
       _commandHandling.handleCommand(line, client, *this);
     }
-    pos = newline + 1;
-    newline = rbuf.find('\n', pos);
+    parsePos = newlinePos + 1;
+    newlinePos = readBuffer.find('\n', parsePos);
   }
-  client.consumeFromReadBuffer(pos);
+  client.consumeFromReadBuffer(parsePos);
 }
 
 void Server::_handleRead(Client& client) {
-  std::array<char, _readBufferSize> buf{};
-  ssize_t bytesRead = sys::Posix::read(client.getFd(), buf.data(), buf.size());
+  std::array<char, _readBufferSize> buffer{};
+  ssize_t bytesRead =
+      sys::Posix::read(client.getFd(), buffer.data(), buffer.size());
   if (bytesRead == -1) {
     return;
   }
@@ -108,17 +109,17 @@ void Server::_handleRead(Client& client) {
     client.setFd(-1);
     return;
   }
-  client.appendToReadBuffer(buf.data(), static_cast<std::size_t>(bytesRead));
+  client.appendToReadBuffer(buffer.data(), static_cast<std::size_t>(bytesRead));
   _parseCommands(client);
 }
 
 void Server::_handleWrite(Client& client) {
-  const std::string& wbuf = client.getWriteBuffer();
-  if (wbuf.empty()) {
+  const std::string& writeBuffer = client.getWriteBuffer();
+  if (writeBuffer.empty()) {
     return;
   }
   ssize_t bytesWritten =
-      sys::Posix::write(client.getFd(), wbuf.data(), wbuf.size());
+      sys::Posix::write(client.getFd(), writeBuffer.data(), writeBuffer.size());
   if (bytesWritten > 0) {
     client.consumeFromWriteBuffer(static_cast<std::size_t>(bytesWritten));
   }
@@ -126,7 +127,7 @@ void Server::_handleWrite(Client& client) {
 
 void Server::_disconnectClient(int clientFd, Poller& poller) {
   std::cerr << "[-] client disconnected fd=" << clientFd << "\n";
-  poller.del(clientFd);
+  poller.removeFileDescriptor(clientFd);
   sys::Posix::close(clientFd);
   _clients.erase(clientFd);
 }
@@ -143,7 +144,7 @@ void Server::_updatePollFlags(Poller& poller) {
       // NOLINTNEXTLINE(hicpp-signed-bitwise)
       evFlags |= POLLOUT;
     }
-    poller.mod(fileDescriptor, evFlags);
+    poller.updateWatchedEvents(fileDescriptor, evFlags);
   }
 }
 
@@ -189,11 +190,11 @@ void Server::run() {
   (void)std::signal(SIGTERM, Server::handleSignal);
 
   Poller poller;
-  poller.add(_serverFd, POLLIN);
+  poller.addFileDescriptor(_serverFd, POLLIN);
 
   while (_running.load()) {
     _updatePollFlags(poller);
-    auto pollEvents = poller.wait(_pollTimeoutMs);
+    auto pollEvents = poller.waitForEvents(_pollTimeoutMs);
     for (const auto& pollEv : pollEvents) {
       _processEvent(pollEv, poller);
     }

@@ -21,16 +21,20 @@ class Posix {
   Posix() = delete;
 
   static int socket(int domain, int type, int protocol);
-  static void bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
-  static void bind(int sockfd, const sockaddr_in6& addr);
-  static void listen(int sockfd, int backlog);
-  static int accept(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
-  static int accept(int sockfd, sockaddr_in6& addr, socklen_t& addrlen);
-  static void setsockopt(int sockfd, int level, int optname, const void* optval,
-                         socklen_t optlen);
-  static ssize_t read(int fileDescriptor, void* buf, std::size_t count);
-  static ssize_t write(int fileDescriptor, const void* buf, std::size_t count);
-  static int poll(struct pollfd* fds, nfds_t nfds, int timeout);
+  static void bind(int socketFd, const struct sockaddr* addr,
+                   socklen_t addressLength);
+  static void bind(int socketFd, const sockaddr_in6& addr);
+  static void listen(int socketFd, int backlog);
+  static int accept(int socketFd, struct sockaddr* addr,
+                    socklen_t* addressLength);
+  static int accept(int socketFd, sockaddr_in6& addr, socklen_t& addressLength);
+  static void setsockopt(int socketFd, int level, int optionName,
+                         const void* optionValue, socklen_t optionLength);
+  static ssize_t read(int fileDescriptor, void* buffer, std::size_t count);
+  static ssize_t write(int fileDescriptor, const void* buffer,
+                       std::size_t count);
+  static int poll(struct pollfd* fileDescriptors, nfds_t fileDescriptorCount,
+                  int timeout);
   static void close(int fileDescriptor);
   static void setNonBlocking(int fileDescriptor);
 };

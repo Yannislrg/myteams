@@ -24,7 +24,8 @@ class CommandHandling {
   CommandHandling(CommandHandling&& other) = delete;
   CommandHandling& operator=(CommandHandling&& other) = delete;
 
-  void handleCommand(const std::string& raw, Client& client, Server& server);
+  void handleCommand(const std::string& rawCommand, Client& client,
+                     Server& server);
 
  protected:
  private:

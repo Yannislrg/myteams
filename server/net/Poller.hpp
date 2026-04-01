@@ -17,10 +17,10 @@ struct PollEvent {
 
 class Poller {
  public:
-  void add(int fileDescriptor, int events);
-  void mod(int fileDescriptor, int events);
-  void del(int fileDescriptor);
-  std::vector<PollEvent> wait(int timeout = -1);
+  void addFileDescriptor(int fileDescriptor, int events);
+  void updateWatchedEvents(int fileDescriptor, int events);
+  void removeFileDescriptor(int fileDescriptor);
+  std::vector<PollEvent> waitForEvents(int timeout = -1);
 
  private:
   std::vector<struct pollfd> _fds;

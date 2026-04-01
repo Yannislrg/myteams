@@ -10,7 +10,7 @@
 #include <cstdint>
 #include "../sys/Posix.hpp"
 
-void Poller::add(int fileDescriptor, int events) {
+void Poller::addFileDescriptor(int fileDescriptor, int events) {
   struct pollfd pfd{};
   pfd.fd = fileDescriptor;
   pfd.events = static_cast<int16_t>(events);
@@ -18,7 +18,7 @@ void Poller::add(int fileDescriptor, int events) {
   _fds.push_back(pfd);
 }
 
-void Poller::mod(int fileDescriptor, int events) {
+void Poller::updateWatchedEvents(int fileDescriptor, int events) {
   auto iter =
       std::ranges::find_if(_fds, [fileDescriptor](const struct pollfd& entry) {
         return entry.fd == fileDescriptor;
@@ -28,7 +28,7 @@ void Poller::mod(int fileDescriptor, int events) {
   }
 }
 
-void Poller::del(int fileDescriptor) {
+void Poller::removeFileDescriptor(int fileDescriptor) {
   auto iter =
       std::ranges::find_if(_fds, [fileDescriptor](const struct pollfd& entry) {
         return entry.fd == fileDescriptor;
@@ -38,7 +38,7 @@ void Poller::del(int fileDescriptor) {
   }
 }
 
-std::vector<PollEvent> Poller::wait(int timeout) {
+std::vector<PollEvent> Poller::waitForEvents(int timeout) {
   int ready = sys::Posix::poll(_fds.data(), static_cast<uint64_t>(_fds.size()),
                                timeout);
   std::vector<PollEvent> events;

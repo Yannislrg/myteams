@@ -9,27 +9,27 @@
 #include <sstream>
 
 namespace {
-std::vector<std::string> parseArgs(const std::string& raw) {
-  std::vector<std::string> args;
-  std::istringstream iss(raw);
+std::vector<std::string> parseArgs(const std::string& rawCommand) {
+  std::vector<std::string> arguments;
+  std::istringstream tokenStream(rawCommand);
   std::string word;
-  while (iss >> word) {
-    args.push_back(word);
+  while (tokenStream >> word) {
+    arguments.push_back(word);
   }
-  return args;
+  return arguments;
 }
 }  // namespace
 
-void CommandHandling::handleCommand(const std::string& raw, Client& client,
-                                    Server& server) {
-  auto args = parseArgs(raw);
-  if (args.empty()) {
+void CommandHandling::handleCommand(const std::string& rawCommand,
+                                    Client& client, Server& server) {
+  auto arguments = parseArgs(rawCommand);
+  if (arguments.empty()) {
     return;
   }
-  client.setArgs(args);
-  auto cmdIter = _commands.find(args[0]);
-  if (cmdIter == _commands.end()) {
+  client.setArgs(arguments);
+  auto commandEntry = _commands.find(arguments[0]);
+  if (commandEntry == _commands.end()) {
     return;
   }
-  cmdIter->second->execute(client, server);
+  commandEntry->second->execute(client, server);
 }
