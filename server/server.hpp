@@ -12,7 +12,6 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 #include "client/client.hpp"
 #include "commands/commandHandling/commandHandling.hpp"
 #include "database/Database.hpp"
@@ -61,6 +60,8 @@ class Server {
   }
 
  private:
+  static constexpr std::size_t _readBufferSize = 4096;
+
   Server();
 
   void _acceptClient(Poller& poller);
