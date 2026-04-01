@@ -11,7 +11,7 @@
 
 class SaveManager {
  public:
-  SaveManager();
+  SaveManager() = default;
   ~SaveManager() = default;
   SaveManager(const SaveManager& other) = delete;
   SaveManager& operator=(const SaveManager& other) = delete;
