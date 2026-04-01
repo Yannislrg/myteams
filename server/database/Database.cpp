@@ -29,7 +29,6 @@ Team* Database::findTeam(const std::string& uuid) {
   return nullptr;
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 Channel* Database::findChannel(const std::string& team_uuid,
                                const std::string& channel_uuid) {
   (void)team_uuid;
@@ -38,7 +37,6 @@ Channel* Database::findChannel(const std::string& team_uuid,
   return nullptr;
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 Thread* Database::findThread(const std::string& channel_uuid,
                              const std::string& thread_uuid) {
   (void)channel_uuid;

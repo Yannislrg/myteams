@@ -15,7 +15,8 @@ Checks: '*,
          -modernize-use-trailing-return-type,
          -llvm-include-order,
          -altera-*,
-         -llvm-header-guard'
+         -llvm-header-guard,
+         -bugprone-easily-swappable-parameters'
 
 # Treat warnings as errors so the CI fails on bad code
 WarningsAsErrors: '*'

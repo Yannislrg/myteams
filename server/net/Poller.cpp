@@ -10,7 +10,6 @@
 #include <cstdint>
 #include "../sys/Posix.hpp"
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void Poller::add(int fileDescriptor, int events) {
   struct pollfd pfd{};
   pfd.fd = fileDescriptor;
@@ -19,7 +18,6 @@ void Poller::add(int fileDescriptor, int events) {
   _fds.push_back(pfd);
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void Poller::mod(int fileDescriptor, int events) {
   auto iter =
       std::ranges::find_if(_fds, [fileDescriptor](const struct pollfd& entry) {

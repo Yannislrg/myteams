@@ -207,7 +207,6 @@ void Server::broadcast(const std::string& msg) {
   }
 }
 
-// NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 void Server::notifySubscribers(const std::string& team_uuid,
                                const std::string& msg) {
   (void)team_uuid;
