@@ -23,7 +23,6 @@ set(SERVER_SRC
   server/client/client.cpp
   server/database/Database.cpp
   server/saveManager/saveManager.cpp
-  server/commands/ICommand.cpp
   server/commands/commandHandling/commandHandling.cpp
   server/models/User.cpp
   server/models/Team.cpp
