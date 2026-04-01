@@ -20,7 +20,7 @@ class ICommand {
   ICommand(ICommand&& other) = delete;
   ICommand& operator=(ICommand&& other) = delete;
 
-  virtual void execute(Client& client, Server& server);
+  virtual void execute(Client& client, Server& server) = 0;
 
  protected:
  private:
