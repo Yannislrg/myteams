@@ -31,7 +31,7 @@ class Server {
   void init(uint16_t port);
   void run();
   void broadcast(const std::string& msg);
-  void notifySubscribers(const std::string& team_uuid, const std::string& msg);
+  void notifySubscribers(const std::string& teamUuid, const std::string& msg);
   static void handleSignal(int sig);
 
   [[nodiscard]] int getServerFd() const { return _serverFd; }

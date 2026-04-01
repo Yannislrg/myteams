@@ -29,18 +29,18 @@ Team* Database::findTeam(const std::string& uuid) {
   return nullptr;
 }
 
-Channel* Database::findChannel(const std::string& team_uuid,
-                               const std::string& channel_uuid) {
-  (void)team_uuid;
-  (void)channel_uuid;
+Channel* Database::findChannel(const std::string& teamUuid,
+                               const std::string& channelUuid) {
+  (void)teamUuid;
+  (void)channelUuid;
   (void)_teams;
   return nullptr;
 }
 
-Thread* Database::findThread(const std::string& channel_uuid,
-                             const std::string& thread_uuid) {
-  (void)channel_uuid;
-  (void)thread_uuid;
+Thread* Database::findThread(const std::string& channelUuid,
+                             const std::string& threadUuid) {
+  (void)channelUuid;
+  (void)threadUuid;
   (void)_teams;
   return nullptr;
 }

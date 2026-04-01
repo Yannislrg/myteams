@@ -207,9 +207,9 @@ void Server::broadcast(const std::string& msg) {
   }
 }
 
-void Server::notifySubscribers(const std::string& team_uuid,
+void Server::notifySubscribers(const std::string& teamUuid,
                                const std::string& msg) {
-  (void)team_uuid;
+  (void)teamUuid;
   (void)msg;
   (void)_clients;
 }

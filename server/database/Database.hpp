@@ -26,10 +26,10 @@ class Database {
   User* findUser(const std::string& uuid);
   User* findUserByName(const std::string& name);
   Team* findTeam(const std::string& uuid);
-  Channel* findChannel(const std::string& team_uuid,
-                       const std::string& channel_uuid);
-  Thread* findThread(const std::string& channel_uuid,
-                     const std::string& thread_uuid);
+  Channel* findChannel(const std::string& teamUuid,
+                       const std::string& channelUuid);
+  Thread* findThread(const std::string& channelUuid,
+                     const std::string& threadUuid);
 
  protected:
  private:
