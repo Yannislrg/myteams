@@ -61,6 +61,7 @@ class Server {
 
  private:
   static constexpr std::size_t _readBufferSize = 4096;
+  static constexpr int _pollTimeoutMs = 1000;
 
   Server();
 

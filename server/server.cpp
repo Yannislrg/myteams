@@ -193,8 +193,7 @@ void Server::run() {
 
   while (_running.load()) {
     _updatePollFlags(poller);
-    static constexpr int pollTimeoutMs = 1000;
-    auto pollEvents = poller.wait(pollTimeoutMs);
+    auto pollEvents = poller.wait(_pollTimeoutMs);
     for (const auto& pollEv : pollEvents) {
       _processEvent(pollEv, poller);
     }
