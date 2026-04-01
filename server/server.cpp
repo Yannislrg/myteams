@@ -64,7 +64,7 @@ void Server::handleSignal(int sig) {
 
 void Server::_acceptClient(Poller& poller) {
   sockaddr_in6 addr{};
-  unsigned int addrLen = sizeof(addr);
+  socklen_t addrLen = sizeof(addr);
   int clientFd = sys::Posix::accept(_serverFd, addr, addrLen);
   sys::Posix::setNonBlocking(clientFd);
 

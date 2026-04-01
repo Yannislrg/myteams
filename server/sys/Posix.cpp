@@ -12,7 +12,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cerrno>
-#include <cstdint>
 #include "Errors.hpp"
 
 namespace sys {
@@ -25,8 +24,7 @@ int Posix::socket(int domain, int type, int protocol) {
   return sockFd;
 }
 
-void Posix::bind(int sockfd, const struct sockaddr* addr,
-                 unsigned int addrlen) {
+void Posix::bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen) {
   if (::bind(sockfd, addr, addrlen) == -1) {
     throwSystemError("bind");
   }
@@ -46,7 +44,7 @@ void Posix::listen(int sockfd, int backlog) {
   }
 }
 
-int Posix::accept(int sockfd, struct sockaddr* addr, unsigned int* addrlen) {
+int Posix::accept(int sockfd, struct sockaddr* addr, socklen_t* addrlen) {
   // NOLINTNEXTLINE(android-cloexec-accept)
   int clientFd = ::accept(sockfd, addr, addrlen);
   if (clientFd == -1) {
@@ -55,7 +53,7 @@ int Posix::accept(int sockfd, struct sockaddr* addr, unsigned int* addrlen) {
   return clientFd;
 }
 
-int Posix::accept(int sockfd, sockaddr_in6& addr, unsigned int& addrlen) {
+int Posix::accept(int sockfd, sockaddr_in6& addr, socklen_t& addrlen) {
   // NOLINTNEXTLINE(android-cloexec-accept,cppcoreguidelines-pro-type-reinterpret-cast)
   int clientFd = ::accept(sockfd, reinterpret_cast<sockaddr*>(&addr), &addrlen);
   if (clientFd == -1) {
@@ -65,7 +63,7 @@ int Posix::accept(int sockfd, sockaddr_in6& addr, unsigned int& addrlen) {
 }
 
 void Posix::setsockopt(int sockfd, int level, int optname, const void* optval,
-                       unsigned int optlen) {
+                       socklen_t optlen) {
   if (::setsockopt(sockfd, level, optname, optval, optlen) == -1) {
     throwSystemError("setsockopt");
   }
@@ -93,7 +91,7 @@ ssize_t Posix::write(int fileDescriptor, const void* buf, std::size_t count) {
   return bytesWritten;
 }
 
-int Posix::poll(struct pollfd* fds, uint64_t nfds, int timeout) {
+int Posix::poll(struct pollfd* fds, nfds_t nfds, int timeout) {
   int numReady = ::poll(fds, nfds, timeout);
   if (numReady == -1) {
     if (errno == EINTR) {

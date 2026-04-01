@@ -21,17 +21,16 @@ class Posix {
   Posix() = delete;
 
   static int socket(int domain, int type, int protocol);
-  static void bind(int sockfd, const struct sockaddr* addr,
-                   unsigned int addrlen);
+  static void bind(int sockfd, const struct sockaddr* addr, socklen_t addrlen);
   static void bind(int sockfd, const sockaddr_in6& addr);
   static void listen(int sockfd, int backlog);
-  static int accept(int sockfd, struct sockaddr* addr, unsigned int* addrlen);
-  static int accept(int sockfd, sockaddr_in6& addr, unsigned int& addrlen);
+  static int accept(int sockfd, struct sockaddr* addr, socklen_t* addrlen);
+  static int accept(int sockfd, sockaddr_in6& addr, socklen_t& addrlen);
   static void setsockopt(int sockfd, int level, int optname, const void* optval,
-                         unsigned int optlen);
+                         socklen_t optlen);
   static ssize_t read(int fileDescriptor, void* buf, std::size_t count);
   static ssize_t write(int fileDescriptor, const void* buf, std::size_t count);
-  static int poll(struct pollfd* fds, uint64_t nfds, int timeout);
+  static int poll(struct pollfd* fds, nfds_t nfds, int timeout);
   static void close(int fileDescriptor);
   static void setNonBlocking(int fileDescriptor);
 };
