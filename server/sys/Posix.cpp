@@ -12,12 +12,13 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cerrno>
+#include <cstddef>
 #include "Errors.hpp"
 
 namespace sys {
 
 int Posix::socket(int domain, int type, int protocol) {
-  int socketFd = ::socket(domain, type, protocol);
+  const int socketFd = ::socket(domain, type, protocol);
   if (socketFd == -1) {
     throwSystemError("socket");
   }
@@ -48,7 +49,7 @@ void Posix::listen(int socketFd, int backlog) {
 int Posix::accept(int socketFd, struct sockaddr* addr,
                   socklen_t* addressLength) {
   // NOLINTNEXTLINE(android-cloexec-accept)
-  int clientFd = ::accept(socketFd, addr, addressLength);
+  const int clientFd = ::accept(socketFd, addr, addressLength);
   if (clientFd == -1) {
     throwSystemError("accept");
   }
@@ -57,7 +58,7 @@ int Posix::accept(int socketFd, struct sockaddr* addr,
 
 int Posix::accept(int socketFd, sockaddr_in6& addr, socklen_t& addressLength) {
   // NOLINTNEXTLINE(android-cloexec-accept,cppcoreguidelines-pro-type-reinterpret-cast)
-  int clientFd =
+  const int clientFd =
       ::accept(socketFd, reinterpret_cast<sockaddr*>(&addr), &addressLength);
   if (clientFd == -1) {
     throwSystemError("accept");
@@ -74,7 +75,7 @@ void Posix::setsockopt(int socketFd, int level, int optionName,
 }
 
 ssize_t Posix::read(int fileDescriptor, void* buffer, std::size_t count) {
-  ssize_t bytesRead = ::read(fileDescriptor, buffer, count);
+  const ssize_t bytesRead = ::read(fileDescriptor, buffer, count);
   if (bytesRead == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return -1;
@@ -86,7 +87,7 @@ ssize_t Posix::read(int fileDescriptor, void* buffer, std::size_t count) {
 
 ssize_t Posix::write(int fileDescriptor, const void* buffer,
                      std::size_t count) {
-  ssize_t bytesWritten = ::write(fileDescriptor, buffer, count);
+  const ssize_t bytesWritten = ::write(fileDescriptor, buffer, count);
   if (bytesWritten == -1) {
     if (errno == EAGAIN || errno == EWOULDBLOCK) {
       return 0;
@@ -98,7 +99,7 @@ ssize_t Posix::write(int fileDescriptor, const void* buffer,
 
 int Posix::poll(struct pollfd* fileDescriptors, nfds_t fileDescriptorCount,
                 int timeout) {
-  int numReady = ::poll(fileDescriptors, fileDescriptorCount, timeout);
+  const int numReady = ::poll(fileDescriptors, fileDescriptorCount, timeout);
   if (numReady == -1) {
     if (errno == EINTR) {
       return 0;
@@ -116,11 +117,11 @@ void Posix::close(int fileDescriptor) {
 
 void Posix::setNonBlocking(int fileDescriptor) {
   // NOLINTNEXTLINE(yhicpp-vararg)
-  int flags = ::fcntl(fileDescriptor, F_GETFL, 0);
+  const int flags = ::fcntl(fileDescriptor, F_GETFL, 0);
   if (flags == -1) {
     throwSystemError("fcntl F_GETFL");
   }
-  unsigned int newFlags =
+  const unsigned int newFlags =
       static_cast<unsigned int>(flags) | static_cast<unsigned int>(O_NONBLOCK);
   // NOLINTNEXTLINE(hicpp-vararg)
   if (::fcntl(fileDescriptor, F_SETFL, newFlags) == -1) {

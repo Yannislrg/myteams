@@ -8,10 +8,15 @@
 #include "server.hpp"
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <sys/poll.h>
+#include <sys/socket.h>
 #include <array>
+#include <atomic>
 #include <csignal>
 #include <iostream>
+#include <memory>
 #include "../libs/logging_server.h"
+#include "client/client.hpp"
 #include "net/Poller.hpp"
 #include "sys/Posix.hpp"
 
@@ -65,7 +70,7 @@ void Server::handleSignal(int sig) {
 void Server::_acceptClient(Poller& poller) {
   sockaddr_in6 addr{};
   socklen_t addrLen = sizeof(addr);
-  int clientFd = sys::Posix::accept(_serverFd, addr, addrLen);
+  const int clientFd = sys::Posix::accept(_serverFd, addr, addrLen);
   sys::Posix::setNonBlocking(clientFd);
 
   std::array<char, INET6_ADDRSTRLEN> ipStr{};
@@ -80,7 +85,7 @@ void Server::_acceptClient(Poller& poller) {
 }
 
 void Server::_parseCommands(Client& client) {
-  std::string& readBuffer = client.getReadBuffer();
+  const std::string& readBuffer = client.getReadBuffer();
   std::size_t parsePos = 0;
   std::size_t newlinePos = readBuffer.find('\n', parsePos);
   while (newlinePos != std::string::npos) {
@@ -100,7 +105,7 @@ void Server::_parseCommands(Client& client) {
 
 void Server::_handleRead(Client& client) {
   std::array<char, _readBufferSize> buffer{};
-  ssize_t bytesRead =
+  const ssize_t bytesRead =
       sys::Posix::read(client.getFd(), buffer.data(), buffer.size());
   if (bytesRead == -1) {
     return;
@@ -118,7 +123,7 @@ void Server::_handleWrite(Client& client) {
   if (writeBuffer.empty()) {
     return;
   }
-  ssize_t bytesWritten =
+  const ssize_t bytesWritten =
       sys::Posix::write(client.getFd(), writeBuffer.data(), writeBuffer.size());
   if (bytesWritten > 0) {
     client.consumeFromWriteBuffer(static_cast<std::size_t>(bytesWritten));
@@ -139,7 +144,7 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
 
 void Server::_updatePollFlags(Poller& poller) {
   for (const auto& [fileDescriptor, client] : _clients) {
-    bool needPollOut = !client->getWriteBuffer().empty();
+    const bool needPollOut = !client->getWriteBuffer().empty();
     if (needPollOut == client->isPollOutEnabled()) {
       continue;
     }
@@ -207,8 +212,8 @@ void Server::run() {
 }
 
 void Server::broadcast(const std::string& msg) {
-  for (const auto& [fd, client] : _clients) {
-    (void)fd;
+  for (const auto& [filedescriptor, client] : _clients) {
+    (void)filedescriptor;
     client->appendToWriteBuffer(msg);
   }
 }

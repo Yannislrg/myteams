@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include <poll.h>
+#include <sys/poll.h>
 #include <vector>
 
 struct PollEvent {

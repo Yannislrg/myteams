@@ -8,11 +8,9 @@
 #pragma once
 
 #include <netinet/in.h>
-#include <poll.h>
+#include <sys/poll.h>
 #include <sys/socket.h>
-#include <sys/types.h>
 #include <cstddef>
-#include <cstdint>
 
 namespace sys {
 
