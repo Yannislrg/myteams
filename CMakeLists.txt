@@ -14,10 +14,39 @@ set(COMMON_COMPILER_FLAGS -Wall -Wextra -Werror)
 set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
 
 
-set(SERVER_SRC server/main.cpp)
+set(SERVER_SRC
+  server/main.cpp
+  server/server.cpp
+  server/net/Poller.cpp
+  server/sys/Errors.cpp
+  server/sys/Posix.cpp
+  server/client/client.cpp
+  server/database/Database.cpp
+  server/saveManager/saveManager.cpp
+  server/commands/commandHandling/commandHandling.cpp
+  server/models/User.cpp
+  server/models/Team.cpp
+  server/models/Channel.cpp
+  server/models/Thread.cpp
+  server/models/Reply.cpp
+  server/models/Message.cpp
+)
 add_executable(myteams_server ${SERVER_SRC})
-target_include_directories(myteams_server PRIVATE ${COMMON_INCLUDE_DIRS})
+target_include_directories(myteams_server PRIVATE
+  ${COMMON_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/server
+  ${CMAKE_SOURCE_DIR}/server/libs
+)
 target_compile_options(myteams_server PRIVATE ${COMMON_COMPILER_FLAGS})
+if(APPLE)
+  target_link_libraries(myteams_server PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
+  )
+else()
+  target_link_libraries(myteams_server PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+  )
+endif()
 
 
 set(CLIENT_SRC client/main.cpp)

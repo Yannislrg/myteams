@@ -16,10 +16,10 @@ class Channel {
  public:
   Channel();
   ~Channel();
-  Channel(const Channel& other) = delete;
-  Channel& operator=(const Channel& other) = delete;
-  Channel(Channel&& other) noexcept = default;
-  Channel& operator=(Channel&& other) noexcept = default;
+  Channel(const Channel& other) = default;
+  Channel& operator=(const Channel& other) = default;
+  Channel(Channel&& other) = default;
+  Channel& operator=(Channel&& other) = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }
