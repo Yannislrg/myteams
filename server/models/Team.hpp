@@ -18,8 +18,8 @@ class Team {
   ~Team();
   Team(const Team& other) = delete;
   Team& operator=(const Team& other) = delete;
-  Team(Team&& other) = delete;
-  Team& operator=(Team&& other) = delete;
+  Team(Team&& other) noexcept = default;
+  Team& operator=(Team&& other) noexcept = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }
@@ -44,6 +44,7 @@ class Team {
   [[nodiscard]] const std::vector<Channel>& getChannels() const {
     return _channels;
   }
+  [[nodiscard]] std::vector<Channel>& getChannels() { return _channels; }
   void setChannels(std::vector<Channel>&& channels) {
     _channels = std::move(channels);
   }

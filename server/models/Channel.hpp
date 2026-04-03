@@ -18,8 +18,8 @@ class Channel {
   ~Channel();
   Channel(const Channel& other) = delete;
   Channel& operator=(const Channel& other) = delete;
-  Channel(Channel&& other) = delete;
-  Channel& operator=(Channel&& other) = delete;
+  Channel(Channel&& other) noexcept = default;
+  Channel& operator=(Channel&& other) noexcept = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }
@@ -37,6 +37,7 @@ class Channel {
   [[nodiscard]] const std::vector<Thread>& getThreads() const {
     return _threads;
   }
+  [[nodiscard]] std::vector<Thread>& getThreads() { return _threads; }
   void setThreads(std::vector<Thread>&& threads) {
     _threads = std::move(threads);
   }
