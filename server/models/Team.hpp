@@ -16,10 +16,10 @@ class Team {
  public:
   Team();
   ~Team();
-  Team(const Team& other) = delete;
-  Team& operator=(const Team& other) = delete;
-  Team(Team&& other) = delete;
-  Team& operator=(Team&& other) = delete;
+  Team(const Team& other) = default;
+  Team& operator=(const Team& other) = default;
+  Team(Team&& other) = default;
+  Team& operator=(Team&& other) = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }

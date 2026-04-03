@@ -14,10 +14,10 @@ class Message {
  public:
   Message();
   ~Message();
-  Message(const Message& other) = delete;
-  Message& operator=(const Message& other) = delete;
-  Message(Message&& other) = delete;
-  Message& operator=(Message&& other) = delete;
+  Message(const Message& other) = default;
+  Message& operator=(const Message& other) = default;
+  Message(Message&& other) = default;
+  Message& operator=(Message&& other) = default;
 
   [[nodiscard]] const std::string& getSenderUuid() const { return _senderUuid; }
   void setSenderUuid(const std::string& senderUuid) {

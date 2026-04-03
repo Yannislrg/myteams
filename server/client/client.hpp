@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include "../Context.hpp"
 
 class Client {
@@ -28,6 +29,7 @@ class Client {
   [[nodiscard]] const Context& getContext() const { return _context; }
   void setContext(const Context& context) { _context = context; }
 
+  [[nodiscard]] std::string& getReadBuffer() { return _readBuffer; }
   [[nodiscard]] const std::string& getReadBuffer() const { return _readBuffer; }
   void setReadBuffer(const std::string& readBuffer) {
     _readBuffer = readBuffer;
@@ -40,6 +42,24 @@ class Client {
     _writeBuffer = writeBuffer;
   }
 
+  [[nodiscard]] bool isPollOutEnabled() const { return _pollOutEnabled; }
+  void setPollOutEnabled(bool enabled) { _pollOutEnabled = enabled; }
+
+  void appendToReadBuffer(const char* data, std::size_t len) {
+    _readBuffer.append(data, len);
+  }
+  void consumeFromReadBuffer(std::size_t n) { _readBuffer.erase(0, n); }
+
+  void appendToWriteBuffer(const std::string& data) {
+    _writeBuffer += data;
+  }
+  void consumeFromWriteBuffer(std::size_t n) { _writeBuffer.erase(0, n); }
+
+  [[nodiscard]] const std::vector<std::string>& getArgs() const {
+    return _args;
+  }
+  void setArgs(const std::vector<std::string>& args) { _args = args; }
+
  protected:
  private:
   int _fd;
@@ -47,4 +67,6 @@ class Client {
   Context _context;
   std::string _readBuffer;
   std::string _writeBuffer;
+  std::vector<std::string> _args;
+  bool _pollOutEnabled{false};
 };

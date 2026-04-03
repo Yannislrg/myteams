@@ -16,10 +16,10 @@ class User {
  public:
   User();
   ~User();
-  User(const User& other) = delete;
-  User& operator=(const User& other) = delete;
-  User(User&& other) = delete;
-  User& operator=(User&& other) = delete;
+  User(const User& other) = default;
+  User& operator=(const User& other) = default;
+  User(User&& other) = default;
+  User& operator=(User&& other) = default;
 
   [[nodiscard]] const std::string& getUuid() const { return _uuid; }
   void setUuid(const std::string& uuid) { _uuid = uuid; }

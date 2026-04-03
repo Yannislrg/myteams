@@ -11,15 +11,15 @@
 
 class SaveManager {
  public:
-  SaveManager();
-  ~SaveManager();
+  SaveManager() = default;
+  ~SaveManager() = default;
   SaveManager(const SaveManager& other) = delete;
   SaveManager& operator=(const SaveManager& other) = delete;
   SaveManager(SaveManager&& other) = delete;
   SaveManager& operator=(SaveManager&& other) = delete;
 
-  void save(const Database& database);
-  void load(Database& database);
+  static void save(const Database& database);
+  static void load(Database& database);
 
  protected:
  private:
