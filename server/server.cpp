@@ -7,11 +7,11 @@
 
 #include "server.hpp"
 #include <arpa/inet.h>
-#include "libs/logging_server.h"
 #include <netinet/in.h>
 #include <array>
 #include <csignal>
 #include <iostream>
+#include "../libs/logging_server.h"
 #include "net/Poller.hpp"
 #include "sys/Posix.hpp"
 
@@ -128,7 +128,8 @@ void Server::_handleWrite(Client& client) {
 void Server::_disconnectClient(int clientFd, Poller& poller) {
   std::cerr << "[-] client disconnected fd=" << clientFd << "\n";
   auto clientIter = _clients.find(clientFd);
-  if (clientIter != _clients.end() && !clientIter->second->getUserUuid().empty()) {
+  if (clientIter != _clients.end() &&
+      !clientIter->second->getUserUuid().empty()) {
     server_event_user_logged_out(clientIter->second->getUserUuid().c_str());
   }
   poller.removeFileDescriptor(clientFd);
