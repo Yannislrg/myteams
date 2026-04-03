@@ -15,31 +15,10 @@
 #include "../../client/client.hpp"
 #include "../../models/Channel.hpp"
 #include "../../models/Team.hpp"
+#include "../../models/Thread.hpp"
 #include "../../server.hpp"
 
-namespace {
-std::vector<std::string> parseArgs(const std::string& input) {
-  std::vector<std::string> args;
-  std::size_t index = 0;
-
-  while (index < input.size()) {
-    if (input[index] == '"') {
-      ++index;
-      std::string token;
-      while (index < input.size() && input[index] != '"') {
-        token += input[index++];
-      }
-      if (index < input.size()) {
-        ++index;
-      }
-      args.push_back(token);
-    } else {
-      ++index;
-    }
-  }
-  return args;
-}
-}  // namespace
+constexpr size_t UUID_STR_LEN = 37;
 
 Create::~Create() = default;
 
@@ -58,9 +37,29 @@ void Create::execute(Client& client, Server& server) {
 }
 
 void Create::executeTeam(Client& client, Server& server) {
-  (void)client;
-  (void)server;
-  // TODO(yannis): Implement team creation based on context
+  const std::vector<std::string>& args = client.getArgs();
+  if (args.size() < 2) {
+    return;
+  }
+  const std::string& teamName = args[0];
+  const std::string& teamDescription = args[1];
+  auto& teams = server.getDb().getTeams();
+  Team newTeam;
+  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
+  uuid_generate(uuidObj);
+  std::array<char, UUID_STR_LEN> uuidStr{};
+  uuid_unparse_lower(uuidObj, uuidStr.data());
+  newTeam.setUuid(std::string(uuidStr.data()));
+  newTeam.setName(teamName);
+  newTeam.setDescription(teamDescription);
+  teams.push_back(newTeam);
+  server_event_team_created(newTeam.getUuid().c_str(),
+                            newTeam.getName().c_str(),
+                            newTeam.getDescription().c_str());
+  server.notifySubscribers(newTeam.getUuid(),
+                           "team_created \"" + newTeam.getUuid() + "\" \"" +
+                               newTeam.getName() + "\" \"" +
+                               newTeam.getDescription() + "\r\n\"");
 }
 
 void Create::executeChannel(Client& client, Server& server) {
@@ -69,7 +68,7 @@ void Create::executeChannel(Client& client, Server& server) {
   if (team == nullptr) {
     return;
   }
-  const auto args = parseArgs(client.getReadBuffer());
+  const std::vector<std::string>& args = client.getArgs();
   if (args.size() < 2) {
     return;
   }
@@ -79,10 +78,9 @@ void Create::executeChannel(Client& client, Server& server) {
   auto& channels = team->getChannels();
   channels.emplace_back();
   Channel& channel = channels.back();
-  constexpr std::size_t uuidStrLen = 37;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
   uuid_generate(uuidObj);
-  std::array<char, uuidStrLen> uuidStr{};
+  std::array<char, UUID_STR_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   channel.setUuid(std::string(uuidStr.data()));
   channel.setName(channelName);
@@ -93,17 +91,77 @@ void Create::executeChannel(Client& client, Server& server) {
   server.notifySubscribers(context.teamUuid,
                            "channel_created \"" + context.teamUuid + "\" \"" +
                                channel.getUuid() + "\" \"" + channel.getName() +
-                               "\" \"" + channel.getDescription() + "\"");
+                               "\" \"" + channel.getDescription() + "\"\r\n\"");
 }
 
 void Create::executeThread(Client& client, Server& server) {
-  (void)client;
-  (void)server;
-  // TODO(yannis): Implement thread creation based on context
+  const auto& context = client.getContext();
+  const auto& team = server.getDb().findTeam(context.teamUuid);
+  if (team == nullptr) {
+    return;
+  }
+  const auto& channel =
+      server.getDb().findChannel(context.teamUuid, context.channelUuid);
+  if (channel == nullptr) {
+    return;
+  }
+  const std::vector<std::string>& args = client.getArgs();
+  if (args.size() < 2) {
+    return;
+  }
+  const std::string& threadTitle = args[0];
+  const std::string& threadMessage = args[1];
+  auto& threads = channel->getThreads();
+  Thread newThread;
+  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
+  uuid_generate(uuidObj);
+  std::array<char, UUID_STR_LEN> uuidStr{};
+  uuid_unparse_lower(uuidObj, uuidStr.data());
+  newThread.setUuid(std::string(uuidStr.data()));
+  newThread.setTitle(threadTitle);
+  newThread.setBody(threadMessage);
+  threads.push_back(newThread);
+  server_event_thread_created(
+      context.teamUuid.c_str(), context.channelUuid.c_str(),
+      newThread.getUuid().c_str(), newThread.getTitle().c_str(),
+      newThread.getBody().c_str());
+  server.notifySubscribers(context.teamUuid,
+                           "thread_created \"" + context.teamUuid + "\" \"" +
+                               context.channelUuid + "\" \"" +
+                               newThread.getUuid() + "\" \"" +
+                               newThread.getTitle() + +"\"\r\n\"");
 }
 
 void Create::executeReply(Client& client, Server& server) {
-  (void)client;
-  (void)server;
-  // TODO(yannis): Implement reply creation based on context
+  const auto& context = client.getContext();
+  const auto& team = server.getDb().findTeam(context.teamUuid);
+  const auto& channel =
+      server.getDb().findChannel(context.teamUuid, context.channelUuid);
+  const auto& thread =
+      server.getDb().findThread(context.channelUuid, context.threadUuid);
+  if (team == nullptr || channel == nullptr || thread == nullptr) {
+    return;
+  }
+  const std::vector<std::string>& args = client.getArgs();
+  if (args.empty()) {
+    return;
+  }
+  const std::string& replyMessage = args[0];
+  auto& replies = thread->getReplies();
+  Reply newReply;
+  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
+  uuid_generate(uuidObj);
+  std::array<char, UUID_STR_LEN> uuidStr{};
+  uuid_unparse_lower(uuidObj, uuidStr.data());
+  newReply.setUuid(std::string(uuidStr.data()));
+  newReply.setBody(replyMessage);
+  replies.push_back(newReply);
+  server_event_reply_created(context.threadUuid.c_str(),
+                             client.getUserUuid().c_str(),
+                             newReply.getBody().c_str());
+  server.notifySubscribers(
+      context.teamUuid, "reply_created \"" + context.teamUuid + "\" \"" +
+                            context.channelUuid + "\" \"" + context.threadUuid +
+                            "\" \"" + newReply.getUuid() + "\" \"" +
+                            newReply.getBody() + "\"\r\n\"");
 }

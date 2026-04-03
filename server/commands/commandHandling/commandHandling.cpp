@@ -7,6 +7,9 @@
 
 #include "commandHandling.hpp"
 #include <sstream>
+#include <string>
+#include <vector>
+#include "../../client/client.hpp"
 
 namespace {
 std::vector<std::string> parseArgs(const std::string& rawCommand) {
