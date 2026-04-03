@@ -14,6 +14,7 @@
 #include "../../../libs/logging_server.h"
 #include "../../client/client.hpp"
 #include "../../models/Channel.hpp"
+#include "../../models/Reply.hpp"
 #include "../../models/Team.hpp"
 #include "../../models/Thread.hpp"
 #include "../../server.hpp"
