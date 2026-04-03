@@ -40,11 +40,11 @@ target_include_directories(myteams_server PRIVATE
 target_compile_options(myteams_server PRIVATE ${COMMON_COMPILER_FLAGS})
 if(APPLE)
   target_link_libraries(myteams_server PRIVATE
-    ${CMAKE_SOURCE_DIR}/server/libs/libmyteams_macos.so
+    ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
   )
 else()
   target_link_libraries(myteams_server PRIVATE
-    ${CMAKE_SOURCE_DIR}/server/libs/libmyteams.so
+    ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
   )
 endif()
 
