@@ -6,7 +6,12 @@
 */
 
 #include "commandHandling.hpp"
+#include <memory>
 #include <sstream>
+#include <string>
+#include <vector>
+#include "../../client/client.hpp"
+#include "../create/create.hpp"
 
 namespace {
 std::vector<std::string> parseArgs(const std::string& rawCommand) {
@@ -14,11 +19,33 @@ std::vector<std::string> parseArgs(const std::string& rawCommand) {
   std::istringstream tokenStream(rawCommand);
   std::string word;
   while (tokenStream >> word) {
-    arguments.push_back(word);
+    if (word.front() == '"') {
+      std::string quotedArg = word.substr(1);
+      if (quotedArg.back() == '"') {
+        quotedArg.pop_back();
+        arguments.push_back(quotedArg);
+      } else {
+        std::string nextWord;
+        while (tokenStream >> nextWord) {
+          quotedArg += " " + nextWord;
+          if (nextWord.back() == '"') {
+            quotedArg.pop_back();
+            arguments.push_back(quotedArg);
+            break;
+          }
+        }
+      }
+    } else {
+      arguments.push_back(word);
+    }
   }
   return arguments;
 }
 }  // namespace
+
+CommandHandling::CommandHandling() {
+  _commands.emplace("/create", std::make_unique<Create>());
+}
 
 void CommandHandling::handleCommand(const std::string& rawCommand,
                                     Client& client, Server& server) {

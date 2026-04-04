@@ -24,6 +24,7 @@ set(SERVER_SRC
   server/database/Database.cpp
   server/saveManager/saveManager.cpp
   server/commands/commandHandling/commandHandling.cpp
+  server/commands/create/create.cpp
   server/models/User.cpp
   server/models/Team.cpp
   server/models/Channel.cpp
@@ -42,9 +43,17 @@ if(APPLE)
   target_link_libraries(myteams_server PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
   )
+  set_target_properties(myteams_server PROPERTIES
+    BUILD_RPATH "@executable_path/libs"
+    INSTALL_RPATH "@executable_path/libs"
+  )
+  add_custom_command(TARGET myteams_server POST_BUILD
+    COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_server>
+  )
 else()
   target_link_libraries(myteams_server PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+    uuid
   )
 endif()
 

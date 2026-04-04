@@ -13,14 +13,14 @@ class Server;
 
 class ICommand {
  public:
-  ICommand();
-  virtual ~ICommand();
+  ICommand() = default;
+  virtual ~ICommand() = default;
   ICommand(const ICommand& other) = delete;
   ICommand& operator=(const ICommand& other) = delete;
   ICommand(ICommand&& other) = delete;
   ICommand& operator=(ICommand&& other) = delete;
 
-  virtual void execute(Client& client, Server& server);
+  virtual void execute(Client& client, Server& server) = 0;
 
  protected:
  private:
