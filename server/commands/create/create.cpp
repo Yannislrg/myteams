@@ -19,7 +19,9 @@
 #include "../../models/Thread.hpp"
 #include "../../server.hpp"
 
-constexpr size_t UUID_STR_LEN = 37;
+#ifndef UUID_STR_LEN
+#define UUID_STR_LEN 37
+#endif
 
 Create::~Create() = default;
 
