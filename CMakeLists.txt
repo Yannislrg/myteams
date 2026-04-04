@@ -24,6 +24,7 @@ set(SERVER_SRC
   server/database/Database.cpp
   server/saveManager/saveManager.cpp
   server/commands/commandHandling/commandHandling.cpp
+  server/commands/create/create.cpp
   server/models/User.cpp
   server/models/Team.cpp
   server/models/Channel.cpp
@@ -41,6 +42,15 @@ target_compile_options(myteams_server PRIVATE ${COMMON_COMPILER_FLAGS})
 if(APPLE)
   target_link_libraries(myteams_server PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
+  )
+  set_target_properties(myteams_server PROPERTIES
+    BUILD_RPATH "${CMAKE_SOURCE_DIR}/libs"
+    INSTALL_RPATH "@executable_path/libs"
+  )
+  add_custom_command(TARGET myteams_server POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+      ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
+      $<TARGET_FILE_DIR:myteams_server>/libmyteams_macos.so
   )
 else()
   target_link_libraries(myteams_server PRIVATE

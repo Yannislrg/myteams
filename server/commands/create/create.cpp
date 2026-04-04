@@ -39,11 +39,11 @@ void Create::execute(Client& client, Server& server) {
 
 void Create::executeTeam(Client& client, Server& server) {
   const std::vector<std::string>& args = client.getArgs();
-  if (args.size() < 2) {
+  if (args.size() < 3) {
     return;
   }
-  const std::string& teamName = args[0];
-  const std::string& teamDescription = args[1];
+  const std::string& teamName = args[1];
+  const std::string& teamDescription = args[2];
   auto& teams = server.getDb().getTeams();
   Team newTeam;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
@@ -56,7 +56,7 @@ void Create::executeTeam(Client& client, Server& server) {
   teams.push_back(newTeam);
   server_event_team_created(newTeam.getUuid().c_str(),
                             newTeam.getName().c_str(),
-                            newTeam.getDescription().c_str());
+                            client.getUserUuid().c_str());
   server.notifySubscribers(newTeam.getUuid(),
                            "team_created \"" + newTeam.getUuid() + "\" \"" +
                                newTeam.getName() + "\" \"" +
@@ -70,11 +70,11 @@ void Create::executeChannel(Client& client, Server& server) {
     return;
   }
   const std::vector<std::string>& args = client.getArgs();
-  if (args.size() < 2) {
+  if (args.size() < 3) {
     return;
   }
-  const std::string& channelName = args[0];
-  const std::string& channelDescription = args[1];
+  const std::string& channelName = args[1];
+  const std::string& channelDescription = args[2];
 
   auto& channels = team->getChannels();
   channels.emplace_back();
@@ -107,11 +107,11 @@ void Create::executeThread(Client& client, Server& server) {
     return;
   }
   const std::vector<std::string>& args = client.getArgs();
-  if (args.size() < 2) {
+  if (args.size() < 3) {
     return;
   }
-  const std::string& threadTitle = args[0];
-  const std::string& threadMessage = args[1];
+  const std::string& threadTitle = args[1];
+  const std::string& threadMessage = args[2];
   auto& threads = channel->getThreads();
   Thread newThread;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
@@ -123,8 +123,8 @@ void Create::executeThread(Client& client, Server& server) {
   newThread.setBody(threadMessage);
   threads.push_back(newThread);
   server_event_thread_created(
-      context.teamUuid.c_str(), context.channelUuid.c_str(),
-      newThread.getUuid().c_str(), newThread.getTitle().c_str(),
+      context.channelUuid.c_str(), newThread.getUuid().c_str(),
+      client.getUserUuid().c_str(), newThread.getTitle().c_str(),
       newThread.getBody().c_str());
   server.notifySubscribers(context.teamUuid,
                            "thread_created \"" + context.teamUuid + "\" \"" +
@@ -144,10 +144,10 @@ void Create::executeReply(Client& client, Server& server) {
     return;
   }
   const std::vector<std::string>& args = client.getArgs();
-  if (args.empty()) {
+  if (args.size() < 2) {
     return;
   }
-  const std::string& replyMessage = args[0];
+  const std::string& replyMessage = args[1];
   auto& replies = thread->getReplies();
   Reply newReply;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
