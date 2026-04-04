@@ -53,6 +53,7 @@ if(APPLE)
 else()
   target_link_libraries(myteams_server PRIVATE
     ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+    uuid
   )
 endif()
 
