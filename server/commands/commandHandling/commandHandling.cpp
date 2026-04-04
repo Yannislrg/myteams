@@ -6,7 +6,6 @@
 */
 
 #include "commandHandling.hpp"
-#include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -20,7 +19,25 @@ std::vector<std::string> parseArgs(const std::string& rawCommand) {
   std::istringstream tokenStream(rawCommand);
   std::string word;
   while (tokenStream >> word) {
-    arguments.push_back(word);
+    if (word.front() == '"') {
+      std::string quotedArg = word.substr(1);
+      if (quotedArg.back() == '"') {
+        quotedArg.pop_back();
+        arguments.push_back(quotedArg);
+      } else {
+        std::string nextWord;
+        while (tokenStream >> nextWord) {
+          quotedArg += " " + nextWord;
+          if (nextWord.back() == '"') {
+            quotedArg.pop_back();
+            arguments.push_back(quotedArg);
+            break;
+          }
+        }
+      }
+    } else {
+      arguments.push_back(word);
+    }
   }
   return arguments;
 }
@@ -39,9 +56,7 @@ void CommandHandling::handleCommand(const std::string& rawCommand,
   client.setArgs(arguments);
   auto commandEntry = _commands.find(arguments[0]);
   if (commandEntry == _commands.end()) {
-    std::cerr << "Unknown command: " << arguments[0] << std::endl;
     return;
   }
-  std::cout << "Executing command: " << arguments[0] << std::endl;
   commandEntry->second->execute(client, server);
 }

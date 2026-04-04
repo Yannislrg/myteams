@@ -8,6 +8,7 @@
 #include "create.hpp"
 #include <uuid/uuid.h>
 #include <array>
+#include <chrono>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -123,17 +124,18 @@ void Create::executeThread(Client& client, Server& server) {
   newThread.setUuid(std::string(uuidStr.data()));
   newThread.setTitle(threadTitle);
   newThread.setBody(threadMessage);
+  newThread.setTimestamp(
+      std::chrono::system_clock::now().time_since_epoch().count());
   threads.push_back(newThread);
   server_event_thread_created(
       context.channelUuid.c_str(), newThread.getUuid().c_str(),
       client.getUserUuid().c_str(), newThread.getTitle().c_str(),
       newThread.getBody().c_str());
   server.notifySubscribers(
-      context.teamUuid, "thread_created \"" + context.teamUuid + "\" \"" +
-                            context.channelUuid + "\" \"" +
-                            newThread.getUuid() + "\" \"" +
-                            newThread.getTitle() + "\" \"" +
-                            newThread.getBody() + "\"\r\n");
+      context.teamUuid,
+      "thread_created \"" + context.teamUuid + "\" \"" + context.channelUuid +
+          "\" \"" + newThread.getUuid() + "\" \"" + newThread.getTitle() +
+          "\" \"" + newThread.getBody() + "\"\r\n");
 }
 
 void Create::executeReply(Client& client, Server& server) {
@@ -159,6 +161,8 @@ void Create::executeReply(Client& client, Server& server) {
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newReply.setUuid(std::string(uuidStr.data()));
   newReply.setBody(replyMessage);
+  newReply.setTimestamp(
+      std::chrono::system_clock::now().time_since_epoch().count());
   replies.push_back(newReply);
   server_event_reply_created(context.threadUuid.c_str(),
                              client.getUserUuid().c_str(),
