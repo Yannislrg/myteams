@@ -94,7 +94,7 @@ void Create::executeChannel(Client& client, Server& server) {
   server.notifySubscribers(context.teamUuid,
                            "channel_created \"" + context.teamUuid + "\" \"" +
                                channel.getUuid() + "\" \"" + channel.getName() +
-                               "\" \"" + channel.getDescription() + "\"\r\n\"");
+                               "\" \"" + channel.getDescription() + "\"\r\n");
 }
 
 void Create::executeThread(Client& client, Server& server) {
