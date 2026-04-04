@@ -62,7 +62,7 @@ void Create::executeTeam(Client& client, Server& server) {
   server.notifySubscribers(newTeam.getUuid(),
                            "team_created \"" + newTeam.getUuid() + "\" \"" +
                                newTeam.getName() + "\" \"" +
-                               newTeam.getDescription() + "\r\n\"");
+                               newTeam.getDescription() + "\"\r\n");
 }
 
 void Create::executeChannel(Client& client, Server& server) {
