@@ -44,13 +44,11 @@ if(APPLE)
     ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
   )
   set_target_properties(myteams_server PROPERTIES
-    BUILD_RPATH "${CMAKE_SOURCE_DIR}/libs"
+    BUILD_RPATH "@executable_path/libs"
     INSTALL_RPATH "@executable_path/libs"
   )
   add_custom_command(TARGET myteams_server POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-      ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
-      $<TARGET_FILE_DIR:myteams_server>/libmyteams_macos.so
+    COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_server>
   )
 else()
   target_link_libraries(myteams_server PRIVATE
