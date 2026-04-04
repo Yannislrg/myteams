@@ -167,5 +167,5 @@ void Create::executeReply(Client& client, Server& server) {
       context.teamUuid, "reply_created \"" + context.teamUuid + "\" \"" +
                             context.channelUuid + "\" \"" + context.threadUuid +
                             "\" \"" + newReply.getUuid() + "\" \"" +
-                            newReply.getBody() + "\"\r\n\"");
+                            newReply.getBody() + "\"\r\n");
 }
