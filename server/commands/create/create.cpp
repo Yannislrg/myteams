@@ -128,11 +128,12 @@ void Create::executeThread(Client& client, Server& server) {
       context.channelUuid.c_str(), newThread.getUuid().c_str(),
       client.getUserUuid().c_str(), newThread.getTitle().c_str(),
       newThread.getBody().c_str());
-  server.notifySubscribers(context.teamUuid,
-                           "thread_created \"" + context.teamUuid + "\" \"" +
-                               context.channelUuid + "\" \"" +
-                               newThread.getUuid() + "\" \"" +
-                               newThread.getTitle() + +"\"\r\n\"");
+  server.notifySubscribers(
+      context.teamUuid, "thread_created \"" + context.teamUuid + "\" \"" +
+                            context.channelUuid + "\" \"" +
+                            newThread.getUuid() + "\" \"" +
+                            newThread.getTitle() + "\" \"" +
+                            newThread.getBody() + "\"\r\n");
 }
 
 void Create::executeReply(Client& client, Server& server) {
