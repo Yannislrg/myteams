@@ -37,6 +37,7 @@ class Channel {
   [[nodiscard]] const std::vector<Thread>& getThreads() const {
     return _threads;
   }
+  [[nodiscard]] std::vector<Thread>& getThreads() { return _threads; }
   void setThreads(std::vector<Thread>&& threads) {
     _threads = std::move(threads);
   }

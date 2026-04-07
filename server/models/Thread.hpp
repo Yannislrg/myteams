@@ -40,6 +40,7 @@ class Thread {
   [[nodiscard]] const std::vector<Reply>& getReplies() const {
     return _replies;
   }
+  [[nodiscard]] std::vector<Reply>& getReplies() { return _replies; }
   void setReplies(std::vector<Reply>&& replies) {
     _replies = std::move(replies);
   }

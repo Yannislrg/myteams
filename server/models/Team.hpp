@@ -44,6 +44,7 @@ class Team {
   [[nodiscard]] const std::vector<Channel>& getChannels() const {
     return _channels;
   }
+  [[nodiscard]] std::vector<Channel>& getChannels() { return _channels; }
   void setChannels(std::vector<Channel>&& channels) {
     _channels = std::move(channels);
   }
