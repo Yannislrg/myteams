@@ -7,6 +7,7 @@
 
 #include "Database.hpp"
 #include <string>
+#include <vector>
 #include "../models/Channel.hpp"
 #include "../models/Team.hpp"
 #include "../models/Thread.hpp"
@@ -43,30 +44,30 @@ Team* Database::findTeam(const std::string& uuid) {
   return nullptr;
 }
 
-Channel* Database::findChannel(const std::string& team_uuid,
-                               const std::string& channel_uuid) {
-  Team* team = findTeam(team_uuid);
+Channel* Database::findChannel(const std::string& teamUuid,
+                               const std::string& channelUuid) {
+  Team* team = findTeam(teamUuid);
 
   if (team == nullptr) {
     return nullptr;
   }
   for (auto& channel : team->getChannels()) {
-    if (channel.getUuid() == channel_uuid) {
+    if (channel.getUuid() == channelUuid) {
       return &channel;
     }
   }
   return nullptr;
 }
 
-Thread* Database::findThread(const std::string& channel_uuid,
-                             const std::string& thread_uuid) {
+Thread* Database::findThread(const std::string& channelUuid,
+                             const std::string& threadUuid) {
   for (auto& team : _teams) {
     for (auto& channel : team.getChannels()) {
-      if (channel.getUuid() != channel_uuid) {
+      if (channel.getUuid() != channelUuid) {
         continue;
       }
       for (auto& thread : channel.getThreads()) {
-        if (thread.getUuid() == thread_uuid) {
+        if (thread.getUuid() == threadUuid) {
           return &thread;
         }
       }
@@ -74,4 +75,47 @@ Thread* Database::findThread(const std::string& channel_uuid,
     }
   }
   return nullptr;
+}
+
+std::vector<Thread> Database::getAllThreads() {
+  std::vector<Thread> threads;
+  for (auto& team : _teams) {
+    for (auto& channel : team.getChannels()) {
+      for (auto& thread : channel.getThreads()) {
+        bool exists = false;
+
+        for (const auto& current : threads) {
+          if (current.getUuid() == thread.getUuid()) {
+            exists = true;
+            break;
+          }
+        }
+        if (exists) {
+          continue;
+        }
+        threads.push_back(thread);
+      }
+    }
+  }
+  return threads;
+}
+
+std::vector<Channel> Database::getAllChannels() {
+  std::vector<Channel> channels;
+  for (auto& team : _teams) {
+    for (auto& channel : team.getChannels()) {
+      bool exists = false;
+      for (const auto& current : channels) {
+        if (current.getUuid() == channel.getUuid()) {
+          exists = true;
+          break;
+        }
+      }
+      if (exists) {
+        continue;
+      }
+      channels.push_back(channel);
+    }
+  }
+  return channels;
 }

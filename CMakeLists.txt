@@ -25,6 +25,7 @@ set(SERVER_SRC
   server/saveManager/saveManager.cpp
   server/commands/commandHandling/commandHandling.cpp
   server/commands/create/create.cpp
+  server/commands/list/list.cpp
   server/models/User.cpp
   server/models/Team.cpp
   server/models/Channel.cpp

@@ -31,6 +31,7 @@ class Server {
   static Server& getInstance();
   void init(uint16_t port);
   void run();
+  void sendToClient(const std::string& msg, Client& client);
   void broadcast(const std::string& msg);
   void notifySubscribers(const std::string& teamUuid, const std::string& msg);
   static void handleSignal(int sig);
