@@ -34,8 +34,14 @@ int Posix::socket(int domain, int type, int protocol) {
 
 void Posix::connect(int socketFd, const struct sockaddr* addr,
                     socklen_t addressLength) {
-  if (::connect(socketFd, addr, addressLength) == -1) {
-    throwClient("connect");
+  while (true) {
+    if (::connect(socketFd, addr, addressLength) == -1) {
+      if (errno == EINTR) {
+        continue;
+      }
+      throwClient("connect");
+    }
+    return;
   }
 }
 
@@ -86,6 +92,9 @@ int Posix::poll(struct pollfd* fileDescriptors, nfds_t fileDescriptorCount,
 
 void Posix::close(int fileDescriptor) {
   if (::close(fileDescriptor) == -1) {
+    if (errno == EINTR) {
+      return;
+    }
     throwClient("close");
   }
 }
