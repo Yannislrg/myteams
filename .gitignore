@@ -6,3 +6,4 @@ build/
 myteams_cli
 myteams_server
 .DS_Store
+.github/copilot-instructions.md
