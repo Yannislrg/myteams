@@ -4,6 +4,7 @@ project(myteams)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
@@ -58,9 +59,21 @@ else()
 endif()
 
 
-set(CLIENT_SRC client/main.cpp)
+set(CLIENT_SRC
+  client/ClientApplication.cpp
+  client/main.cpp
+  client/network/Poller.cpp
+  client/network/TcpClient.cpp
+  client/sys/ClientError.cpp
+  client/sys/Posix.cpp
+)
 add_executable(myteams_cli ${CLIENT_SRC})
-target_include_directories(myteams_cli PRIVATE ${COMMON_INCLUDE_DIRS})
+target_include_directories(myteams_cli PRIVATE
+  ${COMMON_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}/client
+  ${CMAKE_SOURCE_DIR}/client/network
+  ${CMAKE_SOURCE_DIR}/client/sys
+)
 target_compile_options(myteams_cli PRIVATE ${COMMON_COMPILER_FLAGS})
 
 option(WITH_TESTS "Build unit tests" OFF)
