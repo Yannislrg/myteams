@@ -66,16 +66,28 @@ void TcpClient::connectTo(const std::string& host, uint16_t port) {
   }
 }
 
-void TcpClient::sendAll(const std::string& data) const {
-  std::size_t sent = 0;
-  while (sent < data.size()) {
-    const ssize_t bytesWritten =
-        sys::Posix::write(_socketFd, data.data() + sent, data.size() - sent);
-    if (bytesWritten <= 0) {
-      throw ClientError("socket write failed");
+void TcpClient::sendAll(const std::string& data) {
+  _pendingWrites.append(data);
+}
+
+bool TcpClient::flushPendingWrites() {
+  while (_pendingOffset < _pendingWrites.size()) {
+    const ssize_t bytesWritten = sys::Posix::write(
+        _socketFd, _pendingWrites.data() + _pendingOffset,
+        _pendingWrites.size() - _pendingOffset);
+    if (bytesWritten == 0) {
+      return true;
     }
-    sent += static_cast<std::size_t>(bytesWritten);
+    _pendingOffset += static_cast<std::size_t>(bytesWritten);
   }
+
+  _pendingWrites.clear();
+  _pendingOffset = 0;
+  return false;
+}
+
+bool TcpClient::hasPendingWrites() const {
+  return _pendingOffset < _pendingWrites.size();
 }
 
 ssize_t TcpClient::receiveSome(char* buffer, std::size_t bufferSize) const {
@@ -93,4 +105,6 @@ void TcpClient::disconnect() noexcept {
               << '\n';
   }
   _socketFd = -1;
+  _pendingWrites.clear();
+  _pendingOffset = 0;
 }

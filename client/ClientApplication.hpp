@@ -22,6 +22,9 @@ class ClientApplication {
   static bool hasEvent(int revents, int mask);
   bool handleStdinEvent(const PollEvent& pollEvent);
   bool handleServerEvent(const PollEvent& pollEvent);
+  bool handleServerReadable();
+  bool handleServerWritable();
+  void updateServerWatchedEvents();
   void runEventLoop();
 
   std::string _host;

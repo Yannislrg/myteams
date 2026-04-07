@@ -50,6 +50,8 @@ bool ClientApplication::handleStdinEvent(const PollEvent& pollEvent) {
   }
   line.push_back('\n');
   _client.sendAll(line);
+  _client.flushPendingWrites();
+  updateServerWatchedEvents();
   return true;
 }
 
@@ -57,10 +59,23 @@ bool ClientApplication::handleServerEvent(const PollEvent& pollEvent) {
   if (hasEvent(pollEvent.revents, POLLERR | POLLHUP | POLLNVAL)) {
     return false;
   }
-  if (!hasEvent(pollEvent.revents, POLLIN)) {
-    return true;
+
+  if (hasEvent(pollEvent.revents, POLLOUT)) {
+    if (!handleServerWritable()) {
+      return false;
+    }
+  }
+  if (hasEvent(pollEvent.revents, POLLIN)) {
+    if (!handleServerReadable()) {
+      return false;
+    }
   }
 
+  updateServerWatchedEvents();
+  return true;
+}
+
+bool ClientApplication::handleServerReadable() {
   std::array<char, READ_BUFFER_SIZE> buffer{};
   const ssize_t bytesRead = _client.receiveSome(buffer.data(), buffer.size());
   if (bytesRead == 0) {
@@ -73,6 +88,20 @@ bool ClientApplication::handleServerEvent(const PollEvent& pollEvent) {
   std::cout.write(buffer.data(), bytesRead);
   std::cout.flush();
   return true;
+}
+
+bool ClientApplication::handleServerWritable() {
+  _client.flushPendingWrites();
+  return true;
+}
+
+void ClientApplication::updateServerWatchedEvents() {
+  int events = POLLIN;
+  if (_client.hasPendingWrites()) {
+    // NOLINTNEXTLINE(hicpp-signed-bitwise)
+    events |= POLLOUT;
+  }
+  _poller.updateWatchedEvents(_client.getSocketFd(), events);
 }
 
 void ClientApplication::runEventLoop() {

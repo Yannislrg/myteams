@@ -6,6 +6,7 @@
 */
 
 #include "Posix.hpp"
+#include <fcntl.h>
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -25,10 +26,26 @@ void throwClient(const char* syscallName) {
 namespace sys {
 
 int Posix::socket(int domain, int type, int protocol) {
-  const int socketFd = ::socket(domain, type, protocol);
+  int socketType = type;
+#ifdef SOCK_NONBLOCK
+  socketType |= SOCK_NONBLOCK;
+#endif
+  const int socketFd = ::socket(domain, socketType, protocol);
   if (socketFd == -1) {
     throwClient("socket");
   }
+
+#ifndef SOCK_NONBLOCK
+  // NOLINTNEXTLINE(hicpp-vararg)
+  const int flags = ::fcntl(socketFd, F_GETFL, 0);
+  if (flags == -1) {
+    throwClient("fcntl F_GETFL");
+  }
+  // NOLINTNEXTLINE(hicpp-vararg, hicpp-signed-bitwise)
+  if (::fcntl(socketFd, F_SETFL, flags | O_NONBLOCK) == -1) {
+    throwClient("fcntl F_SETFL");
+  }
+#endif
   return socketFd;
 }
 
