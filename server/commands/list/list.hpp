@@ -27,7 +27,4 @@ class List : public ICommand {
   static void executeChannel(Client& client, Server& server);
   static void executeThread(Client& client, Server& server);
   static void executeReply(Client& client, Server& server);
-
- protected:
- private:
 };
