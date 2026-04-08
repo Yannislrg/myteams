@@ -11,6 +11,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <cerrno>
+#include <chrono>
 #include <cstddef>
 #include <system_error>
 #include "ClientError.hpp"
@@ -100,14 +101,32 @@ ssize_t Posix::write(int fileDescriptor, const void* buffer,
 
 int Posix::poll(struct pollfd* fileDescriptors, nfds_t fileDescriptorCount,
                 int timeout) {
-  const int numReady = ::poll(fileDescriptors, fileDescriptorCount, timeout);
-  if (numReady == -1) {
-    if (errno == EINTR) {
-      return 0;
+  using Clock = std::chrono::steady_clock;
+  const bool hasTimeout = timeout >= 0;
+  const auto deadline = Clock::now() + std::chrono::milliseconds(timeout);
+
+  while (true) {
+    int timeoutMs = timeout;
+    if (hasTimeout) {
+      const auto now = Clock::now();
+      if (now >= deadline) {
+        return 0;
+      }
+      timeoutMs = static_cast<int>(
+          std::chrono::duration_cast<std::chrono::milliseconds>(deadline - now)
+              .count());
     }
-    throwClient("poll");
+
+    const int numReady =
+        ::poll(fileDescriptors, fileDescriptorCount, timeoutMs);
+    if (numReady == -1) {
+      if (errno == EINTR) {
+        continue;
+      }
+      throwClient("poll");
+    }
+    return numReady;
   }
-  return numReady;
 }
 
 void Posix::close(int fileDescriptor) {
