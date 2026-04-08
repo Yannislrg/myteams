@@ -37,4 +37,5 @@ class ClientApplication {
 
   static constexpr uint64_t MAX_PORT = 65535;
   static constexpr std::size_t READ_BUFFER_SIZE = 4096;
+  static constexpr std::size_t MAX_SERVER_FRAME_SIZE = 65536;
 };

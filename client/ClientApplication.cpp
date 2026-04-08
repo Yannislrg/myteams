@@ -12,6 +12,7 @@
 #include <iostream>
 #include <string>
 #include <utility>
+#include "sys/ClientError.hpp"
 
 ClientApplication::ClientApplication(std::string host, uint16_t port)
     : _host(std::move(host)), _port(port) {}
@@ -88,7 +89,17 @@ bool ClientApplication::handleServerReadable() {
 
   _serverReadBuffer.append(buffer.data(), static_cast<std::size_t>(bytesRead));
   std::size_t lineEnd = _serverReadBuffer.find('\n');
+
+  if (lineEnd == std::string::npos &&
+      _serverReadBuffer.size() > MAX_SERVER_FRAME_SIZE) {
+    throw ClientError("server frame exceeded maximum size");
+  }
+
   while (lineEnd != std::string::npos) {
+    if (lineEnd > MAX_SERVER_FRAME_SIZE) {
+      throw ClientError("server frame exceeded maximum size");
+    }
+
     std::string frame = _serverReadBuffer.substr(0, lineEnd);
     if (!frame.empty() && frame.back() == '\r') {
       frame.pop_back();
@@ -96,6 +107,11 @@ bool ClientApplication::handleServerReadable() {
     _messageRouter.routeFrame(frame);
     _serverReadBuffer.erase(0, lineEnd + 1);
     lineEnd = _serverReadBuffer.find('\n');
+
+    if (lineEnd == std::string::npos &&
+        _serverReadBuffer.size() > MAX_SERVER_FRAME_SIZE) {
+      throw ClientError("server frame exceeded maximum size");
+    }
   }
   return true;
 }
