@@ -12,13 +12,13 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include "../../../libs/logging_server.h"
-#include "../../client/client.hpp"
-#include "../../models/Channel.hpp"
-#include "../../models/Reply.hpp"
-#include "../../models/Team.hpp"
-#include "../../models/Thread.hpp"
-#include "../../server.hpp"
+#include "client/client.hpp"
+#include "logging_server.h"
+#include "models/Channel.hpp"
+#include "models/Reply.hpp"
+#include "models/Team.hpp"
+#include "models/Thread.hpp"
+#include "server.hpp"
 
 #ifndef UUID_STR_LEN
 #define UUID_STR_LEN 37

@@ -10,8 +10,8 @@
 #include <map>
 #include <memory>
 #include <string>
-#include "../../client/client.hpp"
-#include "../ICommand.hpp"
+#include "client/client.hpp"
+#include "commands/ICommand.hpp"
 
 class Server;
 

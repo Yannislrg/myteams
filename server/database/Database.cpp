@@ -5,13 +5,13 @@
 ** Database
 */
 
-#include "Database.hpp"
+#include "database/Database.hpp"
 #include <string>
 #include <vector>
-#include "../models/Channel.hpp"
-#include "../models/Team.hpp"
-#include "../models/Thread.hpp"
-#include "../models/User.hpp"
+#include "models/Channel.hpp"
+#include "models/Team.hpp"
+#include "models/Thread.hpp"
+#include "models/User.hpp"
 
 Database::Database() = default;
 
@@ -75,47 +75,4 @@ Thread* Database::findThread(const std::string& channelUuid,
     }
   }
   return nullptr;
-}
-
-std::vector<Thread> Database::getAllThreads() const {
-  std::vector<Thread> threads;
-  for (const auto& team : _teams) {
-    for (const auto& channel : team.getChannels()) {
-      for (const auto& thread : channel.getThreads()) {
-        bool exists = false;
-
-        for (const auto& current : threads) {
-          if (current.getUuid() == thread.getUuid()) {
-            exists = true;
-            break;
-          }
-        }
-        if (exists) {
-          continue;
-        }
-        threads.push_back(thread);
-      }
-    }
-  }
-  return threads;
-}
-
-std::vector<Channel> Database::getAllChannels() const {
-  std::vector<Channel> channels;
-  for (const auto& team : _teams) {
-    for (const auto& channel : team.getChannels()) {
-      bool exists = false;
-      for (const auto& current : channels) {
-        if (current.getUuid() == channel.getUuid()) {
-          exists = true;
-          break;
-        }
-      }
-      if (exists) {
-        continue;
-      }
-      channels.push_back(channel);
-    }
-  }
-  return channels;
 }

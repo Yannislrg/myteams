@@ -5,10 +5,10 @@
 ** Poller
 */
 
-#include "Poller.hpp"
+#include "net/Poller.hpp"
 #include <algorithm>
 #include <cstdint>
-#include "../sys/Posix.hpp"
+#include "sys/Posix.hpp"
 
 void Poller::addFileDescriptor(int fileDescriptor, int events) {
   struct pollfd pfd{};

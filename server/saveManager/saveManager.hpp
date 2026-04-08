@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../database/Database.hpp"
+#include "database/Database.hpp"
 
 class SaveManager {
  public:
