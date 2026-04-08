@@ -88,30 +88,33 @@ bool ClientApplication::handleServerReadable() {
   }
 
   _serverReadBuffer.append(buffer.data(), static_cast<std::size_t>(bytesRead));
-  std::size_t lineEnd = _serverReadBuffer.find('\n');
+  std::size_t parseOffset = 0;
 
-  if (lineEnd == std::string::npos &&
-      _serverReadBuffer.size() > MAX_SERVER_FRAME_SIZE) {
-    throw ClientError("server frame exceeded maximum size");
-  }
+  while (true) {
+    const std::size_t lineEnd = _serverReadBuffer.find('\n', parseOffset);
+    if (lineEnd == std::string::npos) {
+      break;
+    }
 
-  while (lineEnd != std::string::npos) {
-    if (lineEnd > MAX_SERVER_FRAME_SIZE) {
+    const std::size_t frameLength = lineEnd - parseOffset;
+    if (frameLength > MAX_SERVER_FRAME_SIZE) {
       throw ClientError("server frame exceeded maximum size");
     }
 
-    std::string frame = _serverReadBuffer.substr(0, lineEnd);
+    std::string frame = _serverReadBuffer.substr(parseOffset, frameLength);
     if (!frame.empty() && frame.back() == '\r') {
       frame.pop_back();
     }
     _messageRouter.routeFrame(frame);
-    _serverReadBuffer.erase(0, lineEnd + 1);
-    lineEnd = _serverReadBuffer.find('\n');
+    parseOffset = lineEnd + 1;
+  }
 
-    if (lineEnd == std::string::npos &&
-        _serverReadBuffer.size() > MAX_SERVER_FRAME_SIZE) {
-      throw ClientError("server frame exceeded maximum size");
-    }
+  if (parseOffset != 0) {
+    _serverReadBuffer.erase(0, parseOffset);
+  }
+
+  if (_serverReadBuffer.size() > MAX_SERVER_FRAME_SIZE) {
+    throw ClientError("server frame exceeded maximum size");
   }
   return true;
 }
