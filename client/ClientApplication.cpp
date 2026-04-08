@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <array>
 #include <iostream>
+#include <string>
 #include <utility>
 
 ClientApplication::ClientApplication(std::string host, uint16_t port)
@@ -48,7 +49,7 @@ bool ClientApplication::handleStdinEvent(const PollEvent& pollEvent) {
   if (!std::getline(std::cin, line)) {
     return false;
   }
-  line.push_back('\n');
+  line.append("\r\n");
   _client.sendAll(line);
   _client.flushPendingWrites();
   updateServerWatchedEvents();
@@ -85,8 +86,17 @@ bool ClientApplication::handleServerReadable() {
     return true;
   }
 
-  std::cout.write(buffer.data(), bytesRead);
-  std::cout.flush();
+  _serverReadBuffer.append(buffer.data(), static_cast<std::size_t>(bytesRead));
+  std::size_t lineEnd = _serverReadBuffer.find('\n');
+  while (lineEnd != std::string::npos) {
+    std::string frame = _serverReadBuffer.substr(0, lineEnd);
+    if (!frame.empty() && frame.back() == '\r') {
+      frame.pop_back();
+    }
+    _messageRouter.routeFrame(frame);
+    _serverReadBuffer.erase(0, lineEnd + 1);
+    lineEnd = _serverReadBuffer.find('\n');
+  }
   return true;
 }
 

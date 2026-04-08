@@ -11,6 +11,7 @@
 #include <string>
 #include "network/Poller.hpp"
 #include "network/TcpClient.hpp"
+#include "protocol/ServerMessageRouter.hpp"
 
 class ClientApplication {
  public:
@@ -31,6 +32,8 @@ class ClientApplication {
   uint16_t _port;
   TcpClient _client;
   Poller _poller;
+  ServerMessageRouter _messageRouter;
+  std::string _serverReadBuffer;
 
   static constexpr uint64_t MAX_PORT = 65535;
   static constexpr std::size_t READ_BUFFER_SIZE = 4096;

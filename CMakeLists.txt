@@ -63,6 +63,15 @@ set(CLIENT_SRC
   client/ClientApplication.cpp
   client/main.cpp
   client/network/Poller.cpp
+  client/protocol/TokenParser.cpp
+  client/protocol/ServerMessageRouter.cpp
+  client/protocol/handlers/TeamCreatedHandler.cpp
+  client/protocol/handlers/ChannelCreatedHandler.cpp
+  client/protocol/handlers/ThreadCreatedHandler.cpp
+  client/protocol/handlers/ReplyCreatedHandler.cpp
+  client/protocol/handlers/UserLoggedInHandler.cpp
+  client/protocol/handlers/UserLoggedOutHandler.cpp
+  client/protocol/handlers/PrivateMessageHandler.cpp
   client/network/TcpClient.cpp
   client/sys/ClientError.cpp
   client/sys/Posix.cpp
@@ -73,8 +82,27 @@ target_include_directories(myteams_cli PRIVATE
   ${CMAKE_SOURCE_DIR}/client
   ${CMAKE_SOURCE_DIR}/client/network
   ${CMAKE_SOURCE_DIR}/client/sys
+  ${CMAKE_SOURCE_DIR}/client/protocol
+  ${CMAKE_SOURCE_DIR}/client/protocol/handlers
+  ${CMAKE_SOURCE_DIR}/libs
 )
 target_compile_options(myteams_cli PRIVATE ${COMMON_COMPILER_FLAGS})
+if(APPLE)
+  target_link_libraries(myteams_cli PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
+  )
+  set_target_properties(myteams_cli PROPERTIES
+    BUILD_RPATH "@executable_path/libs"
+    INSTALL_RPATH "@executable_path/libs"
+  )
+  add_custom_command(TARGET myteams_cli POST_BUILD
+    COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_cli>
+  )
+else()
+  target_link_libraries(myteams_cli PRIVATE
+    ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+  )
+endif()
 
 option(WITH_TESTS "Build unit tests" OFF)
 

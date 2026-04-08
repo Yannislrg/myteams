@@ -33,14 +33,20 @@ int main(int argc, char** argv) {
     return EXIT_ERROR;
   }
 
+  uint16_t port = 0;
   try {
-    const uint16_t port = ClientApplication::parsePort(argv[2]);
+    port = ClientApplication::parsePort(argv[2]);
+  } catch (const std::exception& exception) {
+    printUsage(std::cerr);
+    std::cerr << exception.what() << '\n';
+    return EXIT_ERROR;
+  }
 
+  try {
     ClientApplication application(argv[1], port);
     application.run();
     return 0;
   } catch (const std::exception& exception) {
-    printUsage(std::cerr);
     std::cerr << exception.what() << '\n';
     return EXIT_ERROR;
   }

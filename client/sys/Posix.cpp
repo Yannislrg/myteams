@@ -49,16 +49,19 @@ int Posix::socket(int domain, int type, int protocol) {
   return socketFd;
 }
 
-void Posix::connect(int socketFd, const struct sockaddr* addr,
+bool Posix::connect(int socketFd, const struct sockaddr* addr,
                     socklen_t addressLength) {
   while (true) {
     if (::connect(socketFd, addr, addressLength) == -1) {
       if (errno == EINTR) {
         continue;
       }
+      if (errno == EINPROGRESS) {
+        return false;
+      }
       throwClient("connect");
     }
-    return;
+    return true;
   }
 }
 

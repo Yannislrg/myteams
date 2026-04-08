@@ -19,7 +19,7 @@ class Posix {
   Posix() = delete;
 
   static int socket(int domain, int type, int protocol);
-  static void connect(int socketFd, const struct sockaddr* addr,
+  static bool connect(int socketFd, const struct sockaddr* addr,
                       socklen_t addressLength);
   static ssize_t read(int fileDescriptor, void* buffer, std::size_t count);
   static ssize_t write(int fileDescriptor, const void* buffer,
