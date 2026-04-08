@@ -31,6 +31,9 @@ class Database {
   Thread* findThread(const std::string& channelUuid,
                      const std::string& threadUuid);
 
+  std::vector<Thread> getAllThreads();
+  std::vector<Channel> getAllChannels();
+
   [[nodiscard]] std::vector<User>& getUsers() { return _users; }
   [[nodiscard]] const std::vector<User>& getUsers() const { return _users; }
   [[nodiscard]] std::vector<Team>& getTeams() { return _teams; }

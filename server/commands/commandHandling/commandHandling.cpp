@@ -12,6 +12,7 @@
 #include <vector>
 #include "../../client/client.hpp"
 #include "../create/create.hpp"
+#include "../list/list.hpp"
 
 namespace {
 std::vector<std::string> parseArgs(const std::string& rawCommand) {
@@ -45,6 +46,7 @@ std::vector<std::string> parseArgs(const std::string& rawCommand) {
 
 CommandHandling::CommandHandling() {
   _commands.emplace("/create", std::make_unique<Create>());
+  _commands.emplace("/list", std::make_unique<List>());
 }
 
 void CommandHandling::handleCommand(const std::string& rawCommand,

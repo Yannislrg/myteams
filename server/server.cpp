@@ -211,6 +211,17 @@ void Server::run() {
   }
 }
 
+void Server::sendToClient(const std::string& msg, Client& client) {
+  if (msg.empty()) {
+    return;
+  }
+  if (!client.getWriteBuffer().empty()) {
+    client.appendToWriteBuffer(msg);
+    return;
+  }
+  sys::Posix::write(client.getFd(), msg.data(), msg.size());
+}
+
 void Server::broadcast(const std::string& msg) {
   for (const auto& [filedescriptor, client] : _clients) {
     (void)filedescriptor;
