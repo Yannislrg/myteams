@@ -5,7 +5,7 @@
 ** list
 */
 
-#include "commands/list/list.hpp"
+#include "list.hpp"
 #include <cstddef>
 #include "Context.hpp"
 #include "client/client.hpp"

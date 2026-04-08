@@ -10,7 +10,7 @@
 #include <cstddef>
 #include <string>
 #include <vector>
-#include "server/Context.hpp"
+#include "Context.hpp"
 
 class Client {
  public:

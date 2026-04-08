@@ -219,7 +219,16 @@ void Server::sendToClient(const std::string& msg, Client& client) {
     client.appendToWriteBuffer(msg);
     return;
   }
-  sys::Posix::write(client.getFd(), msg.data(), msg.size());
+  const auto bytesWritten =
+      sys::Posix::write(client.getFd(), msg.data(), msg.size());
+  if (bytesWritten <= 0) {
+    client.appendToWriteBuffer(msg);
+    return;
+  }
+  const auto writtenSize = static_cast<std::size_t>(bytesWritten);
+  if (writtenSize < msg.size()) {
+    client.appendToWriteBuffer(msg.substr(writtenSize));
+  }
 }
 
 void Server::broadcast(const std::string& msg) {
