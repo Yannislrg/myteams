@@ -13,15 +13,13 @@
 
 void List::executeReply(Client& client, Server& server) {
   auto context = client.getContext();
-  auto threads = server.getDb().getAllThreads();
-  for (const auto& thread : threads) {
-    if (thread.getUuid() != context.threadUuid) {
-      continue;
-    }
-    for (const auto& reply : thread.getReplies()) {
-      server.sendToClient("200 : " + reply.getBody() + "\r\n", client);
-    }
-    break;
+  auto* thread =
+      server.getDb().findThread(context.channelUuid, context.threadUuid);
+  if (thread == nullptr) {
+    return;
+  }
+  for (const auto& reply : thread->getReplies()) {
+    server.sendToClient("200 : " + reply.getBody() + "\r\n", client);
   }
 }
 
