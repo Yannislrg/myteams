@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 #include "commands/create/create.hpp"
+#include "commands/info/info.hpp"
 #include "commands/list/list.hpp"
 
 namespace {
