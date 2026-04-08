@@ -12,19 +12,29 @@
 
 void Info::executeTeam(Client& client, Server& server) {
   auto* team = server.getDb().findTeam(client.getContext().teamUuid);
+  if (team == nullptr) {
+    return;
+  }
   server.sendToClient("200 : " + team->getName() + "\r\n", client);
 }
 
 void Info::executeChannel(Client& client, Server& server) {
   auto* channel = server.getDb().findChannel(client.getContext().teamUuid,
                                              client.getContext().channelUuid);
+  if (channel == nullptr) {
+    server.sendToClient("404 : Channel not found\r\n", client);
+    return;
+  }
   server.sendToClient("200 : " + channel->getName() + "\r\n", client);
 }
 
 void Info::executeThread(Client& client, Server& server) {
   auto* thread = server.getDb().findThread(client.getContext().channelUuid,
                                            client.getContext().threadUuid);
-
+  if (thread == nullptr) {
+    server.sendToClient("404 : Thread not found\r\n", client);
+    return;
+  }
   server.sendToClient("200 : " + thread->getTitle() + "\r\n", client);
 }
 

@@ -77,11 +77,11 @@ Thread* Database::findThread(const std::string& channelUuid,
   return nullptr;
 }
 
-std::vector<Thread> Database::getAllThreads() {
+std::vector<Thread> Database::getAllThreads() const {
   std::vector<Thread> threads;
-  for (auto& team : _teams) {
-    for (auto& channel : team.getChannels()) {
-      for (auto& thread : channel.getThreads()) {
+  for (const auto& team : _teams) {
+    for (const auto& channel : team.getChannels()) {
+      for (const auto& thread : channel.getThreads()) {
         bool exists = false;
 
         for (const auto& current : threads) {
@@ -100,10 +100,10 @@ std::vector<Thread> Database::getAllThreads() {
   return threads;
 }
 
-std::vector<Channel> Database::getAllChannels() {
+std::vector<Channel> Database::getAllChannels() const {
   std::vector<Channel> channels;
-  for (auto& team : _teams) {
-    for (auto& channel : team.getChannels()) {
+  for (const auto& team : _teams) {
+    for (const auto& channel : team.getChannels()) {
       bool exists = false;
       for (const auto& current : channels) {
         if (current.getUuid() == channel.getUuid()) {
