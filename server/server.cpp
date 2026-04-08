@@ -15,8 +15,8 @@
 #include <csignal>
 #include <iostream>
 #include <memory>
-#include "../libs/logging_server.h"
 #include "client/client.hpp"
+#include "logging_server.h"
 #include "net/Poller.hpp"
 #include "sys/Posix.hpp"
 
@@ -208,6 +208,26 @@ void Server::run() {
     for (const auto& pollEv : pollEvents) {
       _processEvent(pollEv, poller);
     }
+  }
+}
+
+void Server::sendToClient(const std::string& msg, Client& client) {
+  if (msg.empty()) {
+    return;
+  }
+  if (!client.getWriteBuffer().empty()) {
+    client.appendToWriteBuffer(msg);
+    return;
+  }
+  const auto bytesWritten =
+      sys::Posix::write(client.getFd(), msg.data(), msg.size());
+  if (bytesWritten <= 0) {
+    client.appendToWriteBuffer(msg);
+    return;
+  }
+  const auto writtenSize = static_cast<std::size_t>(bytesWritten);
+  if (writtenSize < msg.size()) {
+    client.appendToWriteBuffer(msg.substr(writtenSize));
   }
 }
 

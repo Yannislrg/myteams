@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "../client/client.hpp"
+#include "client/client.hpp"
 
 class Server;
 

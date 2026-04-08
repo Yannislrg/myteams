@@ -2,7 +2,7 @@
 ** EPITECH PROJECT, 2026
 ** myteams
 ** File description:
-** create
+** list
 */
 
 #pragma once
@@ -11,14 +11,14 @@
 #include "commands/ICommand.hpp"
 #include "server.hpp"
 
-class Create : public ICommand {
+class List : public ICommand {
  public:
-  Create() = default;
-  ~Create() override;
-  Create(const Create& other) = delete;
-  Create& operator=(const Create& other) = delete;
-  Create(Create&& other) = delete;
-  Create& operator=(Create&& other) = delete;
+  List() = default;
+  ~List() override = default;
+  List(const List& other) = delete;
+  List& operator=(const List& other) = delete;
+  List(List&& other) = delete;
+  List& operator=(List&& other) = delete;
 
   void execute(Client& client, Server& server) override;
 
@@ -27,7 +27,4 @@ class Create : public ICommand {
   static void executeChannel(Client& client, Server& server);
   static void executeThread(Client& client, Server& server);
   static void executeReply(Client& client, Server& server);
-
- protected:
- private:
 };

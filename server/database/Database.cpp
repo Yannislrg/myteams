@@ -5,12 +5,13 @@
 ** Database
 */
 
-#include "Database.hpp"
+#include "database/Database.hpp"
 #include <string>
-#include "../models/Channel.hpp"
-#include "../models/Team.hpp"
-#include "../models/Thread.hpp"
-#include "../models/User.hpp"
+#include <vector>
+#include "models/Channel.hpp"
+#include "models/Team.hpp"
+#include "models/Thread.hpp"
+#include "models/User.hpp"
 
 Database::Database() = default;
 
@@ -43,30 +44,30 @@ Team* Database::findTeam(const std::string& uuid) {
   return nullptr;
 }
 
-Channel* Database::findChannel(const std::string& team_uuid,
-                               const std::string& channel_uuid) {
-  Team* team = findTeam(team_uuid);
+Channel* Database::findChannel(const std::string& teamUuid,
+                               const std::string& channelUuid) {
+  Team* team = findTeam(teamUuid);
 
   if (team == nullptr) {
     return nullptr;
   }
   for (auto& channel : team->getChannels()) {
-    if (channel.getUuid() == channel_uuid) {
+    if (channel.getUuid() == channelUuid) {
       return &channel;
     }
   }
   return nullptr;
 }
 
-Thread* Database::findThread(const std::string& channel_uuid,
-                             const std::string& thread_uuid) {
+Thread* Database::findThread(const std::string& channelUuid,
+                             const std::string& threadUuid) {
   for (auto& team : _teams) {
     for (auto& channel : team.getChannels()) {
-      if (channel.getUuid() != channel_uuid) {
+      if (channel.getUuid() != channelUuid) {
         continue;
       }
       for (auto& thread : channel.getThreads()) {
-        if (thread.getUuid() == thread_uuid) {
+        if (thread.getUuid() == threadUuid) {
           return &thread;
         }
       }
