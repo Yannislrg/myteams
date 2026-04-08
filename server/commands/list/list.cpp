@@ -5,11 +5,11 @@
 ** list
 */
 
-#include "list.hpp"
+#include "commands/list/list.hpp"
 #include <cstddef>
-#include "../../Context.hpp"
-#include "../../client/client.hpp"
-#include "../../server.hpp"
+#include "Context.hpp"
+#include "client/client.hpp"
+#include "server.hpp"
 
 void List::executeReply(Client& client, Server& server) {
   auto context = client.getContext();

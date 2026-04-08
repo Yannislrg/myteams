@@ -13,6 +13,9 @@ endif()
 set(COMMON_COMPILER_FLAGS -Wall -Wextra -Werror)
 set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
 
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(SERVER_SRC
   server/main.cpp
@@ -36,8 +39,17 @@ set(SERVER_SRC
 add_executable(myteams_server ${SERVER_SRC})
 target_include_directories(myteams_server PRIVATE
   ${COMMON_INCLUDE_DIRS}
+  ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/server
-  ${CMAKE_SOURCE_DIR}/server/libs
+  ${CMAKE_SOURCE_DIR}/server/commands
+  ${CMAKE_SOURCE_DIR}/server/database
+  ${CMAKE_SOURCE_DIR}/server/client
+  ${CMAKE_SOURCE_DIR}/server/models
+  ${CMAKE_SOURCE_DIR}/server/net
+  ${CMAKE_SOURCE_DIR}/server/sys
+  ${CMAKE_SOURCE_DIR}/server/saveManager
+
+  ${CMAKE_SOURCE_DIR}/libs
 )
 target_compile_options(myteams_server PRIVATE ${COMMON_COMPILER_FLAGS})
 if(APPLE)

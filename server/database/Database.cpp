@@ -5,13 +5,13 @@
 ** Database
 */
 
-#include "Database.hpp"
+#include "database/Database.hpp"
 #include <string>
 #include <vector>
-#include "../models/Channel.hpp"
-#include "../models/Team.hpp"
-#include "../models/Thread.hpp"
-#include "../models/User.hpp"
+#include "models/Channel.hpp"
+#include "models/Team.hpp"
+#include "models/Thread.hpp"
+#include "models/User.hpp"
 
 Database::Database() = default;
 

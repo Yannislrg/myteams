@@ -5,14 +5,13 @@
 ** commandHandling
 */
 
-#include "commandHandling.hpp"
+#include "commands/commandHandling/commandHandling.hpp"
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include "../../client/client.hpp"
-#include "../create/create.hpp"
-#include "../list/list.hpp"
+#include "commands/create/create.hpp"
+#include "commands/list/list.hpp"
 
 namespace {
 std::vector<std::string> parseArgs(const std::string& rawCommand) {

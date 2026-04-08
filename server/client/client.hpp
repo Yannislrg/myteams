@@ -7,9 +7,10 @@
 
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <vector>
-#include "../Context.hpp"
+#include "server/Context.hpp"
 
 class Client {
  public:
@@ -50,9 +51,7 @@ class Client {
   }
   void consumeFromReadBuffer(std::size_t n) { _readBuffer.erase(0, n); }
 
-  void appendToWriteBuffer(const std::string& data) {
-    _writeBuffer += data;
-  }
+  void appendToWriteBuffer(const std::string& data) { _writeBuffer += data; }
   void consumeFromWriteBuffer(std::size_t n) { _writeBuffer.erase(0, n); }
 
   [[nodiscard]] const std::vector<std::string>& getArgs() const {
