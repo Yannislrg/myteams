@@ -23,6 +23,8 @@ set(SERVER_SRC
   server/client/client.cpp
   server/database/Database.cpp
   server/saveManager/saveManager.cpp
+  server/saveManager/JsonParser.cpp
+  server/saveManager/JsonSerializer.cpp
   server/commands/commandHandling/commandHandling.cpp
   server/commands/create/create.cpp
   server/models/User.cpp

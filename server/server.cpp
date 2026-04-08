@@ -59,6 +59,7 @@ void Server::init(uint16_t port) {
   sys::Posix::bind(_serverFd, addr);
   sys::Posix::listen(_serverFd, maxPendingConnections);
   std::cerr << "[server] listening on port " << port << "\n";
+  SaveManager::load(_db);
 }
 
 void Server::handleSignal(int sig) {
@@ -209,6 +210,7 @@ void Server::run() {
       _processEvent(pollEv, poller);
     }
   }
+  SaveManager::save(_db);
 }
 
 void Server::broadcast(const std::string& msg) {
