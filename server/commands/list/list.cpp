@@ -27,15 +27,13 @@ void List::executeReply(Client& client, Server& server) {
 
 void List::executeThread(Client& client, Server& server) {
   auto context = client.getContext();
-  auto channels = server.getDb().getAllChannels();
-  for (const auto& channel : channels) {
-    if (channel.getUuid() != context.channelUuid) {
-      continue;
-    }
-    for (const auto& thread : channel.getThreads()) {
-      server.sendToClient("200 : " + thread.getTitle() + "\r\n", client);
-    }
-    break;
+  auto* channel =
+      server.getDb().findChannel(context.teamUuid, context.channelUuid);
+  if (channel == nullptr) {
+    return;
+  }
+  for (const auto& thread : channel->getThreads()) {
+    server.sendToClient("200 : " + thread.getTitle() + "\r\n", client);
   }
 }
 
