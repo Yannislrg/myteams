@@ -73,16 +73,27 @@ bool validateAndSetThread(const std::vector<std::string>& args, Context& ctx,
 }  // namespace
 
 void Use::execute(Client& client, Server& server) {
-  const auto args = client.getArgs();
-  auto& ctx = client.getContext();
+  const auto& args = client.getArgs();
+  Context newContext;
 
-  if (!validateAndSetTeam(args, ctx, server, client)) {
+  if (client.getUserUuid().empty()) {
+    server.sendToClient("401 UNAUTHORIZED\r\n", client);
     return;
   }
-  if (!validateAndSetChannel(args, ctx, server, client)) {
+
+  if (args.size() > 4) {
+    server.sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
-  if (!validateAndSetThread(args, ctx, server, client)) {
+
+  if (!validateAndSetTeam(args, newContext, server, client)) {
     return;
   }
+  if (!validateAndSetChannel(args, newContext, server, client)) {
+    return;
+  }
+  if (!validateAndSetThread(args, newContext, server, client)) {
+    return;
+  }
+  client.setContext(newContext);
 }
