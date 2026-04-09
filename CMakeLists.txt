@@ -35,6 +35,7 @@ set(SERVER_SRC
   server/models/Thread.cpp
   server/models/Reply.cpp
   server/models/Message.cpp
+  server/commands/use/use.cpp
 )
 add_executable(myteams_server ${SERVER_SRC})
 target_include_directories(myteams_server PRIVATE
