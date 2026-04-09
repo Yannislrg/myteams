@@ -11,7 +11,7 @@
 class Use : public ICommand {
  public:
   Use() = default;
-  ~Use() override;
+  ~Use() override = default;
   Use(const Use& other) = delete;
   Use& operator=(const Use& other) = delete;
   Use(Use&& other) = delete;
