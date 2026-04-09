@@ -109,7 +109,7 @@ bool TcpClient::flushPendingWrites() {
     const ssize_t bytesWritten =
         sys::Posix::write(_socketFd, _pendingWrites.data() + _pendingOffset,
                           _pendingWrites.size() - _pendingOffset);
-    if (bytesWritten < 0) {
+    if (bytesWritten == 0) {
       return true;
     }
     _pendingOffset += static_cast<std::size_t>(bytesWritten);

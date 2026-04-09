@@ -91,7 +91,7 @@ ssize_t Posix::write(int fileDescriptor, const void* buffer,
         continue;
       }
       if (errno == EAGAIN || errno == EWOULDBLOCK) {
-        return -1;
+        return 0;
       }
       throwClient("write");
     }
