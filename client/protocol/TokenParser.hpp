@@ -7,10 +7,12 @@
 
 #pragma once
 
+#include <optional>
 #include <string>
 #include <vector>
 
 class TokenParser {
  public:
-  static std::vector<std::string> parse(const std::string& rawFrame);
+  static std::optional<std::vector<std::string>> parse(
+      const std::string& rawFrame);
 };

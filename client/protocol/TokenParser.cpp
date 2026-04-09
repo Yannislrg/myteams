@@ -8,7 +8,8 @@
 #include "TokenParser.hpp"
 #include <sstream>
 
-std::vector<std::string> TokenParser::parse(const std::string& rawFrame) {
+std::optional<std::vector<std::string>> TokenParser::parse(
+    const std::string& rawFrame) {
   std::vector<std::string> tokens;
   std::istringstream stream(rawFrame);
   std::string word;
@@ -22,12 +23,17 @@ std::vector<std::string> TokenParser::parse(const std::string& rawFrame) {
         continue;
       }
       std::string nextWord;
+      bool closedQuote = false;
       while (stream >> nextWord) {
         quoted += " " + nextWord;
         if (!nextWord.empty() && nextWord.back() == '"') {
           quoted.pop_back();
+          closedQuote = true;
           break;
         }
+      }
+      if (!closedQuote) {
+        return std::nullopt;
       }
       tokens.push_back(quoted);
       continue;

@@ -34,7 +34,11 @@ void ServerMessageRouter::registerHandler(
 }
 
 void ServerMessageRouter::routeFrame(const std::string& frame) const {
-  const std::vector<std::string> tokens = TokenParser::parse(frame);
+  const auto tokensResult = TokenParser::parse(frame);
+  if (!tokensResult.has_value()) {
+    return;
+  }
+  const std::vector<std::string>& tokens = tokensResult.value();
   if (tokens.empty()) {
     return;
   }
