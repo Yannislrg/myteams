@@ -37,6 +37,7 @@ class Team {
   [[nodiscard]] const std::vector<std::string>& getSubscriberUuids() const {
     return _subscriberUuids;
   }
+  std::vector<std::string>& getSubscriberUuids() { return _subscriberUuids; }
   void setSubscriberUuids(const std::vector<std::string>& subscriberUuids) {
     _subscriberUuids = subscriberUuids;
   }
