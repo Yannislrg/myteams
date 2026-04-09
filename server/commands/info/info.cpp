@@ -6,44 +6,70 @@
 */
 
 #include "info.hpp"
+#include <string>
 #include "../../client/client.hpp"
 #include "../../database/Database.hpp"
 #include "../../server.hpp"
 
 void Info::executeTeam(Client& client, Server& server) {
-  auto* team = server.getDb().findTeam(client.getContext().teamUuid);
+  const auto& teamUuid = client.getContext().teamUuid;
+  auto* team = server.getDb().findTeam(teamUuid);
   if (team == nullptr) {
+    server.sendToClient("404 NOT_FOUND \"" + teamUuid + "\"\r\n", client);
     return;
   }
-  server.sendToClient("200 : " + team->getName() + "\r\n", client);
+  server.sendToClient("200 INFO TEAM \"" + team->getUuid() + "\" \"" +
+                          team->getName() + "\" \"" + team->getDescription() +
+                          "\"\r\n",
+                      client);
 }
 
 void Info::executeChannel(Client& client, Server& server) {
-  auto* channel = server.getDb().findChannel(client.getContext().teamUuid,
-                                             client.getContext().channelUuid);
+  const auto& context = client.getContext();
+  const auto& channelUuid = context.channelUuid;
+  auto* channel = server.getDb().findChannel(context.teamUuid, channelUuid);
   if (channel == nullptr) {
-    server.sendToClient("404 : Channel not found\r\n", client);
+    server.sendToClient("404 NOT_FOUND \"" + channelUuid + "\"\r\n", client);
     return;
   }
-  server.sendToClient("200 : " + channel->getName() + "\r\n", client);
+  server.sendToClient("200 INFO CHANNEL \"" + channel->getUuid() + "\" \"" +
+                          channel->getName() + "\" \"" +
+                          channel->getDescription() + "\"\r\n",
+                      client);
 }
 
 void Info::executeThread(Client& client, Server& server) {
-  auto* thread = server.getDb().findThread(client.getContext().channelUuid,
-                                           client.getContext().threadUuid);
+  const auto& context = client.getContext();
+  const auto& threadUuid = context.threadUuid;
+  auto* thread = server.getDb().findThread(context.channelUuid, threadUuid);
   if (thread == nullptr) {
-    server.sendToClient("404 : Thread not found\r\n", client);
+    server.sendToClient("404 NOT_FOUND \"" + threadUuid + "\"\r\n", client);
     return;
   }
-  server.sendToClient("200 : " + thread->getTitle() + "\r\n", client);
+  server.sendToClient("200 INFO THREAD \"" + thread->getUuid() + "\" \"" +
+                          thread->getUserUuid() + "\" " +
+                          std::to_string(thread->getTimestamp()) + " \"" +
+                          thread->getTitle() + "\" \"" + thread->getBody() +
+                          "\"\r\n",
+                      client);
 }
 
 void Info::executeUser(Client& client, Server& server) {
-  auto* user = server.getDb().findUser(client.getUserUuid());
-  if (user == nullptr) {
+  const auto& userUuid = client.getUserUuid();
+  if (userUuid.empty()) {
+    server.sendToClient("401 UNAUTHORIZED\r\n", client);
     return;
   }
-  server.sendToClient("200 : " + user->getName() + "\r\n", client);
+
+  auto* user = server.getDb().findUser(userUuid);
+  if (user == nullptr) {
+    server.sendToClient("404 NOT_FOUND \"" + userUuid + "\"\r\n", client);
+    return;
+  }
+  server.sendToClient("200 INFO USER \"" + user->getUuid() + "\" \"" +
+                          user->getName() + "\" " +
+                          std::to_string(user->isConnected() ? 1 : 0) + "\r\n",
+                      client);
 }
 
 void Info::execute(Client& client, Server& server) {
