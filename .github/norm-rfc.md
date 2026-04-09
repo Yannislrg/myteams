@@ -520,28 +520,28 @@ C: USE "661f9511-f3ac-52e5-b827-557766551111"\r\n
 S: 200 OK\r\n
 
 C: CREATE "general" "general discussion"\r\n
-S: 201 CREATED CHANNEL "772g0622-..." "general" "general discussion"\r\n
-S→SUBSCRIBERS: EVENT CHANNEL_CREATED "772g0622-..." "general" "general discussion"\r\n
+S: 201 CREATED CHANNEL "772f0622-..." "general" "general discussion"\r\n
+S→SUBSCRIBERS: EVENT CHANNEL_CREATED "772f0622-..." "general" "general discussion"\r\n
 
-C: USE "661f9511-..." "772g0622-..."\r\n
+C: USE "661f9511-..." "772f0622-..."\r\n
 S: 200 OK\r\n
 
 C: CREATE "First thread" "hello everyone"\r\n
-S: 201 CREATED THREAD "883h1733-..." "550e8400-..." 1711708800 "First thread" "hello everyone"\r\n
-S→SUBSCRIBERS: EVENT THREAD_CREATED "883h1733-..." "550e8400-..." 1711708800 "First thread" "hello everyone"\r\n
+S: 201 CREATED THREAD "883e1733-..." "550e8400-..." 1711708800 "First thread" "hello everyone"\r\n
+S→SUBSCRIBERS: EVENT THREAD_CREATED "883e1733-..." "550e8400-..." 1711708800 "First thread" "hello everyone"\r\n
 
-C: USE "661f9511-..." "772g0622-..." "883h1733-..."\r\n
+C: USE "661f9511-..." "772f0622-..." "883e1733-..."\r\n
 S: 200 OK\r\n
 
 C: CREATE "this is my reply"\r\n
-S: 201 CREATED REPLY "883h1733-..." "550e8400-..." 1711708900 "this is my reply"\r\n
-S→SUBSCRIBERS: EVENT REPLY_CREATED "661f9511-..." "883h1733-..." "550e8400-..." "this is my reply"\r\n
+S: 201 CREATED REPLY "883e1733-..." "550e8400-..." 1711708900 "this is my reply"\r\n
+S→SUBSCRIBERS: EVENT REPLY_CREATED "661f9511-..." "883e1733-..." "550e8400-..." "this is my reply"\r\n
 ```
 
 ### Private message
 
 ```
-C: SEND "994i2844-..." "hey, how are you?"\r\n
+C: SEND "994a2844-..." "hey, how are you?"\r\n
 S: 200 OK\r\n
 S→RECIPIENT: EVENT PRIVATE_MESSAGE "550e8400-..." "hey, how are you?"\r\n
 ```
