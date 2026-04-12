@@ -10,10 +10,10 @@
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <unistd.h>
 #include <array>
 #include <atomic>
 #include <csignal>
-#include <iostream>
 #include <memory>
 #include "client/client.hpp"
 #include "logging_server.h"
@@ -31,11 +31,7 @@ Server::Server() : _serverFd(-1) {}
 
 Server::~Server() noexcept {
   if (_serverFd != -1) {
-    try {
-      sys::Posix::close(_serverFd);
-    } catch (const std::exception& e) {
-      std::cerr << "[server] error closing server socket: " << e.what() << "\n";
-    }
+    (void)::close(_serverFd);
   }
 }
 
@@ -58,13 +54,11 @@ void Server::init(uint16_t port) {
   static constexpr int maxPendingConnections = 10;
   sys::Posix::bind(_serverFd, addr);
   sys::Posix::listen(_serverFd, maxPendingConnections);
-  std::cerr << "[server] listening on port " << port << "\n";
 }
 
 void Server::handleSignal(int sig) {
   (void)sig;
   _running.store(false);
-  std::cerr << "\n[server] shutting down\n";
 }
 
 void Server::_acceptClient(Poller& poller) {
@@ -75,8 +69,6 @@ void Server::_acceptClient(Poller& poller) {
 
   std::array<char, INET6_ADDRSTRLEN> ipStr{};
   ::inet_ntop(AF_INET6, &addr.sin6_addr, ipStr.data(), INET6_ADDRSTRLEN);
-  std::cerr << "[+] client connected  fd=" << clientFd
-            << "  ip=" << ipStr.data() << "\n";
 
   auto client = std::make_unique<Client>();
   client->setFd(clientFd);
@@ -94,7 +86,6 @@ void Server::_parseCommands(Client& client) {
       line.pop_back();
     }
     if (!line.empty()) {
-      std::cerr << "[fd=" << client.getFd() << "] cmd: " << line << "\n";
       _commandHandling.handleCommand(line, client, *this);
     }
     parsePos = newlinePos + 1;
@@ -131,7 +122,6 @@ void Server::_handleWrite(Client& client) {
 }
 
 void Server::_disconnectClient(int clientFd, Poller& poller) {
-  std::cerr << "[-] client disconnected fd=" << clientFd << "\n";
   auto clientIter = _clients.find(clientFd);
   if (clientIter != _clients.end() &&
       !clientIter->second->getUserUuid().empty()) {
