@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
   }
 
   if (argc != 3) {
-    printUsage(std::cerr);
+    printUsage(std::cout);
     return EXIT_ERROR;
   }
 
@@ -37,8 +37,8 @@ int main(int argc, char** argv) {
   try {
     port = ClientApplication::parsePort(argv[2]);
   } catch (const std::exception& exception) {
-    printUsage(std::cerr);
-    std::cerr << exception.what() << '\n';
+    printUsage(std::cout);
+    std::cout << exception.what() << '\n';
     return EXIT_ERROR;
   }
 
@@ -47,7 +47,8 @@ int main(int argc, char** argv) {
     application.run();
     return 0;
   } catch (const std::exception& exception) {
-    std::cerr << exception.what() << '\n';
+    printUsage(std::cout);
+    std::cout << exception.what() << '\n';
     return EXIT_ERROR;
   }
 }

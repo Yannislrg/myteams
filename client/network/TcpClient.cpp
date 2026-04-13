@@ -84,11 +84,11 @@ void TcpClient::connectTo(const std::string& host, uint16_t port) {
         try {
           sys::Posix::close(socketFd);
         } catch (const std::exception& closeError) {
-          std::cerr << "warning: failed to close connection attempt socket: "
+          std::cout << "warning: failed to close connection attempt socket: "
                     << closeError.what() << '\n';
         }
       }
-      std::cerr << "warning: connection attempt failed: " << error.what()
+      std::cout << "warning: connection attempt failed: " << error.what()
                 << '\n';
     }
   }
@@ -135,7 +135,7 @@ void TcpClient::disconnect() noexcept {
   try {
     sys::Posix::close(_socketFd);
   } catch (const std::exception& error) {
-    std::cerr << "warning: failed to close client socket: " << error.what()
+    std::cout << "warning: failed to close client socket: " << error.what()
               << '\n';
   }
   _socketFd = -1;
