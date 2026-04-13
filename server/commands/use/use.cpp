@@ -18,20 +18,20 @@ bool validateAndSetTeam(const std::vector<std::string>& args, Context& ctx,
     ctx.teamUuid.clear();
     ctx.channelUuid.clear();
     ctx.threadUuid.clear();
-    server.sendToClient("200 OK\r\n", client);
+    Server::sendToClient("200 OK\r\n", client);
     return true;
   }
 
   const auto& teamUuid = args[1];
   if (server.getDb().findTeam(teamUuid) == nullptr) {
-    server.sendToClient("404 NOT_FOUND \"" + teamUuid + "\"\r\n", client);
+    Server::sendToClient("404 NOT_FOUND \"" + teamUuid + "\"\r\n", client);
     return false;
   }
 
   ctx.teamUuid = teamUuid;
   ctx.channelUuid.clear();
   ctx.threadUuid.clear();
-  server.sendToClient("200 OK\r\n", client);
+  Server::sendToClient("200 OK\r\n", client);
   return true;
 }
 
@@ -43,13 +43,13 @@ bool validateAndSetChannel(const std::vector<std::string>& args, Context& ctx,
 
   const auto& channelUuid = args[2];
   if (server.getDb().findChannel(ctx.teamUuid, channelUuid) == nullptr) {
-    server.sendToClient("404 NOT_FOUND \"" + channelUuid + "\"\r\n", client);
+    Server::sendToClient("404 NOT_FOUND \"" + channelUuid + "\"\r\n", client);
     return false;
   }
 
   ctx.channelUuid = channelUuid;
   ctx.threadUuid.clear();
-  server.sendToClient("200 OK\r\n", client);
+  Server::sendToClient("200 OK\r\n", client);
   return true;
 }
 
@@ -61,12 +61,12 @@ bool validateAndSetThread(const std::vector<std::string>& args, Context& ctx,
 
   const auto& threadUuid = args[3];
   if (server.getDb().findThread(ctx.channelUuid, threadUuid) == nullptr) {
-    server.sendToClient("404 NOT_FOUND \"" + threadUuid + "\"\r\n", client);
+    Server::sendToClient("404 NOT_FOUND \"" + threadUuid + "\"\r\n", client);
     return false;
   }
 
   ctx.threadUuid = threadUuid;
-  server.sendToClient("200 OK\r\n", client);
+  Server::sendToClient("200 OK\r\n", client);
   return true;
 }
 
@@ -77,12 +77,12 @@ void Use::execute(Client& client, Server& server) {
   Context newContext;
 
   if (client.getUserUuid().empty()) {
-    server.sendToClient("401 UNAUTHORIZED\r\n", client);
+    Server::sendToClient("401 UNAUTHORIZED\r\n", client);
     return;
   }
 
   if (args.size() > 4) {
-    server.sendToClient("400 BAD_REQUEST\r\n", client);
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
 

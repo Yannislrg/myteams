@@ -16,20 +16,20 @@ void List::executeReply(Client& client, Server& server) {
   auto* thread =
       server.getDb().findThread(context.channelUuid, context.threadUuid);
   if (thread == nullptr) {
-    server.sendToClient("404 NOT_FOUND \"" + context.threadUuid + "\"\r\n",
-                        client);
+    Server::sendToClient("404 NOT_FOUND \"" + context.threadUuid + "\"\r\n",
+                         client);
     return;
   }
 
-  server.sendToClient("210-BEGIN REPLIES\r\n", client);
+  Server::sendToClient("210-BEGIN REPLIES\r\n", client);
   for (const auto& reply : thread->getReplies()) {
-    server.sendToClient("210 \"" + context.threadUuid + "\" \"" +
-                            reply.getUserUuid() + "\" " +
-                            std::to_string(reply.getTimestamp()) + " \"" +
-                            reply.getBody() + "\"\r\n",
-                        client);
+    Server::sendToClient("210 \"" + context.threadUuid + "\" \"" +
+                             reply.getUserUuid() + "\" " +
+                             std::to_string(reply.getTimestamp()) + " \"" +
+                             reply.getBody() + "\"\r\n",
+                         client);
   }
-  server.sendToClient("210-END REPLIES\r\n", client);
+  Server::sendToClient("210-END REPLIES\r\n", client);
 }
 
 void List::executeThread(Client& client, Server& server) {
@@ -37,49 +37,49 @@ void List::executeThread(Client& client, Server& server) {
   auto* channel =
       server.getDb().findChannel(context.teamUuid, context.channelUuid);
   if (channel == nullptr) {
-    server.sendToClient("404 NOT_FOUND \"" + context.channelUuid + "\"\r\n",
-                        client);
+    Server::sendToClient("404 NOT_FOUND \"" + context.channelUuid + "\"\r\n",
+                         client);
     return;
   }
 
-  server.sendToClient("210-BEGIN THREADS\r\n", client);
+  Server::sendToClient("210-BEGIN THREADS\r\n", client);
   for (const auto& thread : channel->getThreads()) {
-    server.sendToClient(
+    Server::sendToClient(
         "210 \"" + thread.getUuid() + "\" \"" + thread.getUserUuid() + "\" " +
             std::to_string(thread.getTimestamp()) + " \"" + thread.getTitle() +
             "\" \"" + thread.getBody() + "\"\r\n",
         client);
   }
-  server.sendToClient("210-END THREADS\r\n", client);
+  Server::sendToClient("210-END THREADS\r\n", client);
 }
 
 void List::executeChannel(Client& client, Server& server) {
   const auto& context = client.getContext();
   auto* team = server.getDb().findTeam(context.teamUuid);
   if (team == nullptr) {
-    server.sendToClient("404 NOT_FOUND \"" + context.teamUuid + "\"\r\n",
-                        client);
+    Server::sendToClient("404 NOT_FOUND \"" + context.teamUuid + "\"\r\n",
+                         client);
     return;
   }
 
-  server.sendToClient("210-BEGIN CHANNELS\r\n", client);
+  Server::sendToClient("210-BEGIN CHANNELS\r\n", client);
   for (const auto& channel : team->getChannels()) {
-    server.sendToClient("210 \"" + channel.getUuid() + "\" \"" +
-                            channel.getName() + "\" \"" +
-                            channel.getDescription() + "\"\r\n",
-                        client);
+    Server::sendToClient("210 \"" + channel.getUuid() + "\" \"" +
+                             channel.getName() + "\" \"" +
+                             channel.getDescription() + "\"\r\n",
+                         client);
   }
-  server.sendToClient("210-END CHANNELS\r\n", client);
+  Server::sendToClient("210-END CHANNELS\r\n", client);
 }
 
 void List::executeTeam(Client& client, Server& server) {
-  server.sendToClient("210-BEGIN TEAMS\r\n", client);
+  Server::sendToClient("210-BEGIN TEAMS\r\n", client);
   for (const auto& team : server.getDb().getTeams()) {
-    server.sendToClient("210 \"" + team.getUuid() + "\" \"" + team.getName() +
-                            "\" \"" + team.getDescription() + "\"\r\n",
-                        client);
+    Server::sendToClient("210 \"" + team.getUuid() + "\" \"" + team.getName() +
+                             "\" \"" + team.getDescription() + "\"\r\n",
+                         client);
   }
-  server.sendToClient("210-END TEAMS\r\n", client);
+  Server::sendToClient("210-END TEAMS\r\n", client);
 }
 
 void List::execute(Client& client, Server& server) {
