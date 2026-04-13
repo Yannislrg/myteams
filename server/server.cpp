@@ -14,6 +14,7 @@
 #include <array>
 #include <atomic>
 #include <csignal>
+#include <iostream>
 #include <memory>
 #include "client/client.hpp"
 #include "logging_server.h"
