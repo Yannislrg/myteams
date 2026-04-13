@@ -25,6 +25,6 @@ void Subscribe::execute(Client& client, Server& server) {
   server.notifySubscribers(context.teamUuid,
                            "user_subscribed \"" + context.teamUuid + "\" \"" +
                                client.getUserUuid() + "\"\r\n");
-  server.sendToClient("200: " + context.teamUuid + " " + client.getUserUuid(),
-                      client);
+  Server::sendToClient("200: " + context.teamUuid + " " + client.getUserUuid(),
+                       client);
 }

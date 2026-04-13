@@ -19,7 +19,7 @@ void List::executeReply(Client& client, Server& server) {
     return;
   }
   for (const auto& reply : thread->getReplies()) {
-    server.sendToClient("200 : " + reply.getBody() + "\r\n", client);
+    Server::sendToClient("200 : " + reply.getBody() + "\r\n", client);
   }
 }
 
@@ -31,7 +31,7 @@ void List::executeThread(Client& client, Server& server) {
     return;
   }
   for (const auto& thread : channel->getThreads()) {
-    server.sendToClient("200 : " + thread.getTitle() + "\r\n", client);
+    Server::sendToClient("200 : " + thread.getTitle() + "\r\n", client);
   }
 }
 
@@ -42,13 +42,13 @@ void List::executeChannel(Client& client, Server& server) {
     return;
   }
   for (const auto& channel : team->getChannels()) {
-    server.sendToClient("200 : " + channel.getName() + "\r\n", client);
+    Server::sendToClient("200 : " + channel.getName() + "\r\n", client);
   }
 }
 
 void List::executeTeam(Client& client, Server& server) {
   for (const auto& team : server.getDb().getTeams()) {
-    server.sendToClient("200 : " + team.getName() + "\r\n", client);
+    Server::sendToClient("200 : " + team.getName() + "\r\n", client);
   }
 }
 
