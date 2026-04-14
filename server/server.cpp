@@ -210,6 +210,10 @@ void Server::run() {
   SaveManager::save(_db);
 }
 
+void Server::sendToClient(const std::string& msg, Client& client) {
+  client.appendToWriteBuffer(msg);
+}
+
 void Server::broadcast(const std::string& msg) {
   for (const auto& [filedescriptor, client] : _clients) {
     (void)filedescriptor;
