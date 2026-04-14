@@ -10,12 +10,14 @@
 #include <netinet/in.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <unistd.h>
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <csignal>
 #include <iostream>
 #include <memory>
-#include "../libs/logging_server.h"
+#include "../libs/myteams/logging_server.h"
 #include "client/client.hpp"
 #include "net/Poller.hpp"
 #include "sys/Posix.hpp"
@@ -34,7 +36,7 @@ Server::~Server() noexcept {
     try {
       sys::Posix::close(_serverFd);
     } catch (const std::exception& e) {
-      std::cerr << "[server] error closing server socket: " << e.what() << "\n";
+      std::cout << "[server] error closing server socket: " << e.what() << "\n";
     }
   }
 }
@@ -65,7 +67,6 @@ void Server::init(uint16_t port) {
 void Server::handleSignal(int sig) {
   (void)sig;
   _running.store(false);
-  std::cerr << "\n[server] shutting down\n";
 }
 
 void Server::_acceptClient(Poller& poller) {
@@ -76,8 +77,6 @@ void Server::_acceptClient(Poller& poller) {
 
   std::array<char, INET6_ADDRSTRLEN> ipStr{};
   ::inet_ntop(AF_INET6, &addr.sin6_addr, ipStr.data(), INET6_ADDRSTRLEN);
-  std::cerr << "[+] client connected  fd=" << clientFd
-            << "  ip=" << ipStr.data() << "\n";
 
   auto client = std::make_unique<Client>();
   client->setFd(clientFd);
@@ -95,7 +94,6 @@ void Server::_parseCommands(Client& client) {
       line.pop_back();
     }
     if (!line.empty()) {
-      std::cerr << "[fd=" << client.getFd() << "] cmd: " << line << "\n";
       _commandHandling.handleCommand(line, client, *this);
     }
     parsePos = newlinePos + 1;
@@ -132,7 +130,6 @@ void Server::_handleWrite(Client& client) {
 }
 
 void Server::_disconnectClient(int clientFd, Poller& poller) {
-  std::cerr << "[-] client disconnected fd=" << clientFd << "\n";
   auto clientIter = _clients.find(clientFd);
   if (clientIter != _clients.end() &&
       !clientIter->second->getUserUuid().empty()) {
@@ -222,7 +219,25 @@ void Server::broadcast(const std::string& msg) {
 
 void Server::notifySubscribers(const std::string& teamUuid,
                                const std::string& msg) {
-  (void)teamUuid;
-  (void)msg;
-  (void)_clients;
+  if (teamUuid.empty() || msg.empty()) {
+    return;
+  }
+
+  const Team* team = _db.findTeam(teamUuid);
+  if (team == nullptr) {
+    return;
+  }
+
+  const auto& subscriberUuids = team->getSubscriberUuids();
+  for (auto& [fileDescriptor, client] : _clients) {
+    (void)fileDescriptor;
+    if (client == nullptr || client->getUserUuid().empty()) {
+      continue;
+    }
+    if (std::ranges::find(subscriberUuids, client->getUserUuid()) ==
+        subscriberUuids.end()) {
+      continue;
+    }
+    sendToClient(msg, *client);
+  }
 }

@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "../../client/client.hpp"
-#include "../../server.hpp"
-#include "../ICommand.hpp"
+#include "client/client.hpp"
+#include "commands/ICommand.hpp"
+#include "server.hpp"
 
 class Create : public ICommand {
  public:

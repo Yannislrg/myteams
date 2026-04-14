@@ -5,13 +5,17 @@
 ** commandHandling
 */
 
-#include "commandHandling.hpp"
+#include "commands/commandHandling/commandHandling.hpp"
 #include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
-#include "../../client/client.hpp"
-#include "../create/create.hpp"
+#include "commands/create/create.hpp"
+#include "commands/info/info.hpp"
+#include "commands/list/list.hpp"
+#include "commands/subscribe/subscribe.hpp"
+#include "commands/unsubscribe/unsubscribe.hpp"
+#include "commands/use/use.hpp"
 
 namespace {
 std::vector<std::string> parseArgs(const std::string& rawCommand) {
@@ -45,6 +49,11 @@ std::vector<std::string> parseArgs(const std::string& rawCommand) {
 
 CommandHandling::CommandHandling() {
   _commands.emplace("/create", std::make_unique<Create>());
+  _commands.emplace("/list", std::make_unique<List>());
+  _commands.emplace("/use", std::make_unique<Use>());
+  _commands.emplace("/info", std::make_unique<Info>());
+  _commands.emplace("/subscribe", std::make_unique<Subscribe>());
+  _commands.emplace("/unsubscribe", std::make_unique<Unsubscribe>());
 }
 
 void CommandHandling::handleCommand(const std::string& rawCommand,

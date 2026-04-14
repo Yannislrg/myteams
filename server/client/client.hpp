@@ -7,9 +7,10 @@
 
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <vector>
-#include "../Context.hpp"
+#include "Context.hpp"
 
 class Client {
  public:
@@ -26,6 +27,7 @@ class Client {
   [[nodiscard]] const std::string& getUserUuid() const { return _userUuid; }
   void setUserUuid(const std::string& userUuid) { _userUuid = userUuid; }
 
+  [[nodiscard]] Context& getContext() { return _context; }
   [[nodiscard]] const Context& getContext() const { return _context; }
   void setContext(const Context& context) { _context = context; }
 
@@ -50,9 +52,7 @@ class Client {
   }
   void consumeFromReadBuffer(std::size_t n) { _readBuffer.erase(0, n); }
 
-  void appendToWriteBuffer(const std::string& data) {
-    _writeBuffer += data;
-  }
+  void appendToWriteBuffer(const std::string& data) { _writeBuffer += data; }
   void consumeFromWriteBuffer(std::size_t n) { _writeBuffer.erase(0, n); }
 
   [[nodiscard]] const std::vector<std::string>& getArgs() const {
