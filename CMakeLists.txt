@@ -12,13 +12,14 @@ if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif()
 
+if(APPLE)
+  set(MYTEAMS_RUNTIME_LIB_DIR "@executable_path/libs/myteams")
+else()
+  set(MYTEAMS_RUNTIME_LIB_DIR "$ORIGIN/libs/myteams")
+endif()
 
 set(COMMON_COMPILER_FLAGS -Wall -Wextra -Werror)
 set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(SERVER_SRC
   server/main.cpp
@@ -62,16 +63,24 @@ if(APPLE)
     ${MYTEAMS_LIB_DIR}/libmyteams_macos.so
   )
   set_target_properties(myteams_server PROPERTIES
-    BUILD_RPATH "@executable_path/libs"
-    INSTALL_RPATH "@executable_path/libs"
+    BUILD_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
+    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
   )
   add_custom_command(TARGET myteams_server POST_BUILD
     COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_server>
   )
 else()
+  target_link_directories(myteams_server PRIVATE
+    ${MYTEAMS_LIB_DIR}
+  )
   target_link_libraries(myteams_server PRIVATE
-    ${MYTEAMS_LIB_DIR}/libmyteams.so
+    myteams
     uuid
+  )
+  set_target_properties(myteams_server PROPERTIES
+    SKIP_BUILD_RPATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
   )
 endif()
 
@@ -109,15 +118,23 @@ if(APPLE)
     ${MYTEAMS_LIB_DIR}/libmyteams_macos.so
   )
   set_target_properties(myteams_cli PROPERTIES
-    BUILD_RPATH "@executable_path/libs"
-    INSTALL_RPATH "@executable_path/libs"
+    BUILD_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
+    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
   )
   add_custom_command(TARGET myteams_cli POST_BUILD
     COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_cli>
   )
 else()
+  target_link_directories(myteams_cli PRIVATE
+    ${MYTEAMS_LIB_DIR}
+  )
   target_link_libraries(myteams_cli PRIVATE
-    ${MYTEAMS_LIB_DIR}/libmyteams.so
+    myteams
+  )
+  set_target_properties(myteams_cli PROPERTIES
+    SKIP_BUILD_RPATH TRUE
+    BUILD_WITH_INSTALL_RPATH TRUE
+    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
   )
 endif()
 
