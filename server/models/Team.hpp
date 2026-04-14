@@ -42,21 +42,8 @@ class Team {
     return std::ranges::find(_subscriberUuids, userUuid) !=
            _subscriberUuids.end();
   }
-  [[nodiscard]] bool addSubscriber(const std::string& userUuid) {
-    if (isUserSubscribed(userUuid)) {
-      return false;
-    }
-    _subscriberUuids.push_back(userUuid);
-    return true;
-  }
-  [[nodiscard]] bool removeSubscriber(const std::string& userUuid) {
-    const auto eraseFrom = std::ranges::remove(_subscriberUuids, userUuid);
-    if (eraseFrom.begin() == eraseFrom.end()) {
-      return false;
-    }
-    _subscriberUuids.erase(eraseFrom.begin(), eraseFrom.end());
-    return true;
-  }
+  [[nodiscard]] bool addSubscriber(const std::string& userUuid);
+  [[nodiscard]] bool removeSubscriber(const std::string& userUuid);
   void setSubscriberUuids(const std::vector<std::string>& subscriberUuids) {
     _subscriberUuids = subscriberUuids;
   }
