@@ -60,7 +60,7 @@ void Server::init(uint16_t port) {
   static constexpr int maxPendingConnections = 10;
   sys::Posix::bind(_serverFd, addr);
   sys::Posix::listen(_serverFd, maxPendingConnections);
-  std::cerr << "[server] listening on port " << port << "\n";
+  std::cout << "[server] listening on port " << port << "\n";
   SaveManager::load(_db);
 }
 
