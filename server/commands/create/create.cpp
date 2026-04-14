@@ -8,8 +8,8 @@
 #include "create.hpp"
 #include <uuid/uuid.h>
 #include <array>
-#include <chrono>
 #include <cstddef>
+#include <ctime>
 #include <string>
 #include <vector>
 #include "../../../libs/myteams/logging_server.h"
@@ -57,13 +57,17 @@ void Create::executeTeam(Client& client, Server& server) {
   newTeam.setName(teamName);
   newTeam.setDescription(teamDescription);
   teams.push_back(newTeam);
+
+  Server::sendToClient("201 CREATED TEAM \"" + newTeam.getUuid() + "\" \"" +
+                           newTeam.getName() + "\" \"" +
+                           newTeam.getDescription() + "\"\r\n",
+                       client);
   server_event_team_created(newTeam.getUuid().c_str(),
                             newTeam.getName().c_str(),
                             client.getUserUuid().c_str());
-  server.notifySubscribers(newTeam.getUuid(),
-                           "team_created \"" + newTeam.getUuid() + "\" \"" +
-                               newTeam.getName() + "\" \"" +
-                               newTeam.getDescription() + "\"\r\n");
+  server.broadcast("EVENT TEAM_CREATED \"" + newTeam.getUuid() + "\" \"" +
+                   newTeam.getName() + "\" \"" + newTeam.getDescription() +
+                   "\"\r\n");
 }
 
 void Create::executeChannel(Client& client, Server& server) {
@@ -89,13 +93,18 @@ void Create::executeChannel(Client& client, Server& server) {
   channel.setUuid(std::string(uuidStr.data()));
   channel.setName(channelName);
   channel.setDescription(channelDescription);
+
+  Server::sendToClient("201 CREATED CHANNEL \"" + channel.getUuid() + "\" \"" +
+                           channel.getName() + "\" \"" +
+                           channel.getDescription() + "\"\r\n",
+                       client);
   server_event_channel_created(context.teamUuid.c_str(),
                                channel.getUuid().c_str(),
                                channel.getName().c_str());
   server.notifySubscribers(context.teamUuid,
-                           "channel_created \"" + context.teamUuid + "\" \"" +
-                               channel.getUuid() + "\" \"" + channel.getName() +
-                               "\" \"" + channel.getDescription() + "\"\r\n");
+                           "EVENT CHANNEL_CREATED \"" + channel.getUuid() +
+                               "\" \"" + channel.getName() + "\" \"" +
+                               channel.getDescription() + "\"\r\n");
 }
 
 void Create::executeThread(Client& client, Server& server) {
@@ -122,20 +131,28 @@ void Create::executeThread(Client& client, Server& server) {
   std::array<char, UUID_STR_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newThread.setUuid(std::string(uuidStr.data()));
+  newThread.setUserUuid(client.getUserUuid());
   newThread.setTitle(threadTitle);
   newThread.setBody(threadMessage);
-  newThread.setTimestamp(
-      std::chrono::system_clock::now().time_since_epoch().count());
+  newThread.setTimestamp(std::time(nullptr));
   threads.push_back(newThread);
+
+  Server::sendToClient("201 CREATED THREAD \"" + newThread.getUuid() + "\" \"" +
+                           newThread.getUserUuid() + "\" " +
+                           std::to_string(newThread.getTimestamp()) + " \"" +
+                           newThread.getTitle() + "\" \"" +
+                           newThread.getBody() + "\"\r\n",
+                       client);
   server_event_thread_created(
       context.channelUuid.c_str(), newThread.getUuid().c_str(),
       client.getUserUuid().c_str(), newThread.getTitle().c_str(),
       newThread.getBody().c_str());
   server.notifySubscribers(
-      context.teamUuid,
-      "thread_created \"" + context.teamUuid + "\" \"" + context.channelUuid +
-          "\" \"" + newThread.getUuid() + "\" \"" + newThread.getTitle() +
-          "\" \"" + newThread.getBody() + "\"\r\n");
+      context.teamUuid, "EVENT THREAD_CREATED \"" + newThread.getUuid() +
+                            "\" \"" + newThread.getUserUuid() + "\" " +
+                            std::to_string(newThread.getTimestamp()) + " \"" +
+                            newThread.getTitle() + "\" \"" +
+                            newThread.getBody() + "\"\r\n");
 }
 
 void Create::executeReply(Client& client, Server& server) {
@@ -160,16 +177,22 @@ void Create::executeReply(Client& client, Server& server) {
   std::array<char, UUID_STR_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newReply.setUuid(std::string(uuidStr.data()));
+  newReply.setUserUuid(client.getUserUuid());
   newReply.setBody(replyMessage);
-  newReply.setTimestamp(
-      std::chrono::system_clock::now().time_since_epoch().count());
+  newReply.setTimestamp(std::time(nullptr));
   replies.push_back(newReply);
+
+  Server::sendToClient("201 CREATED REPLY \"" + context.threadUuid + "\" \"" +
+                           newReply.getUserUuid() + "\" " +
+                           std::to_string(newReply.getTimestamp()) + " \"" +
+                           newReply.getBody() + "\"\r\n",
+                       client);
   server_event_reply_created(context.threadUuid.c_str(),
                              client.getUserUuid().c_str(),
                              newReply.getBody().c_str());
   server.notifySubscribers(
-      context.teamUuid, "reply_created \"" + context.teamUuid + "\" \"" +
-                            context.channelUuid + "\" \"" + context.threadUuid +
-                            "\" \"" + newReply.getUuid() + "\" \"" +
+      context.teamUuid, "EVENT REPLY_CREATED \"" + context.teamUuid + "\" \"" +
+                            context.threadUuid + "\" \"" +
+                            newReply.getUserUuid() + "\" \"" +
                             newReply.getBody() + "\"\r\n");
 }

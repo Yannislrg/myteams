@@ -38,6 +38,7 @@ set(SERVER_SRC
   server/models/Thread.cpp
   server/models/Reply.cpp
   server/models/Message.cpp
+  server/commands/use/use.cpp
   server/commands/info/info.cpp
 )
 add_executable(myteams_server ${SERVER_SRC})
@@ -100,12 +101,12 @@ target_include_directories(myteams_cli PRIVATE
   ${CMAKE_SOURCE_DIR}/client/sys
   ${CMAKE_SOURCE_DIR}/client/protocol
   ${CMAKE_SOURCE_DIR}/client/protocol/handlers
-  ${CMAKE_SOURCE_DIR}/libs
+  ${MYTEAMS_LIB_DIR}
 )
 target_compile_options(myteams_cli PRIVATE ${COMMON_COMPILER_FLAGS})
 if(APPLE)
   target_link_libraries(myteams_cli PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
+    ${MYTEAMS_LIB_DIR}/libmyteams_macos.so
   )
   set_target_properties(myteams_cli PROPERTIES
     BUILD_RPATH "@executable_path/libs"
@@ -116,7 +117,7 @@ if(APPLE)
   )
 else()
   target_link_libraries(myteams_cli PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+    ${MYTEAMS_LIB_DIR}/libmyteams.so
   )
 endif()
 

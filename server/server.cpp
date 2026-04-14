@@ -14,6 +14,7 @@
 #include <array>
 #include <atomic>
 #include <csignal>
+#include <iostream>
 #include <memory>
 #include "../libs/myteams/logging_server.h"
 #include "client/client.hpp"
@@ -31,7 +32,11 @@ Server::Server() : _serverFd(-1) {}
 
 Server::~Server() noexcept {
   if (_serverFd != -1) {
-    (void)::close(_serverFd);
+    try {
+      sys::Posix::close(_serverFd);
+    } catch (const std::exception& e) {
+      std::cout << "[server] error closing server socket: " << e.what() << "\n";
+    }
   }
 }
 
