@@ -27,6 +27,7 @@ class Client {
   [[nodiscard]] const std::string& getUserUuid() const { return _userUuid; }
   void setUserUuid(const std::string& userUuid) { _userUuid = userUuid; }
 
+  [[nodiscard]] Context& getContext() { return _context; }
   [[nodiscard]] const Context& getContext() const { return _context; }
   void setContext(const Context& context) { _context = context; }
 
