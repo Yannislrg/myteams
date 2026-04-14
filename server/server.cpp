@@ -11,6 +11,7 @@
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <csignal>
@@ -235,7 +236,25 @@ void Server::broadcast(const std::string& msg) {
 
 void Server::notifySubscribers(const std::string& teamUuid,
                                const std::string& msg) {
-  (void)teamUuid;
-  (void)msg;
-  (void)_clients;
+  if (teamUuid.empty() || msg.empty()) {
+    return;
+  }
+
+  const Team* team = _db.findTeam(teamUuid);
+  if (team == nullptr) {
+    return;
+  }
+
+  const auto& subscriberUuids = team->getSubscriberUuids();
+  for (auto& [fileDescriptor, client] : _clients) {
+    (void)fileDescriptor;
+    if (client == nullptr || client->getUserUuid().empty()) {
+      continue;
+    }
+    if (std::ranges::find(subscriberUuids, client->getUserUuid()) ==
+        subscriberUuids.end()) {
+      continue;
+    }
+    sendToClient(msg, *client);
+  }
 }

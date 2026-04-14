@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>
@@ -37,6 +38,12 @@ class Team {
   [[nodiscard]] const std::vector<std::string>& getSubscriberUuids() const {
     return _subscriberUuids;
   }
+  [[nodiscard]] bool isUserSubscribed(const std::string& userUuid) const {
+    return std::ranges::find(_subscriberUuids, userUuid) !=
+           _subscriberUuids.end();
+  }
+  [[nodiscard]] bool addSubscriber(const std::string& userUuid);
+  [[nodiscard]] bool removeSubscriber(const std::string& userUuid);
   void setSubscriberUuids(const std::vector<std::string>& subscriberUuids) {
     _subscriberUuids = subscriberUuids;
   }
