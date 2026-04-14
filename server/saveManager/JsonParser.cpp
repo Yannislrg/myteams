@@ -112,6 +112,24 @@ JsonVal JsonParser::parseValue() {
     }
     case '[': return parseArray();
     case '{': return parseObject();
+    case 't': {
+      _pos += 4;
+      JsonVal v;
+      v.type = JsonVal::Type::Bool;
+      v.bVal = true;
+      return v;
+    }
+    case 'f': {
+      _pos += 5;
+      JsonVal v;
+      v.type = JsonVal::Type::Bool;
+      v.bVal = false;
+      return v;
+    }
+    case 'n': {
+      _pos += 4;
+      return {};
+    }
     default:  return parseNum();
   }
 }
