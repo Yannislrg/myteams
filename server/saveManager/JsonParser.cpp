@@ -6,7 +6,7 @@
 */
 
 #include "JsonParser.hpp"
-#include <cctype>
+#include <charconv>
 #include <string>
 
 const JsonVal& JsonVal::operator[](const std::string& key) const {
@@ -18,35 +18,52 @@ const JsonVal& JsonVal::operator[](const std::string& key) const {
   return it->second;
 }
 
-const std::string& JsonVal::str() const { return sVal; }
+const std::string& JsonVal::str() const {
+  return sVal;
+}
 
-double JsonVal::num() const { return nVal; }
+double JsonVal::num() const {
+  return nVal;
+}
 
-const std::vector<JsonVal>& JsonVal::array() const { return arrVal; }
+const std::vector<JsonVal>& JsonVal::array() const {
+  return arrVal;
+}
 
-const std::map<std::string, JsonVal>& JsonVal::object() const { return objVal; }
+const std::map<std::string, JsonVal>& JsonVal::object() const {
+  return objVal;
+}
 
 JsonParser::JsonParser(const std::string& src) : _src(src), _pos(0) {}
 
-JsonVal JsonParser::parse() { return parseValue(); }
+JsonVal JsonParser::parse() {
+  return parseValue();
+}
 
 void JsonParser::skipWs() {
-  while (_pos < _src.size() &&
-         std::isspace(static_cast<unsigned char>(_src[_pos])))
-    ++_pos;
+  _pos = _src.find_first_not_of(" \t\n\r\f\v", _pos);
+  if (_pos == std::string::npos)
+    _pos = _src.size();
 }
 
 std::string JsonParser::parseStr() {
   ++_pos;
   std::string result;
   while (_pos < _src.size() && _src[_pos] != '"') {
-    if (_src[_pos] == '\\') {
+    if (_src[_pos] == '\\')
       ++_pos;
-    }
     result += _src[_pos++];
   }
   ++_pos;
   return result;
+}
+
+JsonVal JsonParser::parseNum() {
+  JsonVal val;
+  val.type = JsonVal::Type::Num;
+  auto [ptr, ec] = std::from_chars(_src.data() + _pos, _src.data() + _src.size(), val.nVal);
+  _pos = ptr - _src.data();
+  return val;
 }
 
 JsonVal JsonParser::parseArray() {
@@ -57,9 +74,8 @@ JsonVal JsonParser::parseArray() {
   while (_pos < _src.size() && _src[_pos] != ']') {
     val.arrVal.push_back(parseValue());
     skipWs();
-    if (_src[_pos] == ',') {
+    if (_src[_pos] == ',')
       ++_pos;
-    }
   }
   ++_pos;
   return val;
@@ -76,9 +92,8 @@ JsonVal JsonParser::parseObject() {
     ++_pos;  // ':'
     val.objVal[key] = parseValue();
     skipWs();
-    if (_src[_pos] == ',') {
+    if (_src[_pos] == ',')
       ++_pos;
-    }
     skipWs();
   }
   ++_pos;
@@ -88,22 +103,15 @@ JsonVal JsonParser::parseObject() {
 JsonVal JsonParser::parseValue() {
   skipWs();
   if (_pos >= _src.size()) return {};
-  char cur = _src[_pos];
-  if (cur == '"') {
-    JsonVal val;
-    val.type = JsonVal::Type::Str;
-    val.sVal = parseStr();
-    return val;
+  switch (_src[_pos]) {
+    case '"': {
+      JsonVal v;
+      v.type = JsonVal::Type::Str;
+      v.sVal = parseStr();
+      return v;
+    }
+    case '[': return parseArray();
+    case '{': return parseObject();
+    default:  return parseNum();
   }
-  if (cur == '[') return parseArray();
-  if (cur == '{') return parseObject();
-  JsonVal val;
-  val.type = JsonVal::Type::Num;
-  std::size_t start = _pos;
-  if (_src[_pos] == '-') ++_pos;
-  while (_pos < _src.size() &&
-         std::isdigit(static_cast<unsigned char>(_src[_pos])))
-    ++_pos;
-  val.nVal = std::stod(_src.substr(start, _pos - start));
-  return val;
 }

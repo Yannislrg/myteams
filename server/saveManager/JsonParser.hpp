@@ -43,6 +43,7 @@ class JsonParser {
   void skipWs();
   std::string parseStr();
   JsonVal parseValue();
+  JsonVal parseNum();
   JsonVal parseArray();
   JsonVal parseObject();
 };

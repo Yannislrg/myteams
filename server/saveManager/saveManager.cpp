@@ -8,7 +8,6 @@
 #include "saveManager.hpp"
 #include <fstream>
 #include <iostream>
-#include <sstream>
 #include "JsonParser.hpp"
 #include "JsonSerializer.hpp"
 
@@ -21,23 +20,16 @@ void SaveManager::save(const Database& database) {
               << " for writing\n";
     return;
   }
-  std::ostringstream os;
-  os << "{\"users\":[";
-  bool first = true;
+  std::string users, teams;
   for (const auto& user : database.getUsers()) {
-    if (!first) os << ',';
-    os << userToJson(user);
-    first = false;
+    if (!users.empty()) users += ',';
+    users += userToJson(user);
   }
-  os << "],\"teams\":[";
-  first = true;
   for (const auto& team : database.getTeams()) {
-    if (!first) os << ',';
-    os << teamToJson(team);
-    first = false;
+    if (!teams.empty()) teams += ',';
+    teams += teamToJson(team);
   }
-  os << "]}";
-  file << os.str();
+  file << "{\"users\":[" << users << "],\"teams\":[" << teams << "]}";
   std::cerr << "[saveManager] saved to " << SAVE_FILE << "\n";
 }
 
