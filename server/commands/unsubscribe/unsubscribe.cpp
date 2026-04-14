@@ -6,29 +6,34 @@
 */
 
 #include "unsubscribe.hpp"
-#include <algorithm>
 #include "client/client.hpp"
 #include "logging_server.h"
 #include "server.hpp"
 
 void Unsubscribe::execute(Client& client, Server& server) {
   const auto& context = client.getContext();
-  if (context.teamUuid.empty()) {
+  const auto userUuid = client.getUserUuid();
+  const auto& args = client.getArgs();
+  if (args.size() < 2 || args[1].empty()) {
     return;
   }
-  auto* team = server.getDb().findTeam(context.teamUuid);
+  if (userUuid.empty()) {
+    return;
+  }
+  auto* team = server.getDb().findTeam(args[1]);
   if (team == nullptr) {
     return;
   }
-  auto& subscriberUuids = team->getSubscriberUuids();
-  const auto eraseFrom =
-      std::ranges::remove(subscriberUuids, client.getUserUuid());
-  subscriberUuids.erase(eraseFrom.begin(), eraseFrom.end());
-  server_event_user_unsubscribed(context.teamUuid.c_str(),
-                                 client.getUserUuid().c_str());
-  server.notifySubscribers(context.teamUuid,
-                           "user_unsubscribed \"" + context.teamUuid + "\" \"" +
-                               client.getUserUuid() + "\"\r\n");
-  Server::sendToClient("200: " + context.teamUuid + " " + client.getUserUuid(),
+  if (!team->isUserSubscribed(userUuid)) {
+    return;
+  }
+  if (!team->removeSubscriber(userUuid)) {
+    return;
+  }
+  server_event_user_unsubscribed(context.teamUuid.c_str(), userUuid.c_str());
+  server.notifySubscribers(context.teamUuid, "user_unsubscribed \"" +
+                                                 context.teamUuid + "\" \"" +
+                                                 userUuid + "\"\r\n");
+  Server::sendToClient("200: " + context.teamUuid + " " + userUuid + "\r\n",
                        client);
 }

@@ -11,20 +11,24 @@
 #include "server.hpp"
 
 void Subscribe::execute(Client& client, Server& server) {
-  const auto& context = client.getContext();
-  if (context.teamUuid.empty()) {
+  const auto& args = client.getArgs();
+  if (args.size() < 2 || args[1].empty()) {
     return;
   }
-  auto* team = server.getDb().findTeam(context.teamUuid);
+  const auto& teamUuid = args[1];
+  auto* team = server.getDb().findTeam(teamUuid);
   if (team == nullptr) {
     return;
   }
-  team->getSubscriberUuids().push_back(client.getUserUuid());
-  server_event_user_subscribed(context.teamUuid.c_str(),
-                               client.getUserUuid().c_str());
-  server.notifySubscribers(context.teamUuid,
-                           "user_subscribed \"" + context.teamUuid + "\" \"" +
-                               client.getUserUuid() + "\"\r\n");
-  Server::sendToClient("200: " + context.teamUuid + " " + client.getUserUuid(),
+  if (team->isUserSubscribed(client.getUserUuid())) {
+    return;
+  }
+  if (!team->addSubscriber(client.getUserUuid())) {
+    return;
+  }
+  server_event_user_subscribed(teamUuid.c_str(), client.getUserUuid().c_str());
+  server.notifySubscribers(teamUuid, "user_subscribed \"" + teamUuid + "\" \"" +
+                                         client.getUserUuid() + "\"\r\n");
+  Server::sendToClient("200: " + teamUuid + " " + client.getUserUuid() + "\r\n",
                        client);
 }
