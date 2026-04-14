@@ -1,7 +1,6 @@
 *.o
 .cache/
 compile_commands.json
-Makefile
 build/
 myteams_cli
 myteams_server

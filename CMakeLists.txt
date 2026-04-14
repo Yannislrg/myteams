@@ -5,6 +5,8 @@ project(myteams)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(MYTEAMS_LIB_DIR ${CMAKE_SOURCE_DIR}/libs/myteams)
+
 if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif()
@@ -50,12 +52,12 @@ target_include_directories(myteams_server PRIVATE
   ${CMAKE_SOURCE_DIR}/server/sys
   ${CMAKE_SOURCE_DIR}/server/saveManager
 
-  ${CMAKE_SOURCE_DIR}/libs
+  ${MYTEAMS_LIB_DIR}
 )
 target_compile_options(myteams_server PRIVATE ${COMMON_COMPILER_FLAGS})
 if(APPLE)
   target_link_libraries(myteams_server PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/libmyteams_macos.so
+    ${MYTEAMS_LIB_DIR}/libmyteams_macos.so
   )
   set_target_properties(myteams_server PROPERTIES
     BUILD_RPATH "@executable_path/libs"
@@ -66,7 +68,7 @@ if(APPLE)
   )
 else()
   target_link_libraries(myteams_server PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+    ${MYTEAMS_LIB_DIR}/libmyteams.so
     uuid
   )
 endif()
