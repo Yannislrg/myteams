@@ -7,19 +7,16 @@
 
 #include "saveManager.hpp"
 #include <fstream>
-#include <iostream>
 #include "JsonParser.hpp"
 #include "JsonSerializer.hpp"
+#include "myteams/logging_server.h"
 
 static constexpr const char* SAVE_FILE = "myteams_data.json";
 
 void SaveManager::save(const Database& database) {
   std::ofstream file(SAVE_FILE);
-  if (!file.is_open()) {
-    std::cerr << "[saveManager] failed to open " << SAVE_FILE
-              << " for writing\n";
+  if (!file.is_open())
     return;
-  }
   std::string users, teams;
   for (const auto& user : database.getUsers()) {
     if (!users.empty()) users += ',';
@@ -30,7 +27,6 @@ void SaveManager::save(const Database& database) {
     teams += teamToJson(team);
   }
   file << "{\"users\":[" << users << "],\"teams\":[" << teams << "]}";
-  std::cerr << "[saveManager] saved to " << SAVE_FILE << "\n";
 }
 
 void SaveManager::load(Database& database) {
@@ -43,10 +39,11 @@ void SaveManager::load(Database& database) {
   JsonParser parser(content);
   const JsonVal root = parser.parse();
 
-  for (const auto& userVal : root["users"].array())
+  for (const auto& userVal : root["users"].array()) {
     database.getUsers().push_back(userFromJson(userVal));
+    const User& u = database.getUsers().back();
+    server_event_user_loaded(u.getUuid().c_str(), u.getName().c_str());
+  }
   for (const auto& teamVal : root["teams"].array())
     database.getTeams().push_back(teamFromJson(teamVal));
-  std::cerr << "[saveManager] loaded " << database.getUsers().size()
-            << " users, " << database.getTeams().size() << " teams\n";
 }
