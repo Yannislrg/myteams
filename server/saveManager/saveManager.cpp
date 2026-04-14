@@ -9,7 +9,7 @@
 #include <fstream>
 #include "JsonParser.hpp"
 #include "JsonSerializer.hpp"
-#include "../../libs/myteams/logging_server.h"
+#include "logging_server.h"
 
 static constexpr const char* SAVE_FILE = "myteams_data.json";
 

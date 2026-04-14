@@ -8,12 +8,12 @@
 #pragma once
 
 #include <string>
-#include "../models/Channel.hpp"
-#include "../models/Message.hpp"
-#include "../models/Reply.hpp"
-#include "../models/Team.hpp"
-#include "../models/Thread.hpp"
-#include "../models/User.hpp"
+#include "Channel.hpp"
+#include "Message.hpp"
+#include "Reply.hpp"
+#include "Team.hpp"
+#include "Thread.hpp"
+#include "User.hpp"
 #include "JsonParser.hpp"
 
 std::string escapeJson(const std::string& str);
