@@ -117,7 +117,7 @@ if(APPLE)
   )
 else()
   target_link_libraries(myteams_cli PRIVATE
-    ${CMAKE_SOURCE_DIR}/libs/libmyteams.so
+    ${MYTEAMS_LIB_DIR}/libmyteams.so
   )
 endif()
 
