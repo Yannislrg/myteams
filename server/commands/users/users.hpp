@@ -9,14 +9,14 @@
 
 #include "ICommand.hpp"
 
-class UserCommand : public ICommand {
+class UsersCommand : public ICommand {
  public:
-  UserCommand();
-  ~UserCommand() override;
-  UserCommand(const UserCommand& other) = delete;
-  UserCommand& operator=(const UserCommand& other) = delete;
-  UserCommand(UserCommand&& other) = delete;
-  UserCommand& operator=(UserCommand&& other) = delete;
+  UsersCommand() = default;
+  ~UsersCommand() override = default;
+  UsersCommand(const UsersCommand& other) = delete;
+  UsersCommand& operator=(const UsersCommand& other) = delete;
+  UsersCommand(UsersCommand&& other) = delete;
+  UsersCommand& operator=(UsersCommand&& other) = delete;
 
   void execute(Client& client, Server& server) override;
 

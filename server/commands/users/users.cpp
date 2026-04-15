@@ -10,8 +10,8 @@
 #include "database/Database.hpp"
 #include "server.hpp"
 
-void UserCommand::execute(Client& client, Server& server) {
-  if (server.getDb().findUserByName(client.getUserUuid()) == nullptr) {
+void UsersCommand::execute(Client& client, Server& server) {
+  if (client.getUserUuid().empty()) {
     Server::sendToClient("530 Please login first\r\n", client);
     return;
   }
