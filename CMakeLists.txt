@@ -48,6 +48,8 @@ set(SERVER_SRC
   server/utils/utils.cpp
   server/commands/login/login.cpp
   server/commands/logout/logout.cpp
+  server/commands/send/send.cpp
+  server/commands/messages/messages.cpp
 )
 
 add_executable(myteams_server ${SERVER_SRC})
