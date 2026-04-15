@@ -42,5 +42,5 @@ void Unsubscribe::execute(Client& client, Server& server) {
                                                  context.teamUuid + "\" \"" +
                                                  userUuid + "\"\r\n");
   Server::sendToClient(
-      "200 OK \"" + userUuid + "\" \"" + context.teamUuid + "\"\r\n", client);
+      "200 UNSUBSCRIBE \"" + userUuid + "\" \"" + context.teamUuid + "\"\r\n", client);
 }
