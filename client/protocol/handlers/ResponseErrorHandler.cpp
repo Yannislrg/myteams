@@ -16,7 +16,7 @@ void ResponseErrorHandler::handle(
   } else if (_code == "409") {
     (void)client_error_already_exist();
   } else if (_code == "404" && tokens.size() >= 3) {
-    (void)client_error_unknown_team(tokens[2].c_str());
+    std::cout << "Error: NOT_FOUND\n"; // TODO(lukas): more specific error messages based on context and tokens
   } else if (_code == "403") {
     std::cout << "Error: forbidden\n";
   } else if (_code == "400") {
