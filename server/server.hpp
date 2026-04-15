@@ -33,6 +33,7 @@ class Server {
   void run();
   static void sendToClient(const std::string& msg, Client& client);
   void broadcast(const std::string& msg);
+  void sendToUser(const std::string& userUuid, const std::string& msg);
   void notifySubscribers(const std::string& teamUuid, const std::string& msg);
   static void handleSignal(int sig);
 

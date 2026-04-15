@@ -48,6 +48,8 @@ set(SERVER_SRC
   server/utils/utils.cpp
   server/commands/login/login.cpp
   server/commands/logout/logout.cpp
+  server/commands/send/send.cpp
+  server/commands/messages/messages.cpp
   server/commands/user/user.cpp
   server/commands/users/users.cpp
 )

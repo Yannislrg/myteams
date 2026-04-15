@@ -15,6 +15,7 @@
 #include "server.hpp"
 
 static constexpr std::size_t UUID_LEN = 37;
+static constexpr std::size_t MAX_NAME_LENGTH = 32;
 
 namespace {
 void createNewUser(Client& client, Server& server,
@@ -30,10 +31,12 @@ void createNewUser(Client& client, Server& server,
   server.getDb().getUsers().push_back(newUser);
   client.setUserUuid(newUser.getUuid());
   Server::sendToClient(
-      "200 OK" + newUser.getUuid() + " " + newUser.getName() + "\r\n", client);
+      "200 OK " + newUser.getUuid() + " " + newUser.getName() + "\r\n", client);
   server_event_user_created(newUser.getUuid().c_str(),
                             newUser.getName().c_str());
   server_event_user_logged_in(newUser.getUuid().c_str());
+  server.broadcast("EVENT USER_LOGGED_IN \"" + newUser.getUuid() + "\" \"" +
+                   newUser.getName() + "\"\r\n");
 }
 
 void logUserIn(Client& client, Server& server, const std::string& username) {
@@ -49,8 +52,10 @@ void logUserIn(Client& client, Server& server, const std::string& username) {
   user->setConnected(true);
   client.setUserUuid(user->getUuid());
   Server::sendToClient(
-      "200 OK" + user->getUuid() + " " + user->getName() + "\r\n", client);
+      "200 OK " + user->getUuid() + " " + user->getName() + "\r\n", client);
   server_event_user_logged_in(user->getUuid().c_str());
+  server.broadcast("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
+                   user->getName() + "\"\r\n");
 }
 }  // namespace
 
@@ -65,7 +70,7 @@ void Login::execute(Client& client, Server& server) {
     return;
   }
   const std::string& username = args[1];
-  if (username.empty()) {
+  if (username.empty() || username.size() > MAX_NAME_LENGTH) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }

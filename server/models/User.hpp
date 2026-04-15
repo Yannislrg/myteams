@@ -43,6 +43,7 @@ class User {
       const std::map<std::string, std::vector<Message>>& messages) {
     _messages = messages;
   }
+  void addMessage(const std::string& senderUuid, const Message& message);
 
  private:
   std::string _uuid;

@@ -133,7 +133,14 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
   auto clientIter = _clients.find(clientFd);
   if (clientIter != _clients.end() &&
       !clientIter->second->getUserUuid().empty()) {
-    server_event_user_logged_out(clientIter->second->getUserUuid().c_str());
+    const std::string userUuid = clientIter->second->getUserUuid();
+    server_event_user_logged_out(userUuid.c_str());
+    auto* user = _db.findUser(userUuid);
+    if (user != nullptr) {
+      user->setConnected(false);
+      broadcast("EVENT USER_LOGGED_OUT \"" + user->getUuid() + "\" \"" +
+                user->getName() + "\"\r\n");
+    }
   }
   poller.removeFileDescriptor(clientFd);
   sys::Posix::close(clientFd);
@@ -218,6 +225,15 @@ void Server::broadcast(const std::string& msg) {
   for (const auto& [filedescriptor, client] : _clients) {
     (void)filedescriptor;
     client->appendToWriteBuffer(msg);
+  }
+}
+
+void Server::sendToUser(const std::string& userUuid, const std::string& msg) {
+  for (const auto& [filedescriptor, client] : _clients) {
+    (void)filedescriptor;
+    if (client != nullptr && client->getUserUuid() == userUuid) {
+      sendToClient(msg, *client);
+    }
   }
 }
 
