@@ -35,6 +35,8 @@ void createNewUser(Client& client, Server& server,
   server_event_user_created(newUser.getUuid().c_str(),
                             newUser.getName().c_str());
   server_event_user_logged_in(newUser.getUuid().c_str());
+  server.broadcast("EVENT USER_LOGGED_IN \"" + newUser.getUuid() + "\" \"" +
+                   newUser.getName() + "\"\r\n");
 }
 
 void logUserIn(Client& client, Server& server, const std::string& username) {
@@ -52,6 +54,8 @@ void logUserIn(Client& client, Server& server, const std::string& username) {
   Server::sendToClient(
       "200 OK " + user->getUuid() + " " + user->getName() + "\r\n", client);
   server_event_user_logged_in(user->getUuid().c_str());
+  server.broadcast("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
+                   user->getName() + "\"\r\n");
 }
 }  // namespace
 

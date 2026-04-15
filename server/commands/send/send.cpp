@@ -49,5 +49,9 @@ void Send::execute(Client& client, Server& server) {
   server_event_private_message_sended(senderUser->getUuid().c_str(),
                                       receiverUser->getUuid().c_str(),
                                       messageBody.c_str());
+  server.sendToUser(receiverUser->getUuid(), "EVENT PRIVATE_MESSAGE \"" +
+                                                 senderUser->getUuid() +
+                                                 "\" \"" + messageBody +
+                                                 "\"\r\n");
   Server::sendToClient("200 OK\r\n", client);
 }

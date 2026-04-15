@@ -21,6 +21,8 @@ void Logout::execute(Client& client, Server& server) {
   auto* user = server.getDb().findUser(client.getUserUuid());
   if (user != nullptr) {
     user->setConnected(false);
+    server.broadcast("EVENT USER_LOGGED_OUT \"" + user->getUuid() + "\" \"" +
+                     user->getName() + "\"\r\n");
   }
   client.setUserUuid("");
   Server::sendToClient("200 OK\r\n", client);
