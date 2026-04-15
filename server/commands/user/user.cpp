@@ -10,19 +10,27 @@
 #include "database/Database.hpp"
 #include "models/User.hpp"
 #include "server.hpp"
+#include "utils.hpp"
 
 void UserCommand::execute(Client& client, Server& server) {
   const auto& args = client.getArgs();
-  if (args.empty()) {
-    Server::sendToClient("530 Please login first\r\n", client);
+  if (client.getUserUuid().empty()) {
+    Server::sendToClient("401 UNAUTHORIZED\r\n", client);
+    return;
+  }
+  if (args.size() < 2) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
   const auto& user = server.getDb().findUser(args[1]);
   if (user == nullptr) {
-    Server::sendToClient("404 User not found\r\n", client);
+    Server::sendToClient(
+        "404 NOT_FOUND " + Utils::quoteProtocolField(args[1]) + "\r\n", client);
     return;
   }
-  Server::sendToClient("210 " + user->getUuid() + " " + user->getName() + " " +
+  Server::sendToClient("200 USER " +
+                           Utils::quoteProtocolField(user->getUuid()) + " " +
+                           Utils::quoteProtocolField(user->getName()) + " " +
                            std::to_string(user->isConnected() ? 1 : 0) + "\r\n",
                        client);
 }
