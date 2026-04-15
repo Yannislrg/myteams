@@ -50,6 +50,8 @@ set(SERVER_SRC
   server/commands/logout/logout.cpp
   server/commands/send/send.cpp
   server/commands/messages/messages.cpp
+  server/commands/user/user.cpp
+  server/commands/users/users.cpp
 )
 
 add_executable(myteams_server ${SERVER_SRC})
@@ -82,6 +84,7 @@ set(CLIENT_SRC
   client/ClientApplication.cpp
   client/main.cpp
   client/network/Poller.cpp
+  client/protocol/CommandLineDispatcher.cpp
   client/protocol/TokenParser.cpp
   client/protocol/ServerMessageRouter.cpp
   client/protocol/handlers/TeamCreatedHandler.cpp

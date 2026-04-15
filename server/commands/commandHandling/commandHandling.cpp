@@ -21,6 +21,8 @@
 #include "commands/subscribed/subscribed.hpp"
 #include "commands/unsubscribe/unsubscribe.hpp"
 #include "commands/use/use.hpp"
+#include "commands/user/user.hpp"
+#include "commands/users/users.hpp"
 
 namespace {
 std::vector<std::string> parseArgs(const std::string& rawCommand) {
@@ -64,6 +66,8 @@ CommandHandling::CommandHandling() {
   _commands.emplace("/logout", std::make_unique<Logout>());
   _commands.emplace("/send", std::make_unique<Send>());
   _commands.emplace("/messages", std::make_unique<Messages>());
+  _commands.emplace("/user", std::make_unique<UserCommand>());
+  _commands.emplace("/users", std::make_unique<UsersCommand>());
 }
 
 void CommandHandling::handleCommand(const std::string& rawCommand,
