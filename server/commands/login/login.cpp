@@ -31,7 +31,8 @@ void createNewUser(Client& client, Server& server,
   newUser.setUuid(std::string(uuidStr.data()));
   server.getDb().getUsers().push_back(newUser);
   client.setUserUuid(newUser.getUuid());
-  Server::sendToClient("201 CREATED\r\n", client);
+  Server::sendToClient(
+      "200 OK" + newUser.getUuid() + " " + newUser.getName() + "\r\n", client);
   server_event_user_created(newUser.getUuid().c_str(),
                             newUser.getName().c_str());
   server_event_user_logged_in(newUser.getUuid().c_str());
