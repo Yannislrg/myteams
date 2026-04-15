@@ -7,6 +7,7 @@
 
 #include "login.hpp"
 #include <uuid/uuid.h>
+#include <array>
 #include "User.hpp"
 #include "client.hpp"
 #include "database/Database.hpp"
