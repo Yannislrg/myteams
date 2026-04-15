@@ -11,6 +11,10 @@
 #include "server.hpp"
 
 void UserCommand::execute(Client& client, Server& server) {
+  if (server.getDb().findUserByName(client.getUserUuid()) == nullptr) {
+    Server::sendToClient("530 Please login first\r\n", client);
+    return;
+  }
   const auto& users = server.getDb().getUsers();
   Server::sendToClient("210-BEGIN USERS\r\n", client);
   for (const auto& user : users) {
