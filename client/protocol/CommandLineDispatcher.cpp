@@ -10,7 +10,42 @@
 #include <array>
 #include <cctype>
 #include <ostream>
+#include <string_view>
 #include "TokenParser.hpp"
+
+namespace {
+
+struct CommandEntry {
+  std::string_view name;
+  std::string_view usage;
+};
+
+constexpr std::array<CommandEntry, 16> commands = {{
+    {.name = "/login", .usage = R"(/login "user_name")"},
+    {.name = "/logout", .usage = "/logout"},
+    {.name = "/users", .usage = "/users"},
+    {.name = "/user", .usage = R"(/user "user_uuid")"},
+    {.name = "/send", .usage = R"(/send "user_uuid" "message_body")"},
+    {.name = "/messages", .usage = R"(/messages "user_uuid")"},
+    {.name = "/subscribe", .usage = R"(/subscribe "team_uuid")"},
+    {.name = "/subscribed", .usage = R"(/subscribed ?"team_uuid")"},
+    {.name = "/unsubscribe", .usage = R"(/unsubscribe "team_uuid")"},
+    {.name = "/use", .usage = R"(/use ?"team_uuid" ?"channel_uuid" ?"thread_uuid")"},
+    {.name = "/create",
+     .usage = R"(/create "team_name" "team_description" (no /use context))"},
+    {.name = "/create",
+     .usage = R"(/create "channel_name" "channel_description" (after /use "team_uuid"))"},
+    {.name = "/create",
+     .usage = R"(/create "thread_title" "thread_message" (after /use "team_uuid" "channel_uuid"))"},
+    {.name = "/create",
+     .usage = R"(/create "comment_body" (after /use "team_uuid" "channel_uuid" "thread_uuid"))"},
+    {.name = "/list",
+     .usage = "/list (lists teams, channels, threads, or replies depending on /use context)"},
+    {.name = "/info",
+     .usage = "/info (shows current user, team, channel, or thread depending on /use context)"},
+}};
+
+}  // namespace
 
 std::string CommandLineDispatcher::trimLeft(const std::string& line) {
   std::size_t index = 0;
@@ -31,13 +66,9 @@ std::optional<std::string> CommandLineDispatcher::extractCommand(
 }
 
 bool CommandLineDispatcher::isSupportedServerCommand(std::string_view command) {
-  static constexpr std::array<std::string_view, 13> serverCommands = {
-      "/login",    "/logout",    "/users",      "/user",        "/send",
-      "/messages", "/subscribe", "/subscribed", "/unsubscribe", "/use",
-      "/create",   "/list",      "/info",
-  };
-
-  return std::ranges::find(serverCommands, command) != serverCommands.end();
+  return std::ranges::any_of(
+      commands,
+      [command](const CommandEntry& entry) { return entry.name == command; });
 }
 
 bool CommandLineDispatcher::hasUnquotedArgs(std::string_view argsView) {
@@ -66,26 +97,8 @@ bool CommandLineDispatcher::hasUnquotedArgs(std::string_view argsView) {
 }
 
 void CommandLineDispatcher::printHelp(std::ostream& output) {
-  output << "/help\n"
-         << "/login \"user_name\"\n"
-         << "/logout\n"
-         << "/users\n"
-         << "/user \"user_uuid\"\n"
-         << "/send \"user_uuid\" \"message_body\"\n"
-         << "/messages \"user_uuid\"\n"
-         << "/subscribe \"team_uuid\"\n"
-         << "/subscribed ?\"team_uuid\"\n"
-         << "/unsubscribe \"team_uuid\"\n"
-         << "/use ?\"team_uuid\" ?\"channel_uuid\" ?\"thread_uuid\"\n"
-         << "/create \"team_name\" \"team_description\" (no /use context)\n"
-         << "/create \"channel_name\" \"channel_description\" (after /use "
-            "\"team_uuid\")\n"
-         << "/create \"thread_title\" \"thread_message\" (after /use "
-            "\"team_uuid\" \"channel_uuid\")\n"
-         << "/create \"comment_body\" (after /use \"team_uuid\" "
-            "\"channel_uuid\" \"thread_uuid\")\n"
-         << "/list (lists teams, channels, threads, or replies depending on "
-            "/use context)\n"
-         << "/info (shows current user, team, channel, or thread depending "
-            "on /use context)\n";
+  output << "/help\n";
+  for (const auto& entry : commands) {
+    output << entry.usage << '\n';
+  }
 }
