@@ -8,6 +8,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 #include "ICommandHandler.hpp"
 
 class ResponseErrorHandler : public ICommandHandler {
