@@ -40,23 +40,21 @@ void Response200Handler::handle(const std::vector<std::string>& tokens) const {
 
   if (sub == "INFO" && tokens.size() >= 3) {
     const std::string& type = tokens[2];
-    if (tokens.size() >= InfoMinTokens) {
-      if (type == "USER") {
-        (void)client_print_user(
-            tokens[3].c_str(), tokens[4].c_str(),
-            std::stoi(
-                tokens[5]));  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-      } else if (type == "TEAM") {
-        (void)client_print_team(
-            tokens[3].c_str(), tokens[4].c_str(),
-            tokens[5] // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-                .c_str());
-      } else if (type == "CHANNEL") {
-        (void)client_print_channel(
-            tokens[3].c_str(), tokens[4].c_str(),
-            tokens[5] // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-                .c_str());
-      }
+    if (type == "USER" && tokens.size() >= InfoMinTokens) {
+      (void)client_print_user(
+          tokens[3].c_str(), tokens[4].c_str(),
+          std::stoi(
+              tokens[5]));  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+    } else if (type == "TEAM" && tokens.size() >= InfoMinTokens) {
+      (void)client_print_team(
+          tokens[3].c_str(), tokens[4].c_str(),
+          tokens[5] // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+              .c_str());
+    } else if (type == "CHANNEL" && tokens.size() >= InfoMinTokens) {
+      (void)client_print_channel(
+          tokens[3].c_str(), tokens[4].c_str(),
+          tokens[5] // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+              .c_str());
     } else if (type == "THREAD" && tokens.size() >= ThreadMinTokens) {
       const auto timestamp = static_cast<time_t>(std::stoll(tokens[5]));
       (void)client_print_thread(
