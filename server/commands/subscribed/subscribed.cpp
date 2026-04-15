@@ -49,9 +49,18 @@ void listSubscribedUsers(Client& client, Server& server,
     Server::sendToClient("403 FORBIDDEN\r\n", client);
     return;
   }
+  Server::sendToClient("210-BEGIN USERS\r\n", client);
   for (const auto& subscriberUuid : team->getSubscriberUuids()) {
-    Server::sendToClient("200: " + subscriberUuid + "\r\n", client);
+    auto* user = server.getDb().findUser(subscriberUuid);
+    if (user == nullptr) {
+      continue;
+    }
+    Server::sendToClient("210: \"" + user->getUuid() + "\" \"" +
+                             user->getName() + "\" " +
+                             (user->isConnected() ? "1" : "0") + "\r\n",
+                         client);
   }
+  Server::sendToClient("210-END USERS\r\n", client);
 }
 }  // namespace
 
