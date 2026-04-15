@@ -7,6 +7,7 @@
 
 #include "Response200Handler.hpp"
 #include <ctime>
+#include <exception>
 #include <string>
 #include <vector>
 #include "LoggingClientC.hpp"
@@ -23,8 +24,13 @@ void Response200Handler::handle(const std::vector<std::string>& tokens) const {
   const std::string& sub = tokens[1];
 
   if (sub == "USER" && tokens.size() >= UserMinTokens) {
-    (void)client_print_user(tokens[2].c_str(), tokens[3].c_str(),
-                            std::stoi(tokens[4]));
+    int status = 0;
+    try {
+      status = std::stoi(tokens[4]);
+    } catch (const std::exception&) {
+      return;
+    }
+    (void)client_print_user(tokens[2].c_str(), tokens[3].c_str(), status);
     return;
   }
 
@@ -41,10 +47,13 @@ void Response200Handler::handle(const std::vector<std::string>& tokens) const {
   if (sub == "INFO" && tokens.size() >= 3) {
     const std::string& type = tokens[2];
     if (type == "USER" && tokens.size() >= InfoMinTokens) {
-      (void)client_print_user(
-          tokens[3].c_str(), tokens[4].c_str(),
-          std::stoi(
-              tokens[5]));  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+      int status = 0;
+      try {
+        status = std::stoi(tokens[5]);  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+      } catch (const std::exception&) {
+        return;
+      }
+      (void)client_print_user(tokens[3].c_str(), tokens[4].c_str(), status);
     } else if (type == "TEAM" && tokens.size() >= InfoMinTokens) {
       (void)client_print_team(
           tokens[3].c_str(), tokens[4].c_str(),
@@ -56,7 +65,12 @@ void Response200Handler::handle(const std::vector<std::string>& tokens) const {
           tokens[5] // NOLINT(cppcoreguidelines-avoid-magic-numbers)
               .c_str());
     } else if (type == "THREAD" && tokens.size() >= ThreadMinTokens) {
-      const auto timestamp = static_cast<time_t>(std::stoll(tokens[5]));
+      time_t timestamp = 0;
+      try {
+        timestamp = static_cast<time_t>(std::stoll(tokens[5]));  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+      } catch (const std::exception&) {
+        return;
+      }
       (void)client_print_thread(
           tokens[3].c_str(), tokens[4].c_str(), timestamp, tokens[6].c_str(), // NOLINT(cppcoreguidelines-avoid-magic-numbers)
           tokens[7].c_str());  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
