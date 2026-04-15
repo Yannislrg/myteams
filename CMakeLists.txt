@@ -12,11 +12,10 @@ if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 endif()
 
-if(APPLE)
-  set(MYTEAMS_RUNTIME_LIB_DIR "@executable_path/libs/myteams")
-else()
-  set(MYTEAMS_RUNTIME_LIB_DIR "$ORIGIN/libs/myteams")
-endif()
+set(CMAKE_SKIP_BUILD_RPATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
+set(CMAKE_INSTALL_RPATH "")
+set(CMAKE_SKIP_INSTALL_RPATH TRUE)
 
 set(COMMON_COMPILER_FLAGS -Wall -Wextra -Werror)
 set(COMMON_INCLUDE_DIRS ${CMAKE_SOURCE_DIR}/include)
@@ -61,30 +60,11 @@ target_include_directories(myteams_server PRIVATE
   ${MYTEAMS_LIB_DIR}
 )
 target_compile_options(myteams_server PRIVATE ${COMMON_COMPILER_FLAGS})
+target_link_directories(myteams_server PRIVATE ${MYTEAMS_LIB_DIR})
 if(APPLE)
-  target_link_libraries(myteams_server PRIVATE
-    ${MYTEAMS_LIB_DIR}/libmyteams_macos.so
-  )
-  set_target_properties(myteams_server PROPERTIES
-    BUILD_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
-    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
-  )
-  add_custom_command(TARGET myteams_server POST_BUILD
-    COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_server>
-  )
+  target_link_libraries(myteams_server PRIVATE myteams_macos)
 else()
-  target_link_directories(myteams_server PRIVATE
-    ${MYTEAMS_LIB_DIR}
-  )
-  target_link_libraries(myteams_server PRIVATE
-    myteams
-    uuid
-  )
-  set_target_properties(myteams_server PROPERTIES
-    SKIP_BUILD_RPATH TRUE
-    BUILD_WITH_INSTALL_RPATH TRUE
-    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
-  )
+  target_link_libraries(myteams_server PRIVATE myteams uuid)
 endif()
 
 
@@ -116,29 +96,11 @@ target_include_directories(myteams_cli PRIVATE
   ${MYTEAMS_LIB_DIR}
 )
 target_compile_options(myteams_cli PRIVATE ${COMMON_COMPILER_FLAGS})
+target_link_directories(myteams_cli PRIVATE ${MYTEAMS_LIB_DIR})
 if(APPLE)
-  target_link_libraries(myteams_cli PRIVATE
-    ${MYTEAMS_LIB_DIR}/libmyteams_macos.so
-  )
-  set_target_properties(myteams_cli PROPERTIES
-    BUILD_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
-    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
-  )
-  add_custom_command(TARGET myteams_cli POST_BUILD
-    COMMAND install_name_tool -change libmyteams_macos.so @rpath/libmyteams_macos.so $<TARGET_FILE:myteams_cli>
-  )
+  target_link_libraries(myteams_cli PRIVATE myteams_macos)
 else()
-  target_link_directories(myteams_cli PRIVATE
-    ${MYTEAMS_LIB_DIR}
-  )
-  target_link_libraries(myteams_cli PRIVATE
-    myteams
-  )
-  set_target_properties(myteams_cli PROPERTIES
-    SKIP_BUILD_RPATH TRUE
-    BUILD_WITH_INSTALL_RPATH TRUE
-    INSTALL_RPATH "${MYTEAMS_RUNTIME_LIB_DIR}"
-  )
+  target_link_libraries(myteams_cli PRIVATE myteams)
 endif()
 
 option(WITH_TESTS "Build unit tests" OFF)
