@@ -8,6 +8,7 @@
 #include "ClientApplication.hpp"
 #include <sys/poll.h>
 #include <unistd.h>
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <string>
