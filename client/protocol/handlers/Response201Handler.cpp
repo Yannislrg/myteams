@@ -31,12 +31,22 @@ void Response201Handler::handle(const std::vector<std::string>& tokens) const {
     (void)client_print_channel_created(tokens[3].c_str(), tokens[4].c_str(),
                                        tokens[DescIndex].c_str());
   } else if (type == "THREAD" && tokens.size() >= ThreadMinTokens) {
-    const auto timestamp = static_cast<time_t>(std::stoll(tokens[DescIndex]));
+    time_t timestamp = 0;
+    try {
+      timestamp = static_cast<time_t>(std::stoll(tokens[DescIndex]));
+    } catch (const std::exception&) {
+      return;
+    }
     (void)client_print_thread_created(
         tokens[3].c_str(), tokens[4].c_str(), timestamp,
         tokens[ThreadTitleIndex].c_str(), tokens[ThreadBodyIndex].c_str());
   } else if (type == "REPLY" && tokens.size() >= ReplyMinTokens) {
-    const auto timestamp = static_cast<time_t>(std::stoll(tokens[DescIndex]));
+    time_t timestamp = 0;
+    try {
+      timestamp = static_cast<time_t>(std::stoll(tokens[DescIndex]));
+    } catch (const std::exception&) {
+      return;
+    }
     (void)client_print_reply_created(tokens[3].c_str(), tokens[4].c_str(),
                                      timestamp,
                                      tokens[ThreadTitleIndex].c_str());
