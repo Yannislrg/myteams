@@ -20,9 +20,7 @@
 #include "models/Thread.hpp"
 #include "server.hpp"
 
-#ifndef UUID_STR_LEN
-#define UUID_STR_LEN 37
-#endif
+static constexpr std::size_t UUID_STR_LEN = 37;
 
 Create::~Create() = default;
 
