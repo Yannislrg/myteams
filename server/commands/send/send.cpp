@@ -9,6 +9,7 @@
 #include <ctime>
 #include "client.hpp"
 #include "database/Database.hpp"
+#include "logging_server.h"
 #include "models/Message.hpp"
 #include "models/User.hpp"
 #include "server.hpp"
@@ -17,6 +18,10 @@
 void Send::execute(Client& client, Server& server) {
   const auto& args = client.getArgs();
   if (args.size() < 3) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
+  if (args[1].empty() || args[2].empty()) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
@@ -39,5 +44,8 @@ void Send::execute(Client& client, Server& server) {
   message.setBody(messageBody);
   senderUser->addMessage(receiverUser->getUuid(), message);
   receiverUser->addMessage(senderUser->getUuid(), message);
+  server_event_private_message_sended(senderUser->getUuid().c_str(),
+                                      receiverUser->getUuid().c_str(),
+                                      messageBody.c_str());
   Server::sendToClient("200 OK\r\n", client);
 }

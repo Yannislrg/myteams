@@ -32,7 +32,15 @@ void Messages::execute(Client& client, Server& server) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
+  if (args[1].empty()) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
   const auto& senderUser = server.getDb().findUser(client.getUserUuid());
+  if (senderUser == nullptr) {
+    Server::sendToClient("401 UNAUTHORIZED\r\n", client);
+    return;
+  }
   const auto& user_uuid = args[1];
   const auto& receiverUser = server.getDb().findUser(user_uuid);
   if (receiverUser == nullptr) {
