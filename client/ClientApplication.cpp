@@ -51,6 +51,9 @@ bool ClientApplication::handleStdinEvent(const PollEvent& pollEvent) {
   if (!std::getline(std::cin, line)) {
     return false;
   }
+  if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+  }
 
   return dispatchCommandLine(line);
 }
@@ -91,8 +94,8 @@ bool ClientApplication::dispatchCommandLine(const std::string& line) {
   }
 
   std::string wireVerb = command.substr(1);
-  std::ranges::transform(wireVerb, wireVerb.begin(),
-                         [](unsigned char chr) { return std::toupper(chr); });
+  std::transform(wireVerb.begin(), wireVerb.end(), wireVerb.begin(), // NOLINT(boost-use-ranges, modernize-use-ranges)
+                 [](unsigned char chr) { return std::toupper(chr); });
   sendCommandFrame(wireVerb + std::string(argsView));
   return true;
 }
