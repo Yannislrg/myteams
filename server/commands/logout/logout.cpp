@@ -17,11 +17,12 @@ void Logout::execute(Client& client, Server& server) {
     Server::sendToClient("401 UNAUTHORIZED\r\n", client);
     return;
   }
+  const auto userUuid = client.getUserUuid();
   auto* user = server.getDb().findUser(client.getUserUuid());
   if (user != nullptr) {
     user->setConnected(false);
   }
   client.setUserUuid("");
   Server::sendToClient("200 OK\r\n", client);
-  server_event_user_logged_out(client.getUserUuid().c_str());
+  server_event_user_logged_out(userUuid.c_str());
 }
