@@ -82,6 +82,7 @@ set(CLIENT_SRC
   client/ClientApplication.cpp
   client/main.cpp
   client/network/Poller.cpp
+  client/protocol/CommandLineDispatcher.cpp
   client/protocol/TokenParser.cpp
   client/protocol/ServerMessageRouter.cpp
   client/protocol/handlers/TeamCreatedHandler.cpp

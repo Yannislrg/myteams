@@ -8,10 +8,12 @@
 #include "ClientApplication.hpp"
 #include <sys/poll.h>
 #include <unistd.h>
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include <string>
 #include <utility>
+#include "CommandLineDispatcher.hpp"
 #include "sys/ClientError.hpp"
 
 ClientApplication::ClientApplication(std::string host, uint16_t port)
@@ -50,11 +52,61 @@ bool ClientApplication::handleStdinEvent(const PollEvent& pollEvent) {
   if (!std::getline(std::cin, line)) {
     return false;
   }
-  line.append("\r\n");
-  _client.sendAll(line);
+  if (!line.empty() && line.back() == '\r') {
+    line.pop_back();
+  }
+
+  return dispatchCommandLine(line);
+}
+
+bool ClientApplication::dispatchCommandLine(const std::string& line) {
+  const std::string trimmedLine = CommandLineDispatcher::trimLeft(line);
+  if (trimmedLine.empty()) {
+    return true;
+  }
+
+  const auto commandToken = CommandLineDispatcher::extractCommand(trimmedLine);
+  if (!commandToken.has_value()) {
+    std::cout << "Invalid command format\n";
+    return true;
+  }
+  const std::string& command = commandToken.value();
+
+  if (command == "/help") {
+    CommandLineDispatcher::printHelp(std::cout);
+    return true;
+  }
+
+  if (command.empty() || command.front() != '/') {
+    std::cout << "Invalid command format\n";
+    return true;
+  }
+
+  if (!CommandLineDispatcher::isSupportedServerCommand(command)) {
+    std::cout << "Unknown command: " << command << '\n';
+    return true;
+  }
+
+  std::string_view argsView = trimmedLine;
+  argsView.remove_prefix(command.size());
+  if (CommandLineDispatcher::hasUnquotedArgs(argsView)) {
+    std::cout << "Invalid command format: arguments must be quoted\n";
+    return true;
+  }
+
+  std::string wireVerb = command.substr(1);
+  std::transform(wireVerb.begin(), wireVerb.end(), wireVerb.begin(), // NOLINT(boost-use-ranges, modernize-use-ranges)
+                 [](unsigned char chr) { return std::toupper(chr); });
+  sendCommandFrame(wireVerb + std::string(argsView));
+  return true;
+}
+
+void ClientApplication::sendCommandFrame(const std::string& frame) {
+  std::string wireFrame = frame;
+  wireFrame.append("\r\n");
+  _client.sendAll(wireFrame);
   _client.flushPendingWrites();
   updateServerWatchedEvents();
-  return true;
 }
 
 bool ClientApplication::handleServerEvent(const PollEvent& pollEvent) {
