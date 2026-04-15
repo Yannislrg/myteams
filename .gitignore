@@ -1,7 +1,7 @@
 *.o
 .cache/
-compile_commands.json
 build/
 myteams_cli
 myteams_server
 .DS_Store
+*.json
