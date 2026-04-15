@@ -11,24 +11,42 @@
 #include "server/server.hpp"
 
 namespace {
+std::string quoteProtocolField(const std::string& value) {
+  std::string escaped;
+  escaped.reserve(value.size());
+  for (const char character : value) {
+    if (character == '\\' || character == '"') {
+      escaped += '\\';
+    }
+    escaped += character;
+  }
+  return "\"" + escaped + "\"";
+}
+
 void listAllTeams(Client& client, Server& server) {
   auto& teams = server.getDb().getTeams();
+  Server::sendToClient("210-BEGIN TEAMS\r\n", client);
   for (const auto& team : teams) {
     if (team.isUserSubscribed(client.getUserUuid())) {
-      Server::sendToClient(
-          "200: " + team.getUuid() + " " + team.getName() + "\r\n", client);
+      Server::sendToClient("210: " + quoteProtocolField(team.getUuid()) + " " +
+                               quoteProtocolField(team.getName()) + " " +
+                               quoteProtocolField(team.getDescription()) +
+                               "\r\n",
+                           client);
     }
   }
+  Server::sendToClient("210-END TEAMS\r\n", client);
 }
+
 void listSubscribedUsers(Client& client, Server& server,
                          const std::string& teamUuid) {
   auto* team = server.getDb().findTeam(teamUuid);
   if (team == nullptr) {
-    Server::sendToClient("404: Team not found\r\n", client);
+    Server::sendToClient("404 NOT_FOUND " + teamUuid + "\r\n", client);
     return;
   }
   if (!team->isUserSubscribed(client.getUserUuid())) {
-    Server::sendToClient("403: User not subscribed to team\r\n", client);
+    Server::sendToClient("403 FORBIDDEN\r\n", client);
     return;
   }
   for (const auto& subscriberUuid : team->getSubscriberUuids()) {
