@@ -34,6 +34,7 @@ void createNewUser(Client& client, Server& server,
   Server::sendToClient("201 CREATED\r\n", client);
   server_event_user_created(newUser.getUuid().c_str(),
                             newUser.getName().c_str());
+  server_event_user_logged_in(newUser.getUuid().c_str());
 }
 
 void logUserIn(Client& client, Server& server, const std::string& username) {
@@ -48,7 +49,8 @@ void logUserIn(Client& client, Server& server, const std::string& username) {
   }
   user->setConnected(true);
   client.setUserUuid(user->getUuid());
-  Server::sendToClient("200 OK\r\n", client);
+  Server::sendToClient(
+      "200 OK" + user->getUuid() + " " + user->getName() + "\r\n", client);
   server_event_user_logged_in(user->getUuid().c_str());
 }
 }  // namespace
@@ -59,7 +61,15 @@ void Login::execute(Client& client, Server& server) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
+  if (!client.getUserUuid().empty()) {
+    Server::sendToClient("401 UNAUTHORIZED\r\n", client);
+    return;
+  }
   const std::string& username = args[1];
+  if (username.empty()) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
   if (server.getDb().findUserByName(username) == nullptr) {
     createNewUser(client, server, username);
     return;
