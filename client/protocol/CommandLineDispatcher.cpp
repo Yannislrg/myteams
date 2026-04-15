@@ -57,9 +57,10 @@ bool CommandLineDispatcher::hasUnquotedArgs(std::string_view argsView) {
     while (pos < argsView.size() && argsView[pos] != '"') {
       ++pos;
     }
-    if (pos < argsView.size()) {
-      ++pos;
+    if (pos >= argsView.size()) {
+      return true;
     }
+    ++pos;
   }
   return false;
 }
