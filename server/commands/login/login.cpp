@@ -15,6 +15,7 @@
 #include "server.hpp"
 
 static constexpr std::size_t UUID_LEN = 37;
+static constexpr std::size_t MAX_NAME_LENGTH = 32;
 
 namespace {
 void createNewUser(Client& client, Server& server,
@@ -65,7 +66,7 @@ void Login::execute(Client& client, Server& server) {
     return;
   }
   const std::string& username = args[1];
-  if (username.empty()) {
+  if (username.empty() || username.size() > MAX_NAME_LENGTH) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }

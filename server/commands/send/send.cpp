@@ -15,13 +15,15 @@
 #include "server.hpp"
 #include "utils.hpp"
 
+static constexpr std::size_t MAX_BODY_LENGTH = 512;
+
 void Send::execute(Client& client, Server& server) {
   const auto& args = client.getArgs();
   if (args.size() < 3) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
-  if (args[1].empty() || args[2].empty()) {
+  if (args[1].empty() || args[2].empty() || args[2].size() > MAX_BODY_LENGTH) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
