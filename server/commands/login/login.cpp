@@ -14,9 +14,7 @@
 #include "logging_server.h"
 #include "server.hpp"
 
-#ifndef UUID_STR_LEN
-#define UUID_STR_LEN 37
-#endif
+static constexpr std::size_t UUID_STR_LEN = 37;
 
 namespace {
 void createNewUser(Client& client, Server& server,
