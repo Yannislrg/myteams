@@ -83,7 +83,17 @@ bool ClientApplication::dispatchCommandLine(const std::string& line) {
     return true;
   }
 
-  sendCommandFrame(trimmedLine);
+  std::string_view argsView = trimmedLine;
+  argsView.remove_prefix(command.size());
+  if (CommandLineDispatcher::hasUnquotedArgs(argsView)) {
+    std::cout << "Invalid command format: arguments must be quoted\n";
+    return true;
+  }
+
+  std::string wireVerb = command.substr(1);
+  std::ranges::transform(wireVerb, wireVerb.begin(),
+                         [](unsigned char chr) { return std::toupper(chr); });
+  sendCommandFrame(wireVerb + std::string(argsView));
   return true;
 }
 

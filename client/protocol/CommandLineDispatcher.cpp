@@ -40,6 +40,30 @@ bool CommandLineDispatcher::isSupportedServerCommand(std::string_view command) {
   return std::ranges::find(serverCommands, command) != serverCommands.end();
 }
 
+bool CommandLineDispatcher::hasUnquotedArgs(std::string_view argsView) {
+  std::size_t pos = 0;
+  while (pos < argsView.size()) {
+    while (pos < argsView.size() &&
+           std::isspace(static_cast<unsigned char>(argsView[pos])) != 0) {
+      ++pos;
+    }
+    if (pos >= argsView.size()) {
+      break;
+    }
+    if (argsView[pos] != '"') {
+      return true;
+    }
+    ++pos;
+    while (pos < argsView.size() && argsView[pos] != '"') {
+      ++pos;
+    }
+    if (pos < argsView.size()) {
+      ++pos;
+    }
+  }
+  return false;
+}
+
 void CommandLineDispatcher::printHelp(std::ostream& output) {
   output << "/help\n"
          << "/login \"user_name\"\n"
