@@ -8,6 +8,7 @@
 #include "ServerMessageRouter.hpp"
 #include <ctime>
 #include <memory>
+#include <optional>
 #include <string>
 #include "TokenParser.hpp"
 #include "handlers/ChannelCreatedHandler.hpp"
@@ -22,7 +23,26 @@
 #include "handlers/UserLoggedInHandler.hpp"
 #include "handlers/UserLoggedOutHandler.hpp"
 
+namespace {
+std::optional<int64_t> safeLL(const std::string& str) noexcept {
+  try {
+    return std::stoll(str);
+  } catch (...) {
+    return std::nullopt;
+  }
+}
+
+constexpr std::size_t MIN_TOKENS_BASIC = 4;
+constexpr std::size_t MIN_TOKENS_REPLY = 5;
+constexpr std::size_t MIN_TOKENS_THREAD = 6;
+}  // namespace
+
 ServerMessageRouter::ServerMessageRouter() {
+  registerCommandHandlers();
+  registerListHandlers();
+}
+
+void ServerMessageRouter::registerCommandHandlers() {
   registerHandler(std::make_unique<TeamCreatedHandler>());
   registerHandler(std::make_unique<ChannelCreatedHandler>());
   registerHandler(std::make_unique<ThreadCreatedHandler>());
@@ -39,43 +59,74 @@ ServerMessageRouter::ServerMessageRouter() {
   registerHandler(std::make_unique<ResponseErrorHandler>("409"));
 }
 
+void ServerMessageRouter::registerListHandlers() {
+  _listHandlers["USERS"] = [](const std::vector<std::string>& tok) {
+    if (tok.size() < MIN_TOKENS_BASIC) {
+      return;
+    }
+    auto val = safeLL(tok[3]);
+    if (!val) {
+      return;
+    }
+    (void)client_print_users(tok[1].c_str(), tok[2].c_str(),
+                             static_cast<int>(*val));
+  };
+  _listHandlers["TEAMS"] = [](const std::vector<std::string>& tok) {
+    if (tok.size() < MIN_TOKENS_BASIC) {
+      return;
+    }
+    (void)client_print_teams(tok[1].c_str(), tok[2].c_str(), tok[3].c_str());
+  };
+  _listHandlers["CHANNELS"] = [](const std::vector<std::string>& tok) {
+    if (tok.size() < MIN_TOKENS_BASIC) {
+      return;
+    }
+    (void)client_team_print_channels(tok[1].c_str(), tok[2].c_str(),
+                                     tok[3].c_str());
+  };
+  _listHandlers["THREADS"] = [](const std::vector<std::string>& tok) {
+    if (tok.size() < MIN_TOKENS_THREAD) {
+      return;
+    }
+    auto val = safeLL(tok[3]);
+    if (!val) {
+      return;
+    }
+    auto timestamp = static_cast<time_t>(*val);
+    (void)client_channel_print_threads(
+        tok[1].c_str(), tok[2].c_str(), timestamp, tok[4].c_str(),
+        tok[5].c_str());  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
+  };
+  _listHandlers["REPLIES"] = [](const std::vector<std::string>& tok) {
+    if (tok.size() < MIN_TOKENS_REPLY) {
+      return;
+    }
+    auto val = safeLL(tok[3]);
+    if (!val) {
+      return;
+    }
+    auto timestamp = static_cast<time_t>(*val);
+    (void)client_thread_print_replies(tok[1].c_str(), tok[2].c_str(), timestamp,
+                                      tok[4].c_str());
+  };
+  _listHandlers["MESSAGES"] = [](const std::vector<std::string>& tok) {
+    if (tok.size() < MIN_TOKENS_BASIC) {
+      return;
+    }
+    auto val = safeLL(tok[2]);
+    if (!val) {
+      return;
+    }
+    auto timestamp = static_cast<time_t>(*val);
+    (void)client_private_message_print_messages(tok[1].c_str(), timestamp,
+                                                tok[3].c_str());
+  };
+}
+
 void ServerMessageRouter::registerHandler(
     std::unique_ptr<ICommandHandler> handler) {
   const std::string command = handler->getCommand();
   _handlers[command] = std::move(handler);
-}
-
-void ServerMessageRouter::handleListItem(
-    const std::vector<std::string>& tokens) const {
-  constexpr std::size_t MIN_USER_TEAM_CHAN = 4;
-  constexpr std::size_t MIN_THREAD = 6;
-  constexpr std::size_t MIN_REPLY = 5;
-
-  if (_listContext == "USERS" && tokens.size() >= MIN_USER_TEAM_CHAN) {
-    (void)client_print_users(tokens[1].c_str(), tokens[2].c_str(),
-                             std::stoi(tokens[3]));
-  } else if (_listContext == "TEAMS" && tokens.size() >= MIN_USER_TEAM_CHAN) {
-    (void)client_print_teams(tokens[1].c_str(), tokens[2].c_str(),
-                             tokens[3].c_str());
-  } else if (_listContext == "CHANNELS" &&
-             tokens.size() >= MIN_USER_TEAM_CHAN) {
-    (void)client_team_print_channels(tokens[1].c_str(), tokens[2].c_str(),
-                                     tokens[3].c_str());
-  } else if (_listContext == "THREADS" && tokens.size() >= MIN_THREAD) {
-    auto timestamp = static_cast<time_t>(std::stoll(tokens[3]));
-    (void)client_channel_print_threads(
-        tokens[1].c_str(), tokens[2].c_str(), timestamp, tokens[4].c_str(),
-        tokens[5].c_str());  // NOLINT(cppcoreguidelines-avoid-magic-numbers)
-  } else if (_listContext == "REPLIES" && tokens.size() >= MIN_REPLY) {
-    auto timestamp = static_cast<time_t>(std::stoll(tokens[3]));
-    (void)client_thread_print_replies(tokens[1].c_str(), tokens[2].c_str(),
-                                      timestamp, tokens[4].c_str());
-  } else if (_listContext == "MESSAGES" &&
-             tokens.size() >= MIN_USER_TEAM_CHAN) {
-    auto timestamp = static_cast<time_t>(std::stoll(tokens[2]));
-    (void)client_private_message_print_messages(tokens[1].c_str(), timestamp,
-                                                tokens[3].c_str());
-  }
 }
 
 void ServerMessageRouter::routeFrame(const std::string& frame) {
@@ -100,7 +151,10 @@ void ServerMessageRouter::routeFrame(const std::string& frame) {
     return;
   }
   if (first == "210") {
-    handleListItem(tokens);
+    const auto listHandlerEntry = _listHandlers.find(_listContext);
+    if (listHandlerEntry != _listHandlers.end()) {
+      listHandlerEntry->second(tokens);
+    }
     return;
   }
   std::string command = first;
