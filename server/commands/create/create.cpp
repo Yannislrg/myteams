@@ -20,9 +20,7 @@
 #include "models/Thread.hpp"
 #include "server.hpp"
 
-#ifndef UUID_STR_LEN
-#define UUID_STR_LEN 37
-#endif
+static constexpr std::size_t UUID_LEN = 37;
 
 Create::~Create() = default;
 
@@ -51,7 +49,7 @@ void Create::executeTeam(Client& client, Server& server) {
   Team newTeam;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
   uuid_generate(uuidObj);
-  std::array<char, UUID_STR_LEN> uuidStr{};
+  std::array<char, UUID_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newTeam.setUuid(std::string(uuidStr.data()));
   newTeam.setName(teamName);
@@ -88,7 +86,7 @@ void Create::executeChannel(Client& client, Server& server) {
   Channel& channel = channels.back();
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
   uuid_generate(uuidObj);
-  std::array<char, UUID_STR_LEN> uuidStr{};
+  std::array<char, UUID_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   channel.setUuid(std::string(uuidStr.data()));
   channel.setName(channelName);
@@ -128,7 +126,7 @@ void Create::executeThread(Client& client, Server& server) {
   Thread newThread;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
   uuid_generate(uuidObj);
-  std::array<char, UUID_STR_LEN> uuidStr{};
+  std::array<char, UUID_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newThread.setUuid(std::string(uuidStr.data()));
   newThread.setUserUuid(client.getUserUuid());
@@ -174,7 +172,7 @@ void Create::executeReply(Client& client, Server& server) {
   Reply newReply;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
   uuid_generate(uuidObj);
-  std::array<char, UUID_STR_LEN> uuidStr{};
+  std::array<char, UUID_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newReply.setUuid(std::string(uuidStr.data()));
   newReply.setUserUuid(client.getUserUuid());
