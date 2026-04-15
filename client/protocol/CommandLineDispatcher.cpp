@@ -76,7 +76,15 @@ void CommandLineDispatcher::printHelp(std::ostream& output) {
          << "/subscribed ?\"team_uuid\"\n"
          << "/unsubscribe \"team_uuid\"\n"
          << "/use ?\"team_uuid\" ?\"channel_uuid\" ?\"thread_uuid\"\n"
-         << "/create\n"
-         << "/list\n"
-         << "/info\n";
+         << "/create \"team_name\" \"team_description\" (no /use context)\n"
+         << "/create \"channel_name\" \"channel_description\" (after /use "
+            "\"team_uuid\")\n"
+         << "/create \"thread_title\" \"thread_message\" (after /use "
+            "\"team_uuid\" \"channel_uuid\")\n"
+         << "/create \"comment_body\" (after /use \"team_uuid\" "
+            "\"channel_uuid\" \"thread_uuid\")\n"
+         << "/list (lists teams, channels, threads, or replies depending on "
+            "/use context)\n"
+         << "/info (shows current user, team, channel, or thread depending "
+            "on /use context)\n";
 }
