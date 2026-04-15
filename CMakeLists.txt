@@ -43,6 +43,7 @@ set(SERVER_SRC
   server/commands/info/info.cpp
   server/commands/subscribe/subscribe.cpp
   server/commands/unsubscribe/unsubscribe.cpp
+  server/commands/subscribed/subscribed.cpp
 )
 add_executable(myteams_server ${SERVER_SRC})
 target_include_directories(myteams_server PRIVATE
