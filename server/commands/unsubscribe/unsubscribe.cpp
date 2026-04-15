@@ -19,6 +19,9 @@ void Unsubscribe::execute(Client& client, Server& server) {
   }
   const auto& args = client.getArgs();
   if (args.size() < 2 || args[1].empty()) {
+    if (args.size() < 2 || args[1].empty()) {
+      Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    }
     return;
   }
   if (userUuid.empty()) {
@@ -38,7 +41,6 @@ void Unsubscribe::execute(Client& client, Server& server) {
   server.notifySubscribers(context.teamUuid, "user_unsubscribed \"" +
                                                  context.teamUuid + "\" \"" +
                                                  userUuid + "\"\r\n");
-  Server::sendToClient("200 OK \"" + userUuid + "\" \"" + context.teamUuid +
-                           "\"\r\n",
-                       client);
+  Server::sendToClient(
+      "200 OK \"" + userUuid + "\" \"" + context.teamUuid + "\"\r\n", client);
 }

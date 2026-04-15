@@ -43,6 +43,7 @@ set(SERVER_SRC
   server/commands/subscribe/subscribe.cpp
   server/commands/unsubscribe/unsubscribe.cpp
   server/commands/subscribed/subscribed.cpp
+  server/utils/utils.cpp
 )
 add_executable(myteams_server ${SERVER_SRC})
 target_include_directories(myteams_server PRIVATE
@@ -56,6 +57,8 @@ target_include_directories(myteams_server PRIVATE
   ${CMAKE_SOURCE_DIR}/server/net
   ${CMAKE_SOURCE_DIR}/server/sys
   ${CMAKE_SOURCE_DIR}/server/saveManager
+  ${CMAKE_SOURCE_DIR}/server/utils
+
 
   ${MYTEAMS_LIB_DIR}
 )
