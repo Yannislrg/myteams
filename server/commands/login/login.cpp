@@ -14,7 +14,7 @@
 #include "logging_server.h"
 #include "server.hpp"
 
-static constexpr std::size_t UUID_STR_LEN = 37;
+static constexpr std::size_t UUID_LEN = 37;
 
 namespace {
 void createNewUser(Client& client, Server& server,
@@ -24,7 +24,7 @@ void createNewUser(Client& client, Server& server,
   newUser.setConnected(true);
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
   uuid_generate(uuidObj);
-  std::array<char, UUID_STR_LEN> uuidStr{};
+  std::array<char, UUID_LEN> uuidStr{};
   uuid_unparse_lower(uuidObj, uuidStr.data());
   newUser.setUuid(std::string(uuidStr.data()));
   server.getDb().getUsers().push_back(newUser);
