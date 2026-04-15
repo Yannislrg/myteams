@@ -48,5 +48,5 @@ void Subscribed::execute(Client& client, Server& server) {
     listSubscribedUsers(client, server, teamUuid);
     return;
   }
-  // handle error
+  Server::sendToClient("400: Too many arguments\r\n", client);
 }
