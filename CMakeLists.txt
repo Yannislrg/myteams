@@ -92,6 +92,9 @@ set(CLIENT_SRC
   client/protocol/handlers/UserLoggedInHandler.cpp
   client/protocol/handlers/UserLoggedOutHandler.cpp
   client/protocol/handlers/PrivateMessageHandler.cpp
+  client/protocol/handlers/Response200Handler.cpp
+  client/protocol/handlers/Response201Handler.cpp
+  client/protocol/handlers/ResponseErrorHandler.cpp
   client/network/TcpClient.cpp
   client/sys/ClientError.cpp
   client/sys/Posix.cpp

@@ -15,10 +15,12 @@
 class ServerMessageRouter {
  public:
   ServerMessageRouter();
-  void routeFrame(const std::string& frame) const;
+  void routeFrame(const std::string& frame);
 
  private:
   void registerHandler(std::unique_ptr<ICommandHandler> handler);
+  void handleListItem(const std::vector<std::string>& tokens) const;
 
   std::unordered_map<std::string, std::unique_ptr<ICommandHandler>> _handlers;
+  std::string _listContext;
 };
