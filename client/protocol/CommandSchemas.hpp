@@ -109,7 +109,7 @@ inline constexpr std::array<CommandSchema, 14> schemas = {{
         .minArgs = 2,
         .maxArgs = 2,
         .args = {ArgSchema{.maxLen = maxName, .name = "name"},
-                 ArgSchema{.maxLen = maxDesc, .name = "description/message"}},
+                 ArgSchema{.maxLen = maxBody, .name = "description/message"}},
     },
     CommandSchema{
         .name = "/list", .usage = "/list", .minArgs = 0, .maxArgs = 0},
