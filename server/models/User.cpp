@@ -7,7 +7,7 @@
 
 #include "User.hpp"
 
-User::User() : _connected(false) {}
+User::User() = default;
 
 User::~User() = default;
 

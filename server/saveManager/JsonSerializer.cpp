@@ -32,8 +32,7 @@ template <typename Range, typename Mapper>
 static std::string jsonArray(const Range& range, Mapper mapper) {
   std::string out;
   for (const auto& item : range) {
-    if (!out.empty())
-      out += ',';
+    if (!out.empty()) out += ',';
     out += mapper(item);
   }
   return '[' + out + ']';
@@ -43,8 +42,7 @@ template <typename Map, typename Mapper>
 static std::string jsonMapOfArrays(const Map& map, Mapper mapper) {
   std::string out;
   for (const auto& [key, values] : map) {
-    if (!out.empty())
-      out += ',';
+    if (!out.empty()) out += ',';
     out += escapeJson(key) + ':' + jsonArray(values, mapper);
   }
   return '{' + out + '}';
@@ -52,8 +50,7 @@ static std::string jsonMapOfArrays(const Map& map, Mapper mapper) {
 
 std::string messageToJson(const Message& msg) {
   std::ostringstream out;
-  out << '{'
-      << "\"sender\":" << escapeJson(msg.getSenderUuid()) << ','
+  out << '{' << "\"sender\":" << escapeJson(msg.getSenderUuid()) << ','
       << "\"receiver\":" << escapeJson(msg.getReceiverUuid()) << ','
       << "\"timestamp\":" << msg.getTimestamp() << ','
       << "\"body\":" << escapeJson(msg.getBody()) << '}';
@@ -62,8 +59,7 @@ std::string messageToJson(const Message& msg) {
 
 std::string replyToJson(const Reply& reply) {
   std::ostringstream out;
-  out << '{'
-      << "\"uuid\":" << escapeJson(reply.getUuid()) << ','
+  out << '{' << "\"uuid\":" << escapeJson(reply.getUuid()) << ','
       << "\"user_uuid\":" << escapeJson(reply.getUserUuid()) << ','
       << "\"timestamp\":" << reply.getTimestamp() << ','
       << "\"body\":" << escapeJson(reply.getBody()) << '}';
@@ -72,44 +68,38 @@ std::string replyToJson(const Reply& reply) {
 
 std::string threadToJson(const Thread& thread) {
   std::ostringstream out;
-  out << '{'
-      << "\"uuid\":" << escapeJson(thread.getUuid()) << ','
+  out << '{' << "\"uuid\":" << escapeJson(thread.getUuid()) << ','
       << "\"user_uuid\":" << escapeJson(thread.getUserUuid()) << ','
       << "\"timestamp\":" << thread.getTimestamp() << ','
       << "\"title\":" << escapeJson(thread.getTitle()) << ','
       << "\"body\":" << escapeJson(thread.getBody()) << ','
-      << "\"replies\":" << jsonArray(thread.getReplies(), replyToJson)
-      << '}';
+      << "\"replies\":" << jsonArray(thread.getReplies(), replyToJson) << '}';
   return out.str();
 }
 
 std::string channelToJson(const Channel& channel) {
   std::ostringstream out;
-  out << '{'
-      << "\"uuid\":" << escapeJson(channel.getUuid()) << ','
+  out << '{' << "\"uuid\":" << escapeJson(channel.getUuid()) << ','
       << "\"name\":" << escapeJson(channel.getName()) << ','
       << "\"description\":" << escapeJson(channel.getDescription()) << ','
-      << "\"threads\":" << jsonArray(channel.getThreads(), threadToJson)
-      << '}';
+      << "\"threads\":" << jsonArray(channel.getThreads(), threadToJson) << '}';
   return out.str();
 }
 
 std::string teamToJson(const Team& team) {
   std::ostringstream out;
-  out << '{'
-      << "\"uuid\":" << escapeJson(team.getUuid()) << ','
+  out << '{' << "\"uuid\":" << escapeJson(team.getUuid()) << ','
       << "\"name\":" << escapeJson(team.getName()) << ','
       << "\"description\":" << escapeJson(team.getDescription()) << ','
-      << "\"subscribers\":" << jsonArray(team.getSubscriberUuids(), escapeJson) << ','
-      << "\"channels\":" << jsonArray(team.getChannels(), channelToJson)
+      << "\"subscribers\":" << jsonArray(team.getSubscriberUuids(), escapeJson)
+      << ',' << "\"channels\":" << jsonArray(team.getChannels(), channelToJson)
       << '}';
   return out.str();
 }
 
 std::string userToJson(const User& user) {
   std::ostringstream out;
-  out << '{'
-      << "\"uuid\":" << escapeJson(user.getUuid()) << ','
+  out << '{' << "\"uuid\":" << escapeJson(user.getUuid()) << ','
       << "\"name\":" << escapeJson(user.getName()) << ','
       << "\"connected\":false,"
       << "\"teams\":" << jsonArray(user.getTeams(), escapeJson) << ','
@@ -182,7 +172,7 @@ User userFromJson(const JsonVal& val) {
   User user;
   user.setUuid(val["uuid"].str());
   user.setName(val["name"].str());
-  user.setConnected(false);
+  user.setConnectionCount(0);
   std::vector<std::string> teams;
   for (const auto& teamVal : val["teams"].array())
     teams.push_back(teamVal.str());

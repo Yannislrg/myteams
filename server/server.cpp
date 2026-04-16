@@ -134,12 +134,14 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
   if (clientIter != _clients.end() &&
       !clientIter->second->getUserUuid().empty()) {
     const std::string userUuid = clientIter->second->getUserUuid();
-    server_event_user_logged_out(userUuid.c_str());
     auto* user = _db.findUser(userUuid);
     if (user != nullptr) {
-      user->setConnected(false);
-      broadcast("EVENT USER_LOGGED_OUT \"" + user->getUuid() + "\" \"" +
-                user->getName() + "\"\r\n");
+      user->decrementConnection();
+      if (!user->isConnected()) {
+        broadcast("EVENT USER_LOGGED_OUT \"" + user->getUuid() + "\" \"" +
+                  user->getName() + "\"\r\n");
+        server_event_user_logged_out(userUuid.c_str());
+      }
     }
   }
   poller.removeFileDescriptor(clientFd);

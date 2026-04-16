@@ -27,8 +27,15 @@ class User {
   [[nodiscard]] const std::string& getName() const { return _name; }
   void setName(const std::string& name) { _name = name; }
 
-  [[nodiscard]] bool isConnected() const { return _connected; }
-  void setConnected(bool connected) { _connected = connected; }
+  [[nodiscard]] bool isConnected() const { return _connectedCount > 0; }
+  [[nodiscard]] int getConnectionCount() const { return _connectedCount; }
+  void setConnectionCount(int count) { _connectedCount = count; }
+  void incrementConnection() { _connectedCount++; }
+  void decrementConnection() {
+    if (_connectedCount > 0) {
+      _connectedCount--;
+    }
+  }
 
   [[nodiscard]] const std::vector<std::string>& getTeams() const {
     return _teams;
@@ -48,7 +55,7 @@ class User {
  private:
   std::string _uuid;
   std::string _name;
-  bool _connected;
+  int _connectedCount = 0;
   std::vector<std::string> _teams;
   std::map<std::string, std::vector<Message>> _messages;
 };
