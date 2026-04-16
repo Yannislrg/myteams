@@ -130,21 +130,32 @@ void Server::_handleWrite(Client& client) {
 }
 
 void Server::_disconnectClient(int clientFd, Poller& poller) {
+  bool shouldBroadcastLogout = false;
+  std::string loggedOutUserUuid;
+  std::string loggedOutUserName;
+
   auto clientIter = _clients.find(clientFd);
   if (clientIter != _clients.end() &&
       !clientIter->second->getUserUuid().empty()) {
     const std::string userUuid = clientIter->second->getUserUuid();
-    server_event_user_logged_out(userUuid.c_str());
     auto* user = _db.findUser(userUuid);
     if (user != nullptr) {
-      user->setConnected(false);
-      broadcast("EVENT USER_LOGGED_OUT \"" + user->getUuid() + "\" \"" +
-                user->getName() + "\"\r\n");
+      user->decrementConnection();
+      if (!user->isConnected()) {
+        shouldBroadcastLogout = true;
+        loggedOutUserUuid = user->getUuid();
+        loggedOutUserName = user->getName();
+      }
     }
   }
   poller.removeFileDescriptor(clientFd);
   sys::Posix::close(clientFd);
   _clients.erase(clientFd);
+  if (shouldBroadcastLogout) {
+    broadcast("EVENT USER_LOGGED_OUT \"" + loggedOutUserUuid + "\" \"" +
+              loggedOutUserName + "\"\r\n");
+    server_event_user_logged_out(loggedOutUserUuid.c_str());
+  }
 }
 
 void Server::_updatePollFlags(Poller& poller) {

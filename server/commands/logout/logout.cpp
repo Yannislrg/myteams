@@ -20,11 +20,21 @@ void Logout::execute(Client& client, Server& server) {
   const auto userUuid = client.getUserUuid();
   auto* user = server.getDb().findUser(client.getUserUuid());
   if (user != nullptr) {
-    user->setConnected(false);
-    server.broadcast("EVENT USER_LOGGED_OUT \"" + user->getUuid() + "\" \"" +
-                     user->getName() + "\"\r\n");
+    user->decrementConnection();
+    Server::sendToClient("EVENT USER_LOGGED_OUT \"" + user->getUuid() +
+                             "\" \"" + user->getName() + "\"\r\n",
+                         client);
+    if (!user->isConnected()) {
+      server_event_user_logged_out(userUuid.c_str());
+      for (const auto& [fd, otherClient] : server.getClients()) {
+        if (otherClient.get() != &client) {
+          Server::sendToClient("EVENT USER_LOGGED_OUT \"" + user->getUuid() +
+                                   "\" \"" + user->getName() + "\"\r\n",
+                               *otherClient);
+        }
+      }
+    }
   }
   client.setUserUuid("");
   Server::sendToClient("200 OK\r\n", client);
-  server_event_user_logged_out(userUuid.c_str());
 }
