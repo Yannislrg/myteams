@@ -17,6 +17,7 @@ class CommandLineDispatcher {
   static std::string trimLeft(const std::string& line);
   static std::optional<std::string> extractCommand(const std::string& line);
   static bool isSupportedServerCommand(std::string_view command);
-  static bool hasUnquotedArgs(std::string_view argsView);
+  static std::optional<std::string> validateArgs(std::string_view command,
+                                                 std::string_view argsView);
   static void printHelp(std::ostream& output);
 };

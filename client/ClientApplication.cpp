@@ -88,8 +88,8 @@ bool ClientApplication::dispatchCommandLine(const std::string& line) {
 
   std::string_view argsView = trimmedLine;
   argsView.remove_prefix(command.size());
-  if (CommandLineDispatcher::hasUnquotedArgs(argsView)) {
-    std::cout << "Invalid command format: arguments must be quoted\n";
+  if (const auto err = CommandLineDispatcher::validateArgs(command, argsView)) {
+    std::cout << *err << '\n';
     return true;
   }
 
