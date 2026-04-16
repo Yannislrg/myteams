@@ -23,7 +23,11 @@ void List::executeReply(Client& client, Server& server) {
 
   Server::sendToClient("210-BEGIN REPLIES\r\n", client);
   for (const auto& reply : thread->getReplies()) {
-    Server::sendToClient("200 : " + reply.getBody() + "\r\n", client);
+    Server::sendToClient("210 \"" + thread->getUuid() + "\" \"" +
+                             reply.getUserUuid() + "\" " +
+                             std::to_string(reply.getTimestamp()) + " \"" +
+                             reply.getBody() + "\"\r\n",
+                         client);
   }
   Server::sendToClient("210-END REPLIES\r\n", client);
 }
@@ -40,7 +44,12 @@ void List::executeThread(Client& client, Server& server) {
 
   Server::sendToClient("210-BEGIN THREADS\r\n", client);
   for (const auto& thread : channel->getThreads()) {
-    Server::sendToClient("200 : " + thread.getTitle() + "\r\n", client);
+    Server::sendToClient("210 \"" + thread.getUuid() + "\" \"" +
+                             thread.getUserUuid() + "\" " +
+                             std::to_string(thread.getTimestamp()) + " \"" +
+                             thread.getTitle() + "\" \"" + thread.getBody() +
+                             "\"\r\n",
+                         client);
   }
   Server::sendToClient("210-END THREADS\r\n", client);
 }
@@ -56,7 +65,10 @@ void List::executeChannel(Client& client, Server& server) {
 
   Server::sendToClient("210-BEGIN CHANNELS\r\n", client);
   for (const auto& channel : team->getChannels()) {
-    Server::sendToClient("200 : " + channel.getName() + "\r\n", client);
+    Server::sendToClient("210 \"" + channel.getUuid() + "\" \"" +
+                             channel.getName() + "\" \"" +
+                             channel.getDescription() + "\"\r\n",
+                         client);
   }
   Server::sendToClient("210-END CHANNELS\r\n", client);
 }
@@ -64,7 +76,9 @@ void List::executeChannel(Client& client, Server& server) {
 void List::executeTeam(Client& client, Server& server) {
   Server::sendToClient("210-BEGIN TEAMS\r\n", client);
   for (const auto& team : server.getDb().getTeams()) {
-    Server::sendToClient("200 : " + team.getName() + "\r\n", client);
+    Server::sendToClient("210 \"" + team.getUuid() + "\" \"" + team.getName() +
+                             "\" \"" + team.getDescription() + "\"\r\n",
+                         client);
   }
   Server::sendToClient("210-END TEAMS\r\n", client);
 }
