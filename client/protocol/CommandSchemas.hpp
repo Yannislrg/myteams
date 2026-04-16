@@ -93,7 +93,6 @@ inline constexpr std::array<CommandSchema, 14> schemas = {{
                  ArgSchema{.maxLen = maxUuid, .name = "channel_uuid"},
                  ArgSchema{.maxLen = maxUuid, .name = "thread_uuid"}},
     },
-    // /create: 1 arg = comment body
     CommandSchema{
         .name = "/create",
         .usage = R"(/create "comment_body" (after /use team channel thread))",
@@ -101,7 +100,6 @@ inline constexpr std::array<CommandSchema, 14> schemas = {{
         .maxArgs = 1,
         .args = {ArgSchema{.maxLen = maxBody, .name = "comment_body"}},
     },
-    // /create: 2 args = name + description or thread message
     CommandSchema{
         .name = "/create",
         .usage =
