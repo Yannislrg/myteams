@@ -93,6 +93,7 @@ bool ClientApplication::dispatchCommandLine(const std::string& line) {
     return true;
   }
 
+  _messageRouter.setPendingCommand(command);
   sendCommandFrame(command + std::string(argsView));
   return true;
 }

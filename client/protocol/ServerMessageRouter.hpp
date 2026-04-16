@@ -19,6 +19,7 @@ class ServerMessageRouter {
  public:
   ServerMessageRouter();
   void routeFrame(const std::string& frame);
+  void setPendingCommand(std::string cmd);
   [[nodiscard]] bool shouldDisconnect() const { return _shouldDisconnect; }
 
  private:
@@ -30,6 +31,7 @@ class ServerMessageRouter {
 
   User _user;
   bool _shouldDisconnect = false;
+  std::string _pendingCommand;
   std::unordered_map<std::string, std::unique_ptr<ICommandHandler>> _handlers;
   std::unordered_map<std::string, ListHandler> _listHandlers;
   std::string _listContext;
