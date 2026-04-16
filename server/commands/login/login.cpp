@@ -46,21 +46,14 @@ void logUserIn(Client& client, Server& server, const std::string& username) {
     Server::sendToClient("404 NOT_FOUND\r\n", client);
     return;
   }
-  bool wasConnected = user->isConnected();
   user->incrementConnection();
   client.setUserUuid(user->getUuid());
   Server::sendToClient(
       "200 OK \"" + user->getUuid() + "\" \"" + user->getName() + "\"\r\n",
       client);
-  if (!wasConnected) {
-    server_event_user_logged_in(user->getUuid().c_str());
-    server.broadcast("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
-                     user->getName() + "\"\r\n");
-  } else {
-    Server::sendToClient("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
-                             user->getName() + "\"\r\n",
-                         client);
-  }
+  server_event_user_logged_in(user->getUuid().c_str());
+  server.broadcast("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
+                   user->getName() + "\"\r\n");
 }
 }  // namespace
 
