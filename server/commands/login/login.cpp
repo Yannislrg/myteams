@@ -13,6 +13,7 @@
 #include "database/Database.hpp"
 #include "logging_server.h"
 #include "server.hpp"
+#include "utils.hpp"
 
 static constexpr std::size_t UUID_LEN = 37;
 static constexpr std::size_t MAX_NAME_LENGTH = 32;
@@ -36,8 +37,9 @@ void createNewUser(Client& client, Server& server,
   server_event_user_created(newUser.getUuid().c_str(),
                             newUser.getName().c_str());
   server_event_user_logged_in(newUser.getUuid().c_str());
-  server.broadcast("EVENT USER_LOGGED_IN \"" + newUser.getUuid() + "\" \"" +
-                   newUser.getName() + "\"\r\n");
+  server.broadcast("EVENT USER_LOGGED_IN " +
+                   Utils::quoteProtocolField(newUser.getUuid()) + " " +
+                   Utils::quoteProtocolField(newUser.getName()) + "\r\n");
 }
 
 void logUserIn(Client& client, Server& server, const std::string& username) {
@@ -46,21 +48,15 @@ void logUserIn(Client& client, Server& server, const std::string& username) {
     Server::sendToClient("404 NOT_FOUND\r\n", client);
     return;
   }
-  bool wasConnected = user->isConnected();
   user->incrementConnection();
   client.setUserUuid(user->getUuid());
   Server::sendToClient(
       "200 OK \"" + user->getUuid() + "\" \"" + user->getName() + "\"\r\n",
       client);
-  if (!wasConnected) {
-    server_event_user_logged_in(user->getUuid().c_str());
-    server.broadcast("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
-                     user->getName() + "\"\r\n");
-  } else {
-    Server::sendToClient("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
-                             user->getName() + "\"\r\n",
-                         client);
-  }
+  server_event_user_logged_in(user->getUuid().c_str());
+  server.broadcast("EVENT USER_LOGGED_IN " +
+                   Utils::quoteProtocolField(user->getUuid()) + " " +
+                   Utils::quoteProtocolField(user->getName()) + "\r\n");
 }
 }  // namespace
 
