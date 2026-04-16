@@ -15,6 +15,8 @@
 #include "commands/list/list.hpp"
 #include "commands/login/login.hpp"
 #include "commands/logout/logout.hpp"
+#include "commands/messages/messages.hpp"
+#include "commands/send/send.hpp"
 #include "commands/subscribe/subscribe.hpp"
 #include "commands/subscribed/subscribed.hpp"
 #include "commands/unsubscribe/unsubscribe.hpp"
@@ -62,6 +64,8 @@ CommandHandling::CommandHandling() {
   _commands.emplace("/subscribed", std::make_unique<Subscribed>());
   _commands.emplace("/login", std::make_unique<Login>());
   _commands.emplace("/logout", std::make_unique<Logout>());
+  _commands.emplace("/send", std::make_unique<Send>());
+  _commands.emplace("/messages", std::make_unique<Messages>());
   _commands.emplace("/user", std::make_unique<UserCommand>());
   _commands.emplace("/users", std::make_unique<UsersCommand>());
 }

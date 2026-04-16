@@ -21,6 +21,15 @@
 #include "server.hpp"
 
 static constexpr std::size_t UUID_LEN = 37;
+static constexpr std::size_t MAX_NAME_LENGTH = 32;
+static constexpr std::size_t MAX_DESCRIPTION_LENGTH = 255;
+static constexpr std::size_t MAX_BODY_LENGTH = 512;
+
+namespace {
+bool isInvalidLength(const std::string& value, std::size_t maxLength) {
+  return value.empty() || value.size() > maxLength;
+}
+}  // namespace
 
 Create::~Create() = default;
 
@@ -45,6 +54,11 @@ void Create::executeTeam(Client& client, Server& server) {
   }
   const std::string& teamName = args[1];
   const std::string& teamDescription = args[2];
+  if (isInvalidLength(teamName, MAX_NAME_LENGTH) ||
+      isInvalidLength(teamDescription, MAX_DESCRIPTION_LENGTH)) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
   auto& teams = server.getDb().getTeams();
   Team newTeam;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
@@ -80,6 +94,11 @@ void Create::executeChannel(Client& client, Server& server) {
   }
   const std::string& channelName = args[1];
   const std::string& channelDescription = args[2];
+  if (isInvalidLength(channelName, MAX_NAME_LENGTH) ||
+      isInvalidLength(channelDescription, MAX_DESCRIPTION_LENGTH)) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
 
   auto& channels = team->getChannels();
   channels.emplace_back();
@@ -122,6 +141,11 @@ void Create::executeThread(Client& client, Server& server) {
   }
   const std::string& threadTitle = args[1];
   const std::string& threadMessage = args[2];
+  if (isInvalidLength(threadTitle, MAX_NAME_LENGTH) ||
+      isInvalidLength(threadMessage, MAX_BODY_LENGTH)) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
   auto& threads = channel->getThreads();
   Thread newThread;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
@@ -168,6 +192,10 @@ void Create::executeReply(Client& client, Server& server) {
     return;
   }
   const std::string& replyMessage = args[1];
+  if (isInvalidLength(replyMessage, MAX_BODY_LENGTH)) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
+    return;
+  }
   auto& replies = thread->getReplies();
   Reply newReply;
   uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
