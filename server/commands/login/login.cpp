@@ -31,7 +31,8 @@ void createNewUser(Client& client, Server& server,
   server.getDb().getUsers().push_back(newUser);
   client.setUserUuid(newUser.getUuid());
   Server::sendToClient(
-      "200 OK " + newUser.getUuid() + " " + newUser.getName() + "\r\n", client);
+      "200 OK \"" + newUser.getUuid() + "\" \"" + newUser.getName() + "\"\r\n",
+      client);
   server_event_user_created(newUser.getUuid().c_str(),
                             newUser.getName().c_str());
   server_event_user_logged_in(newUser.getUuid().c_str());
@@ -52,7 +53,8 @@ void logUserIn(Client& client, Server& server, const std::string& username) {
   user->setConnected(true);
   client.setUserUuid(user->getUuid());
   Server::sendToClient(
-      "200 OK " + user->getUuid() + " " + user->getName() + "\r\n", client);
+      "200 OK \"" + user->getUuid() + "\" \"" + user->getName() + "\"\r\n",
+      client);
   server_event_user_logged_in(user->getUuid().c_str());
   server.broadcast("EVENT USER_LOGGED_IN \"" + user->getUuid() + "\" \"" +
                    user->getName() + "\"\r\n");

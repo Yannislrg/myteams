@@ -8,7 +8,6 @@
 #include "ClientApplication.hpp"
 #include <sys/poll.h>
 #include <unistd.h>
-#include <algorithm>
 #include <array>
 #include <iostream>
 #include <string>
@@ -89,15 +88,12 @@ bool ClientApplication::dispatchCommandLine(const std::string& line) {
 
   std::string_view argsView = trimmedLine;
   argsView.remove_prefix(command.size());
-  if (CommandLineDispatcher::hasUnquotedArgs(argsView)) {
-    std::cout << "Invalid command format: arguments must be quoted\n";
+  if (const auto err = CommandLineDispatcher::validateArgs(command, argsView)) {
+    std::cout << *err << '\n';
     return true;
   }
 
-  std::string wireVerb = command.substr(1);
-  std::transform(wireVerb.begin(), wireVerb.end(), wireVerb.begin(), // NOLINT(boost-use-ranges, modernize-use-ranges)
-                 [](unsigned char chr) { return std::toupper(chr); });
-  sendCommandFrame(wireVerb + std::string(argsView));
+  sendCommandFrame(command + std::string(argsView));
   return true;
 }
 
