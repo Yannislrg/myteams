@@ -82,6 +82,7 @@ endif()
 
 set(CLIENT_SRC
   client/ClientApplication.cpp
+  client/User.cpp
   client/main.cpp
   client/network/Poller.cpp
   client/protocol/CommandLineDispatcher.cpp

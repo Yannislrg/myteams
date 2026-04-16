@@ -42,6 +42,10 @@ ServerMessageRouter::ServerMessageRouter() {
   registerListHandlers();
 }
 
+void ServerMessageRouter::setPendingCommand(std::string cmd) {
+  _pendingCommand = std::move(cmd);
+}
+
 void ServerMessageRouter::registerCommandHandlers() {
   registerHandler(std::make_unique<TeamCreatedHandler>());
   registerHandler(std::make_unique<ChannelCreatedHandler>());
@@ -50,7 +54,7 @@ void ServerMessageRouter::registerCommandHandlers() {
   registerHandler(std::make_unique<UserLoggedInHandler>());
   registerHandler(std::make_unique<UserLoggedOutHandler>());
   registerHandler(std::make_unique<PrivateMessageHandler>());
-  registerHandler(std::make_unique<Response200Handler>());
+  registerHandler(std::make_unique<Response200Handler>(_user, _shouldDisconnect, _pendingCommand));
   registerHandler(std::make_unique<Response201Handler>());
   registerHandler(std::make_unique<ResponseErrorHandler>("400"));
   registerHandler(std::make_unique<ResponseErrorHandler>("401"));

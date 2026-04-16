@@ -93,6 +93,7 @@ bool ClientApplication::dispatchCommandLine(const std::string& line) {
     return true;
   }
 
+  _messageRouter.setPendingCommand(command);
   sendCommandFrame(command + std::string(argsView));
   return true;
 }
@@ -155,6 +156,9 @@ bool ClientApplication::handleServerReadable() {
     }
     _messageRouter.routeFrame(frame);
     parseOffset = lineEnd + 1;
+    if (_messageRouter.shouldDisconnect()) {
+      return false;
+    }
   }
 
   if (parseOffset != 0) {
