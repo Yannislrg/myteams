@@ -29,7 +29,7 @@ class User {
 
   [[nodiscard]] bool isConnected() const { return _connectedCount > 0; }
   [[nodiscard]] int getConnectionCount() const { return _connectedCount; }
-  void setConnectionCount(int count) { _connectedCount = count; }
+  void setConnectionCount(int count) { _connectedCount = count < 0 ? 0 : count; }
   void incrementConnection() { _connectedCount++; }
   void decrementConnection() {
     if (_connectedCount > 0) {
