@@ -1,0 +1,20 @@
+{
+  "stdout_regex_lines": [
+    "/help",
+    "/login \"user_name\"",
+    "/logout",
+    "/users",
+    "/user \"user_uuid\"",
+    "/send \"user_uuid\" \"message_body\"",
+    "/messages \"user_uuid\"",
+    "/subscribe \"team_uuid\"",
+    "/subscribed \\?\"team_uuid\"",
+    "/unsubscribe \"team_uuid\"",
+    "/use \\?\"team_uuid\" \\?\"channel_uuid\" \\?\"thread_uuid\"",
+    "/create \"comment_body\" \\(after /use team channel thread\\)",
+    "/create \"name\" \"description/message\" \\(team, channel, or thread\\)",
+    "/list",
+    "/info"
+  ],
+  "stderr": ""
+}

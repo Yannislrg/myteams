@@ -1,0 +1,4 @@
+{
+  "stdout": "",
+  "stderr_regex": "(?s).*Client 11111111-1111-1111-1111-111111111111 logged in with login alpha.*\\[Private\\] 11111111-1111-1111-1111-111111111111 \\([\\s\\S]*?\\): hello beta.*Client 11111111-1111-1111-1111-111111111111 logged out with login alpha.*"
+}

@@ -1,0 +1,4 @@
+/login "carol"
+/use
+/info
+/logout

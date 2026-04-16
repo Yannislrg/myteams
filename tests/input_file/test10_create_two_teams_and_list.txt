@@ -1,0 +1,5 @@
+/login "dave"
+/create "teamA" "descA"
+/create "teamB" "descB"
+/list
+/logout
