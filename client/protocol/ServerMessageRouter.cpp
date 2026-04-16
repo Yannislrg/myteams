@@ -50,7 +50,7 @@ void ServerMessageRouter::registerCommandHandlers() {
   registerHandler(std::make_unique<UserLoggedInHandler>());
   registerHandler(std::make_unique<UserLoggedOutHandler>());
   registerHandler(std::make_unique<PrivateMessageHandler>());
-  registerHandler(std::make_unique<Response200Handler>());
+  registerHandler(std::make_unique<Response200Handler>(_user, _shouldDisconnect));
   registerHandler(std::make_unique<Response201Handler>());
   registerHandler(std::make_unique<ResponseErrorHandler>("400"));
   registerHandler(std::make_unique<ResponseErrorHandler>("401"));

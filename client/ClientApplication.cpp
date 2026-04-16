@@ -155,6 +155,9 @@ bool ClientApplication::handleServerReadable() {
     }
     _messageRouter.routeFrame(frame);
     parseOffset = lineEnd + 1;
+    if (_messageRouter.shouldDisconnect()) {
+      return false;
+    }
   }
 
   if (parseOffset != 0) {

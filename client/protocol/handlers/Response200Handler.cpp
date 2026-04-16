@@ -12,6 +12,9 @@
 #include <vector>
 #include "LoggingClientC.hpp"
 
+Response200Handler::Response200Handler(User& user, bool& shouldDisconnect)
+    : _user(user), _shouldDisconnect(shouldDisconnect) {}
+
 static constexpr std::size_t UserMinTokens = 5;
 static constexpr std::size_t InfoMinTokens = 6;
 static constexpr std::size_t ThreadMinTokens = 8;
@@ -22,6 +25,17 @@ void Response200Handler::handle(const std::vector<std::string>& tokens) const {
     return;
   }
   const std::string& sub = tokens[1];
+
+  if (sub == "OK") {
+    constexpr std::size_t LoginTokens = 4;
+    if (tokens.size() >= LoginTokens) {
+      _user.login(tokens[2], tokens[3]);
+    } else {
+      _user.logout();
+      _shouldDisconnect = true;
+    }
+    return;
+  }
 
   if (sub == "USER" && tokens.size() >= UserMinTokens) {
     int status = 0;
