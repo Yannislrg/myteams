@@ -25,7 +25,7 @@ void UserCommand::execute(Client& client, Server& server) {
   const auto& user = server.getDb().findUser(args[1]);
   if (user == nullptr) {
     Server::sendToClient(
-        "404 NOT_FOUND USER " + Utils::quoteProtocolField(args[1]) + "\r\n",
+        "404 NOT_FOUND " + Utils::quoteProtocolField(args[1]) + "\r\n",
         client);
     return;
   }
