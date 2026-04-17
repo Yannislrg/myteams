@@ -21,6 +21,7 @@
 #include "client/client.hpp"
 #include "net/Poller.hpp"
 #include "sys/Posix.hpp"
+#include "utils.hpp"
 
 std::atomic<bool> Server::_running{false};
 
@@ -141,19 +142,18 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
     auto* user = _db.findUser(userUuid);
     if (user != nullptr) {
       user->decrementConnection();
-      if (!user->isConnected()) {
-        shouldBroadcastLogout = true;
-        loggedOutUserUuid = user->getUuid();
-        loggedOutUserName = user->getName();
-      }
+      shouldBroadcastLogout = true;
+      loggedOutUserUuid = user->getUuid();
+      loggedOutUserName = user->getName();
     }
   }
   poller.removeFileDescriptor(clientFd);
   sys::Posix::close(clientFd);
   _clients.erase(clientFd);
   if (shouldBroadcastLogout) {
-    broadcast("EVENT USER_LOGGED_OUT \"" + loggedOutUserUuid + "\" \"" +
-              loggedOutUserName + "\"\r\n");
+    broadcast("EVENT USER_LOGGED_OUT " +
+              Utils::quoteProtocolField(loggedOutUserUuid) + " " +
+              Utils::quoteProtocolField(loggedOutUserName) + "\r\n");
     server_event_user_logged_out(loggedOutUserUuid.c_str());
   }
 }

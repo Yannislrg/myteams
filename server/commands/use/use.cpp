@@ -23,8 +23,13 @@ bool validateAndSetTeam(const std::vector<std::string>& args, Context& ctx,
   }
 
   const auto& teamUuid = args[1];
-  if (server.getDb().findTeam(teamUuid) == nullptr) {
-    Server::sendToClient("404 NOT_FOUND \"" + teamUuid + "\"\r\n", client);
+  auto* team = server.getDb().findTeam(teamUuid);
+  if (team == nullptr) {
+    Server::sendToClient("404 NOT_FOUND TEAM \"" + teamUuid + "\"\r\n", client);
+    return false;
+  }
+  if (!team->isUserSubscribed(client.getUserUuid())) {
+    Server::sendToClient("403 FORBIDDEN\r\n", client);
     return false;
   }
 
@@ -43,7 +48,8 @@ bool validateAndSetChannel(const std::vector<std::string>& args, Context& ctx,
 
   const auto& channelUuid = args[2];
   if (server.getDb().findChannel(ctx.teamUuid, channelUuid) == nullptr) {
-    Server::sendToClient("404 NOT_FOUND \"" + channelUuid + "\"\r\n", client);
+    Server::sendToClient("404 NOT_FOUND CHANNEL \"" + channelUuid + "\"\r\n",
+                         client);
     return false;
   }
 
@@ -61,7 +67,8 @@ bool validateAndSetThread(const std::vector<std::string>& args, Context& ctx,
 
   const auto& threadUuid = args[3];
   if (server.getDb().findThread(ctx.channelUuid, threadUuid) == nullptr) {
-    Server::sendToClient("404 NOT_FOUND \"" + threadUuid + "\"\r\n", client);
+    Server::sendToClient("404 NOT_FOUND THREAD \"" + threadUuid + "\"\r\n",
+                         client);
     return false;
   }
 
