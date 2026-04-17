@@ -33,7 +33,7 @@ void Unsubscribe::execute(Client& client, Server& server) {
     return;
   }
   if (!team->isUserSubscribed(userUuid)) {
-    Server::sendToClient("401 UNAUTHORIZED\r\n", client);
+    Server::sendToClient("403 FORBIDDEN\r\n", client);
     return;
   }
   if (!team->removeSubscriber(userUuid)) {
