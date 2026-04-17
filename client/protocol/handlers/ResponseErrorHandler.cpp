@@ -31,13 +31,17 @@ void ResponseErrorHandler::handle(
         std::cout << "Error: NOT_FOUND\n";
       }
     } else if (tokens.size() >= 3) {
-      // Fallback: 404 NOT_FOUND "uuid" without type
-      std::cout << "Error: NOT_FOUND " << tokens[2] << '\n';
+      if (_pendingCommand == "/user" || _pendingCommand == "/send" ||
+          _pendingCommand == "/messages") {
+        (void)client_error_unknown_user(tokens[2].c_str());
+      } else {
+        std::cout << "Error: NOT_FOUND " << tokens[2] << '\n';
+      }
     } else {
       std::cout << "Error: NOT_FOUND\n";
     }
   } else if (_code == "403") {
-    std::cout << "Error: forbidden\n";
+    (void)client_error_unauthorized();
   } else if (_code == "400") {
     std::cout << "Error: bad request\n";
   }

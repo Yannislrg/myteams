@@ -9,9 +9,9 @@
 #include "client/client.hpp"
 #include "logging_server.h"
 #include "server.hpp"
+#include "utils.hpp"
 
 void Unsubscribe::execute(Client& client, Server& server) {
-  const auto& context = client.getContext();
   const auto userUuid = client.getUserUuid();
   if (userUuid.empty()) {
     Server::sendToClient("401 UNAUTHORIZED\r\n", client);
@@ -19,28 +19,30 @@ void Unsubscribe::execute(Client& client, Server& server) {
   }
   const auto& args = client.getArgs();
   if (args.size() < 2 || args[1].empty()) {
-    if (args.size() < 2 || args[1].empty()) {
-      Server::sendToClient("400 BAD_REQUEST\r\n", client);
-    }
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
-  if (userUuid.empty()) {
-    return;
-  }
-  auto* team = server.getDb().findTeam(args[1]);
+  const auto& teamUuid = args[1];
+  auto* team = server.getDb().findTeam(teamUuid);
   if (team == nullptr) {
+    Server::sendToClient(
+        "404 NOT_FOUND TEAM " + Utils::quoteProtocolField(teamUuid) + "\r\n",
+        client);
     return;
   }
   if (!team->isUserSubscribed(userUuid)) {
+    Server::sendToClient("403 FORBIDDEN\r\n", client);
     return;
   }
   if (!team->removeSubscriber(userUuid)) {
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
-  server_event_user_unsubscribed(context.teamUuid.c_str(), userUuid.c_str());
-  server.notifySubscribers(context.teamUuid, "user_unsubscribed \"" +
-                                                 context.teamUuid + "\" \"" +
-                                                 userUuid + "\"\r\n");
-  Server::sendToClient(
-      "200 UNSUBSCRIBE \"" + userUuid + "\" \"" + context.teamUuid + "\"\r\n", client);
+  server_event_user_unsubscribed(teamUuid.c_str(), userUuid.c_str());
+  server.notifySubscribers(teamUuid, "user_unsubscribed \"" + teamUuid +
+                                         "\" \"" + userUuid + "\"\r\n");
+  Server::sendToClient("200 UNSUBSCRIBE " +
+                           Utils::quoteProtocolField(userUuid) + " " +
+                           Utils::quoteProtocolField(teamUuid) + "\r\n",
+                       client);
 }

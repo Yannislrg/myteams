@@ -11,6 +11,7 @@
 #include "logging_server.h"
 #include "models/User.hpp"
 #include "server.hpp"
+#include "utils.hpp"
 
 void Logout::execute(Client& client, Server& server) {
   if (client.getUserUuid().empty()) {
@@ -21,18 +22,11 @@ void Logout::execute(Client& client, Server& server) {
   auto* user = server.getDb().findUser(client.getUserUuid());
   if (user != nullptr) {
     user->decrementConnection();
-    Server::sendToClient("EVENT USER_LOGGED_OUT \"" + user->getUuid() +
-                             "\" \"" + user->getName() + "\"\r\n",
-                         client);
     if (!user->isConnected()) {
+      server.broadcast("EVENT USER_LOGGED_OUT " +
+                       Utils::quoteProtocolField(user->getUuid()) + " " +
+                       Utils::quoteProtocolField(user->getName()) + "\r\n");
       server_event_user_logged_out(userUuid.c_str());
-      for (const auto& [fd, otherClient] : server.getClients()) {
-        if (otherClient.get() != &client) {
-          Server::sendToClient("EVENT USER_LOGGED_OUT \"" + user->getUuid() +
-                                   "\" \"" + user->getName() + "\"\r\n",
-                               *otherClient);
-        }
-      }
     }
   }
   client.setUserUuid("");

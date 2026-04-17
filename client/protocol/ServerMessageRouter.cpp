@@ -54,13 +54,19 @@ void ServerMessageRouter::registerCommandHandlers() {
   registerHandler(std::make_unique<UserLoggedInHandler>());
   registerHandler(std::make_unique<UserLoggedOutHandler>());
   registerHandler(std::make_unique<PrivateMessageHandler>());
-  registerHandler(std::make_unique<Response200Handler>(_user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<Response200Handler>(_user, _shouldDisconnect,
+                                                       _pendingCommand));
   registerHandler(std::make_unique<Response201Handler>());
-  registerHandler(std::make_unique<ResponseErrorHandler>("400"));
-  registerHandler(std::make_unique<ResponseErrorHandler>("401"));
-  registerHandler(std::make_unique<ResponseErrorHandler>("403"));
-  registerHandler(std::make_unique<ResponseErrorHandler>("404"));
-  registerHandler(std::make_unique<ResponseErrorHandler>("409"));
+  registerHandler(
+      std::make_unique<ResponseErrorHandler>("400", _pendingCommand));
+  registerHandler(
+      std::make_unique<ResponseErrorHandler>("401", _pendingCommand));
+  registerHandler(
+      std::make_unique<ResponseErrorHandler>("403", _pendingCommand));
+  registerHandler(
+      std::make_unique<ResponseErrorHandler>("404", _pendingCommand));
+  registerHandler(
+      std::make_unique<ResponseErrorHandler>("409", _pendingCommand));
 }
 
 void ServerMessageRouter::registerListHandlers() {

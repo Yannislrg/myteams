@@ -45,7 +45,7 @@ void Messages::execute(Client& client, Server& server) {
   const auto& receiverUser = server.getDb().findUser(user_uuid);
   if (receiverUser == nullptr) {
     Server::sendToClient(
-        "404 NOT_FOUND " + Utils::quoteProtocolField(user_uuid) + "\r\n",
+        "404 NOT_FOUND USER " + Utils::quoteProtocolField(user_uuid) + "\r\n",
         client);
     return;
   }

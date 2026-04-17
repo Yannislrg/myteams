@@ -35,7 +35,8 @@ void Send::execute(Client& client, Server& server) {
   const auto& receiverUser = server.getDb().findUser(args[1]);
   if (receiverUser == nullptr) {
     Server::sendToClient(
-        "404 NOT_FOUND " + Utils::quoteProtocolField(args[1]) + "\r\n", client);
+        "404 NOT_FOUND USER " + Utils::quoteProtocolField(args[1]) + "\r\n",
+        client);
     return;
   }
   const auto& messageBody = args[2];
@@ -49,9 +50,9 @@ void Send::execute(Client& client, Server& server) {
   server_event_private_message_sended(senderUser->getUuid().c_str(),
                                       receiverUser->getUuid().c_str(),
                                       messageBody.c_str());
-  server.sendToUser(receiverUser->getUuid(), "EVENT PRIVATE_MESSAGE \"" +
-                                                 senderUser->getUuid() +
-                                                 "\" \"" + messageBody +
-                                                 "\"\r\n");
+  server.sendToUser(receiverUser->getUuid(),
+                    "EVENT PRIVATE_MESSAGE " +
+                        Utils::quoteProtocolField(senderUser->getUuid()) + " " +
+                        Utils::quoteProtocolField(messageBody) + "\r\n");
   Server::sendToClient("200 OK\r\n", client);
 }
