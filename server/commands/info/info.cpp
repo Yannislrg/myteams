@@ -60,7 +60,7 @@ void Info::executeThread(Client& client, Server& server) {
           Utils::quoteProtocolField(thread->getUserUuid()) + " " +
           std::to_string(thread->getTimestamp()) + " " +
           Utils::quoteProtocolField(thread->getTitle()) + " " +
-          Utils::quoteProtocolField(thread->getBody()) + "\"\r\n",
+          Utils::quoteProtocolField(thread->getBody()) + "\r\n",
       client);
 }
 
