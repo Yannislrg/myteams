@@ -4,4 +4,5 @@ build/
 myteams_cli
 myteams_server
 .DS_Store
-*.json
+myteams_data.json
+tests/checker_like_tester.py

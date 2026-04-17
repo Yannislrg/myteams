@@ -1,0 +1,7 @@
+/login "eve"
+/create "project" "main"
+/list
+/subscribed
+/use
+/info
+/logout

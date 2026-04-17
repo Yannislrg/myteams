@@ -1,0 +1,11 @@
+/login "alpha"
+/use "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+/info
+/list
+/use "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"
+/info
+/list
+/use "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa" "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb" "cccccccc-cccc-cccc-cccc-cccccccccccc"
+/info
+/list
+/logout

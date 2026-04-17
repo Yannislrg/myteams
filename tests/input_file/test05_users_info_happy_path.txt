@@ -1,0 +1,4 @@
+/login "alice"
+/users
+/info
+/logout

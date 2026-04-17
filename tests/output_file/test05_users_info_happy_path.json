@@ -1,0 +1,9 @@
+{
+  "stdout": "",
+  "stderr_regex_lines": [
+    "Client [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} logged in with login alice",
+    "User \"alice\" \\([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\): 1",
+    "User \"alice\" \\([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\): 1",
+    "Client [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} logged out with login alice"
+  ]
+}

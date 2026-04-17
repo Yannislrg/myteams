@@ -1,0 +1,10 @@
+{
+  "stdout": "",
+  "stderr_regex_lines": [
+    "Client 11111111-1111-1111-1111-111111111111 logged in with login alpha",
+    "\\[Subscribed\\] 11111111-1111-1111-1111-111111111111 to aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "User \"alpha\" \\(11111111-1111-1111-1111-111111111111\\): 1",
+    "\\[Unsubscribed\\] 11111111-1111-1111-1111-111111111111 to aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "Client 11111111-1111-1111-1111-111111111111 logged out with login alpha"
+  ]
+}

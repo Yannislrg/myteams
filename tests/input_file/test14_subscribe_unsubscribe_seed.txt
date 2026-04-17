@@ -1,0 +1,6 @@
+/login "alpha"
+/subscribe "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+/subscribed "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+/use "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+/unsubscribe "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+/logout
