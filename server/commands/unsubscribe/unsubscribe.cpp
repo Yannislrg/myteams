@@ -19,9 +19,7 @@ void Unsubscribe::execute(Client& client, Server& server) {
   }
   const auto& args = client.getArgs();
   if (args.size() < 2 || args[1].empty()) {
-    if (args.size() < 2 || args[1].empty()) {
-      Server::sendToClient("400 BAD_REQUEST\r\n", client);
-    }
+    Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
   const auto& teamUuid = args[1];
