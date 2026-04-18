@@ -9,7 +9,6 @@
 
 #include <functional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 #include "ICommandHandler.hpp"
 #include "User.hpp"
@@ -24,7 +23,6 @@ class ResponseStatusHandler : public ICommandHandler {
 
  private:
   using Tokens = std::vector<std::string>;
-  using Handler = std::function<void(const Tokens&)>;
 
   void handle200(const Tokens& tokens) const;
   void handle201(const Tokens& tokens) const;
