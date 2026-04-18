@@ -20,6 +20,14 @@ class ServerMessageRouter {
   ServerMessageRouter();
   void routeFrame(const std::string& frame);
   void setPendingCommand(std::string cmd);
+  [[nodiscard]] bool hasLoggedUser() const { return _user.isLoggedIn(); }
+  [[nodiscard]] const std::string& getLoggedUserUuid() const {
+    return _user.getUuid();
+  }
+  [[nodiscard]] const std::string& getLoggedUserName() const {
+    return _user.getName();
+  }
+  void clearLoggedUser() { _user.logout(); }
   [[nodiscard]] bool shouldDisconnect() const { return _shouldDisconnect; }
 
  private:
