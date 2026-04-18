@@ -136,16 +136,16 @@ void ResponseStatusHandler::handle201(const Tokens& tokens) const {
     return;
   }
   if (type == "REPLY" && tokens.size() >= replyCreateMinTokens) {
+    constexpr std::size_t replyBodyIndex = 6;
     const auto timestamp = parseTimestamp(tokens[infoDescriptionIndex]);
     if (!timestamp.has_value()) {
       return;
     }
     (void)client_print_reply_created(tokens[3].c_str(), tokens[4].c_str(),
                                      timestamp.value(),
-                                     tokens[threadTitleIndex].c_str());
+                                     tokens[replyBodyIndex].c_str());
   }
 }
-
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 void ResponseStatusHandler::handle400(const Tokens& /*tokens*/) const {
