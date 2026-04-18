@@ -142,11 +142,9 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
     auto* user = _db.findUser(userUuid);
     if (user != nullptr) {
       user->decrementConnection();
-      if (!user->isConnected()) {
-        shouldBroadcastLogout = true;
-        loggedOutUserUuid = user->getUuid();
-        loggedOutUserName = user->getName();
-      }
+      shouldBroadcastLogout = true;
+      loggedOutUserUuid = user->getUuid();
+      loggedOutUserName = user->getName();
     }
   }
   poller.removeFileDescriptor(clientFd);
@@ -237,6 +235,9 @@ void Server::sendToClient(const std::string& msg, Client& client) {
 void Server::broadcast(const std::string& msg) {
   for (const auto& [filedescriptor, client] : _clients) {
     (void)filedescriptor;
+    if (client == nullptr || client->getUserUuid().empty()) {
+      continue;
+    }
     client->appendToWriteBuffer(msg);
   }
 }

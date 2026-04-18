@@ -22,12 +22,10 @@ void Logout::execute(Client& client, Server& server) {
   auto* user = server.getDb().findUser(client.getUserUuid());
   if (user != nullptr) {
     user->decrementConnection();
-    if (!user->isConnected()) {
-      server.broadcast("EVENT USER_LOGGED_OUT " +
-                       Utils::quoteProtocolField(user->getUuid()) + " " +
-                       Utils::quoteProtocolField(user->getName()) + "\r\n");
-      server_event_user_logged_out(userUuid.c_str());
-    }
+    server.broadcast("EVENT USER_LOGGED_OUT " +
+                     Utils::quoteProtocolField(user->getUuid()) + " " +
+                     Utils::quoteProtocolField(user->getName()) + "\r\n");
+    server_event_user_logged_out(userUuid.c_str());
   }
   client.setUserUuid("");
   Server::sendToClient("200 OK\r\n", client);
