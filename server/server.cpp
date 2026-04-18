@@ -142,9 +142,11 @@ void Server::_disconnectClient(int clientFd, Poller& poller) {
     auto* user = _db.findUser(userUuid);
     if (user != nullptr) {
       user->decrementConnection();
-      shouldBroadcastLogout = true;
-      loggedOutUserUuid = user->getUuid();
-      loggedOutUserName = user->getName();
+      if (!user->isConnected()) {
+        shouldBroadcastLogout = true;
+        loggedOutUserUuid = user->getUuid();
+        loggedOutUserName = user->getName();
+      }
     }
   }
   poller.removeFileDescriptor(clientFd);
