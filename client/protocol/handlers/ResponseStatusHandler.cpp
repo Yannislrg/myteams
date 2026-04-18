@@ -30,6 +30,7 @@ constexpr std::size_t replyCreateMinTokens = 7;
 constexpr std::size_t userUuidIndex = 2;
 constexpr std::size_t userNameIndex = 3;
 constexpr std::size_t userStatusIndex = 4;
+constexpr std::size_t teamUuidIndex = 3;
 
 constexpr std::size_t infoUuidIndex = 3;
 constexpr std::size_t infoNameIndex = 4;
@@ -204,6 +205,7 @@ void ResponseStatusHandler::handle200Ok(const Tokens& tokens) const {
   }
   if (_pendingCommand == "/logout") {
     _user.logout();
+    _shouldDisconnect = true;
   }
 }
 
@@ -226,8 +228,9 @@ void ResponseStatusHandler::handle200Subscribe(const Tokens& tokens) const {
   if (tokens.size() < subscribeMinTokens) {
     return;
   }
+  const auto& teamUuid = tokens[teamUuidIndex];
   (void)client_print_subscribed(tokens[userUuidIndex].c_str(),
-                                tokens[userNameIndex].c_str());
+                                teamUuid.c_str());
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
@@ -235,8 +238,9 @@ void ResponseStatusHandler::handle200Unsubscribe(const Tokens& tokens) const {
   if (tokens.size() < subscribeMinTokens) {
     return;
   }
+  const auto& teamUuid = tokens[teamUuidIndex];
   (void)client_print_unsubscribed(tokens[userUuidIndex].c_str(),
-                                  tokens[userNameIndex].c_str());
+                                  teamUuid.c_str());
 }
 
 void ResponseStatusHandler::handle200Info(const Tokens& tokens) const {
