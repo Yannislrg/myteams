@@ -176,8 +176,6 @@ void ResponseStatusHandler::handle404(const Tokens& tokens) const {
       (void)client_error_unknown_thread(uuid.c_str());
     } else if (type == "USER") {
       (void)client_error_unknown_user(uuid.c_str());
-    } else {
-      std::cout << "Error: NOT_FOUND\n";
     }
     return;
   }
@@ -185,12 +183,9 @@ void ResponseStatusHandler::handle404(const Tokens& tokens) const {
     if (_pendingCommand == "/user" || _pendingCommand == "/send" ||
         _pendingCommand == "/messages") {
       (void)client_error_unknown_user(tokens[2].c_str());
-    } else {
-      std::cout << "Error: NOT_FOUND " << tokens[2] << '\n';
     }
     return;
   }
-  std::cout << "Error: NOT_FOUND\n";
 }
 
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
