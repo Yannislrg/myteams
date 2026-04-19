@@ -73,7 +73,7 @@ Thread* findThreadOrSend404(Client& client, Server& server,
                             const std::string& threadUuid) {
   Thread* thread = server.getDb().findThread(channelUuid, threadUuid);
   if (thread == nullptr) {
-    Server::sendToClient("404 NOT_FOUND THREAD " +
+    Server::sendToClient("404 NOT_FOUND " +
                              Utils::quoteProtocolField(threadUuid) + "\r\n",
                          client);
     return nullptr;
