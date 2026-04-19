@@ -47,7 +47,7 @@ bool ClientApplication::hasEvent(int revents, int mask) {
 }
 
 void ClientApplication::handleConnectionLost() {
-  if (!_messageRouter.hasLoggedUser()) {
+  if (!_messageRouter.hasLoggedUser() || _messageRouter.shouldDisconnect()) {
     return;
   }
   (void)client_event_logged_out(_messageRouter.getLoggedUserUuid().c_str(),

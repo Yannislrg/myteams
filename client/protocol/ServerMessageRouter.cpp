@@ -178,6 +178,9 @@ void ServerMessageRouter::routeFrame(const std::string& frame) {
       return;
     }
     command = tokens[1];
+    if (command == "USER_LOGGED_OUT" && _pendingCommand == "/logout") {
+      return;
+    }
   }
   const auto handlerEntry = _handlers.find(command);
   if (handlerEntry == _handlers.end()) {

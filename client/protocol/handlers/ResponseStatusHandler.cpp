@@ -12,7 +12,13 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#include "LoggingClientC.hpp"
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "logging_client.h"
+#ifdef __cplusplus
+}
+#endif
 
 namespace {
 constexpr std::size_t minHeaderTokens = 3;
@@ -199,6 +205,8 @@ void ResponseStatusHandler::handle200Ok(const Tokens& tokens) const {
     return;
   }
   if (_pendingCommand == "/logout") {
+    (void)client_event_logged_out(_user.getUuid().c_str(),
+                                  _user.getName().c_str());
     _user.logout();
     _shouldDisconnect = true;
   }

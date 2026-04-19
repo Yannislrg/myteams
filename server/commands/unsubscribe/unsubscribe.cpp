@@ -38,6 +38,9 @@ void Unsubscribe::execute(Client& client, Server& server) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
+  if (auto* user = server.getDb().findUser(userUuid); user != nullptr) {
+    (void)user->removeTeam(teamUuid);
+  }
   server_event_user_unsubscribed(teamUuid.c_str(), userUuid.c_str());
   server.notifySubscribers(teamUuid, "user_unsubscribed \"" + teamUuid +
                                          "\" \"" + userUuid + "\"\r\n");

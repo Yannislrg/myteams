@@ -280,6 +280,11 @@ void Create::executeTeam(Client& client, Server& server) {
     return;
   }
   Team newTeam = buildTeam(teamName, teamDescription);
+  (void)newTeam.addSubscriber(client.getUserUuid());
+  if (auto* user = server.getDb().findUser(client.getUserUuid());
+      user != nullptr) {
+    (void)user->addTeam(newTeam.getUuid());
+  }
   teams.push_back(newTeam);
   sendTeamCreated(client, newTeam);
   logAndBroadcastTeamCreated(server, newTeam, client.getUserUuid());
