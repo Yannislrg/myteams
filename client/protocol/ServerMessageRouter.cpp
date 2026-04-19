@@ -178,7 +178,8 @@ void ServerMessageRouter::routeFrame(const std::string& frame) {
       return;
     }
     command = tokens[1];
-    if (command == "USER_LOGGED_OUT" && _pendingCommand == "/logout") {
+    if (command == "USER_LOGGED_OUT" && _pendingCommand == "/logout" &&
+        tokens.size() >= 3 && tokens[2] == _user.getUuid()) {
       return;
     }
   }
