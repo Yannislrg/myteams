@@ -199,6 +199,8 @@ void ResponseStatusHandler::handle200Ok(const Tokens& tokens) const {
     return;
   }
   if (_pendingCommand == "/logout") {
+    (void)client_event_logged_out(_user.getUuid().c_str(),
+                                  _user.getName().c_str());
     _user.logout();
     _shouldDisconnect = true;
   }

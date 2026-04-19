@@ -42,6 +42,10 @@ void Subscribe::execute(Client& client, Server& server) {
     Server::sendToClient("400 BAD_REQUEST\r\n", client);
     return;
   }
+  if (auto* user = server.getDb().findUser(client.getUserUuid());
+      user != nullptr) {
+    (void)user->addTeam(teamUuid);
+  }
   server_event_user_subscribed(teamUuid.c_str(), client.getUserUuid().c_str());
   server.notifySubscribers(teamUuid, "user_subscribed \"" + teamUuid + "\" \"" +
                                          client.getUserUuid() + "\"\r\n");

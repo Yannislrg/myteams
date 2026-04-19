@@ -29,7 +29,9 @@ class User {
 
   [[nodiscard]] bool isConnected() const { return _connectedCount > 0; }
   [[nodiscard]] int getConnectionCount() const { return _connectedCount; }
-  void setConnectionCount(int count) { _connectedCount = count < 0 ? 0 : count; }
+  void setConnectionCount(int count) {
+    _connectedCount = count < 0 ? 0 : count;
+  }
   void incrementConnection() { _connectedCount++; }
   void decrementConnection() {
     if (_connectedCount > 0) {
@@ -41,6 +43,8 @@ class User {
     return _teams;
   }
   void setTeams(const std::vector<std::string>& teams) { _teams = teams; }
+  [[nodiscard]] bool addTeam(const std::string& teamUuid);
+  [[nodiscard]] bool removeTeam(const std::string& teamUuid);
 
   [[nodiscard]] const std::map<std::string, std::vector<Message>>& getMessages()
       const {

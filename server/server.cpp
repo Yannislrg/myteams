@@ -237,6 +237,9 @@ void Server::sendToClient(const std::string& msg, Client& client) {
 void Server::broadcast(const std::string& msg) {
   for (const auto& [filedescriptor, client] : _clients) {
     (void)filedescriptor;
+    if (client == nullptr || client->getUserUuid().empty()) {
+      continue;
+    }
     client->appendToWriteBuffer(msg);
   }
 }

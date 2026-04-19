@@ -13,6 +13,7 @@
 #include <string>
 #include <utility>
 #include "CommandLineDispatcher.hpp"
+#include "LoggingClientC.hpp"
 #include "sys/ClientError.hpp"
 
 ClientApplication::ClientApplication(std::string host, uint16_t port)
@@ -37,6 +38,15 @@ void ClientApplication::run() {
 bool ClientApplication::hasEvent(int revents, int mask) {
   return (static_cast<unsigned int>(revents) &
           static_cast<unsigned int>(mask)) != 0U;
+}
+
+void ClientApplication::handleConnectionLost() {
+  if (!_messageRouter.hasLoggedUser() || _messageRouter.shouldDisconnect()) {
+    return;
+  }
+  (void)client_event_logged_out(_messageRouter.getLoggedUserUuid().c_str(),
+                                _messageRouter.getLoggedUserName().c_str());
+  _messageRouter.clearLoggedUser();
 }
 
 bool ClientApplication::handleStdinEvent(const PollEvent& pollEvent) {
@@ -109,6 +119,7 @@ void ClientApplication::sendCommandFrame(const std::string& frame) {
 
 bool ClientApplication::handleServerEvent(const PollEvent& pollEvent) {
   if (hasEvent(pollEvent.revents, POLLERR | POLLHUP | POLLNVAL)) {
+    handleConnectionLost();
     return false;
   }
 
@@ -131,6 +142,7 @@ bool ClientApplication::handleServerReadable() {
   std::array<char, READ_BUFFER_SIZE> buffer{};
   const ssize_t bytesRead = _client.receiveSome(buffer.data(), buffer.size());
   if (bytesRead == 0) {
+    handleConnectionLost();
     return false;
   }
   if (bytesRead < 0) {

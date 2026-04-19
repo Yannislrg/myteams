@@ -10,9 +10,9 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "LoggingClientC.hpp"
 #include "TokenParser.hpp"
 #include "handlers/ChannelCreatedHandler.hpp"
-#include "handlers/LoggingClientC.hpp"
 #include "handlers/PrivateMessageHandler.hpp"
 #include "handlers/ReplyCreatedHandler.hpp"
 #include "handlers/ResponseStatusHandler.hpp"
@@ -172,6 +172,10 @@ void ServerMessageRouter::routeFrame(const std::string& frame) {
       return;
     }
     command = tokens[1];
+    if (command == "USER_LOGGED_OUT" && _pendingCommand == "/logout" &&
+        tokens.size() >= 3 && tokens[2] == _user.getUuid()) {
+      return;
+    }
   }
   const auto handlerEntry = _handlers.find(command);
   if (handlerEntry == _handlers.end()) {

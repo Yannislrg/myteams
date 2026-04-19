@@ -14,16 +14,25 @@
 namespace {
 
 void listAllTeams(Client& client, Server& server) {
+  auto* user = server.getDb().findUser(client.getUserUuid());
+  if (user == nullptr) {
+    Server::sendToClient("404 NOT_FOUND USER " +
+                             Utils::quoteProtocolField(client.getUserUuid()) +
+                             "\r\n",
+                         client);
+    return;
+  }
   auto& teams = server.getDb().getTeams();
   Server::sendToClient("210-BEGIN TEAMS\r\n", client);
   for (const auto& team : teams) {
-    if (team.isUserSubscribed(client.getUserUuid())) {
-      Server::sendToClient(
-          "210 " + Utils::quoteProtocolField(team.getUuid()) + " " +
-              Utils::quoteProtocolField(team.getName()) + " " +
-              Utils::quoteProtocolField(team.getDescription()) + "\r\n",
-          client);
+    if (!team.isUserSubscribed(client.getUserUuid())) {
+      continue;
     }
+    Server::sendToClient(
+        "210 " + Utils::quoteProtocolField(team.getUuid()) + " " +
+            Utils::quoteProtocolField(team.getName()) + " " +
+            Utils::quoteProtocolField(team.getDescription()) + "\r\n",
+        client);
   }
   Server::sendToClient("210-END TEAMS\r\n", client);
 }
