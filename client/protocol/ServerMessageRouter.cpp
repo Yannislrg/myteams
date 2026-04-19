@@ -10,14 +10,8 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include "LoggingClientC.hpp"
 #include "TokenParser.hpp"
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "logging_client.h"
-#ifdef __cplusplus
-}
-#endif
 #include "handlers/ChannelCreatedHandler.hpp"
 #include "handlers/PrivateMessageHandler.hpp"
 #include "handlers/ReplyCreatedHandler.hpp"

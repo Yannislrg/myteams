@@ -12,13 +12,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "logging_client.h"
-#ifdef __cplusplus
-}
-#endif
+#include "LoggingClientC.hpp"
 
 namespace {
 constexpr std::size_t minHeaderTokens = 3;

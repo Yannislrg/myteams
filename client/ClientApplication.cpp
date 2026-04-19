@@ -13,13 +13,7 @@
 #include <string>
 #include <utility>
 #include "CommandLineDispatcher.hpp"
-#ifdef __cplusplus
-extern "C" {
-#endif
-#include "logging_client.h"
-#ifdef __cplusplus
-}
-#endif
+#include "LoggingClientC.hpp"
 #include "sys/ClientError.hpp"
 
 ClientApplication::ClientApplication(std::string host, uint16_t port)
