@@ -30,6 +30,127 @@ namespace {
 bool isInvalidLength(const std::string& value, std::size_t maxLength) {
   return value.empty() || value.size() > maxLength;
 }
+
+std::string generateUuid() {
+  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
+  uuid_generate(uuidObj);
+  std::array<char, UUID_LEN> uuidStr{};
+  uuid_unparse_lower(uuidObj, uuidStr.data());
+  return {uuidStr.data()};
+}
+
+Team* findAccessibleTeam(Client& client, Server& server,
+                         const std::string& teamUuid) {
+  Team* team = server.getDb().findTeam(teamUuid);
+  if (team == nullptr) {
+    Server::sendToClient(
+        "404 NOT_FOUND TEAM " + Utils::quoteProtocolField(teamUuid) + "\r\n",
+        client);
+    return nullptr;
+  }
+  if (!team->isUserSubscribed(client.getUserUuid())) {
+    Server::sendToClient("403 FORBIDDEN\r\n", client);
+    return nullptr;
+  }
+  return team;
+}
+
+Channel* findChannelOrSend404(Client& client, Server& server,
+                              const std::string& teamUuid,
+                              const std::string& channelUuid) {
+  Channel* channel = server.getDb().findChannel(teamUuid, channelUuid);
+  if (channel == nullptr) {
+    Server::sendToClient("404 NOT_FOUND CHANNEL " +
+                             Utils::quoteProtocolField(channelUuid) + "\r\n",
+                         client);
+    return nullptr;
+  }
+  return channel;
+}
+
+Thread* findThreadOrSend404(Client& client, Server& server,
+                            const std::string& channelUuid,
+                            const std::string& threadUuid) {
+  Thread* thread = server.getDb().findThread(channelUuid, threadUuid);
+  if (thread == nullptr) {
+    Server::sendToClient("404 NOT_FOUND THREAD " +
+                             Utils::quoteProtocolField(threadUuid) + "\r\n",
+                         client);
+    return nullptr;
+  }
+  return thread;
+}
+
+void emitTeamCreated(Client& client, Server& server, const Team& team) {
+  Server::sendToClient(
+      "201 CREATED TEAM " + Utils::quoteProtocolField(team.getUuid()) + " " +
+          Utils::quoteProtocolField(team.getName()) + " " +
+          Utils::quoteProtocolField(team.getDescription()) + "\r\n",
+      client);
+  server_event_team_created(team.getUuid().c_str(), team.getName().c_str(),
+                            client.getUserUuid().c_str());
+  server.broadcast("EVENT TEAM_CREATED " +
+                   Utils::quoteProtocolField(team.getUuid()) + " " +
+                   Utils::quoteProtocolField(team.getName()) + " " +
+                   Utils::quoteProtocolField(team.getDescription()) + "\r\n");
+}
+
+void emitChannelCreated(Client& client, Server& server,
+                        const std::string& teamUuid, const Channel& channel) {
+  Server::sendToClient(
+      "201 CREATED CHANNEL " + Utils::quoteProtocolField(channel.getUuid()) +
+          " " + Utils::quoteProtocolField(channel.getName()) + " " +
+          Utils::quoteProtocolField(channel.getDescription()) + "\r\n",
+      client);
+  server_event_channel_created(teamUuid.c_str(), channel.getUuid().c_str(),
+                               channel.getName().c_str());
+  server.notifySubscribers(
+      teamUuid,
+      "EVENT CHANNEL_CREATED " + Utils::quoteProtocolField(channel.getUuid()) +
+          " " + Utils::quoteProtocolField(channel.getName()) + " " +
+          Utils::quoteProtocolField(channel.getDescription()) + "\r\n");
+}
+
+void emitThreadCreated(Client& client, Server& server,
+                       const std::string& teamUuid,
+                       const std::string& channelUuid, const Thread& thread) {
+  Server::sendToClient("201 CREATED THREAD " +
+                           Utils::quoteProtocolField(thread.getUuid()) + " " +
+                           Utils::quoteProtocolField(thread.getUserUuid()) +
+                           " " + std::to_string(thread.getTimestamp()) + " " +
+                           Utils::quoteProtocolField(thread.getTitle()) + " " +
+                           Utils::quoteProtocolField(thread.getBody()) + "\r\n",
+                       client);
+  server_event_thread_created(channelUuid.c_str(), thread.getUuid().c_str(),
+                              client.getUserUuid().c_str(),
+                              thread.getTitle().c_str(),
+                              thread.getBody().c_str());
+  server.notifySubscribers(
+      teamUuid, "EVENT THREAD_CREATED " +
+                    Utils::quoteProtocolField(thread.getUuid()) + " " +
+                    Utils::quoteProtocolField(thread.getUserUuid()) + " " +
+                    std::to_string(thread.getTimestamp()) + " " +
+                    Utils::quoteProtocolField(thread.getTitle()) + " " +
+                    Utils::quoteProtocolField(thread.getBody()) + "\r\n");
+}
+
+void emitReplyCreated(Client& client, Server& server,
+                      const std::string& teamUuid,
+                      const std::string& threadUuid, const Reply& reply) {
+  Server::sendToClient("201 CREATED REPLY " +
+                           Utils::quoteProtocolField(threadUuid) + " " +
+                           Utils::quoteProtocolField(reply.getUserUuid()) +
+                           " " + std::to_string(reply.getTimestamp()) + " " +
+                           Utils::quoteProtocolField(reply.getBody()) + "\r\n",
+                       client);
+  server_event_reply_created(threadUuid.c_str(), client.getUserUuid().c_str(),
+                             reply.getBody().c_str());
+  server.notifySubscribers(
+      teamUuid, "EVENT REPLY_CREATED " + Utils::quoteProtocolField(teamUuid) +
+                    " " + Utils::quoteProtocolField(threadUuid) + " " +
+                    Utils::quoteProtocolField(reply.getUserUuid()) + " " +
+                    Utils::quoteProtocolField(reply.getBody()) + "\r\n");
+}
 }  // namespace
 
 Create::~Create() = default;
@@ -74,11 +195,7 @@ void Create::executeTeam(Client& client, Server& server) {
     }
   }
   Team newTeam;
-  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
-  uuid_generate(uuidObj);
-  std::array<char, UUID_LEN> uuidStr{};
-  uuid_unparse_lower(uuidObj, uuidStr.data());
-  newTeam.setUuid(std::string(uuidStr.data()));
+  newTeam.setUuid(generateUuid());
   newTeam.setName(teamName);
   newTeam.setDescription(teamDescription);
   if (!client.getUserUuid().empty()) {
@@ -86,32 +203,13 @@ void Create::executeTeam(Client& client, Server& server) {
   }
   teams.push_back(newTeam);
 
-  Server::sendToClient(
-      "201 CREATED TEAM " + Utils::quoteProtocolField(newTeam.getUuid()) + " " +
-          Utils::quoteProtocolField(newTeam.getName()) + " " +
-          Utils::quoteProtocolField(newTeam.getDescription()) + "\r\n",
-      client);
-  server_event_team_created(newTeam.getUuid().c_str(),
-                            newTeam.getName().c_str(),
-                            client.getUserUuid().c_str());
-  server.broadcast(
-      "EVENT TEAM_CREATED " + Utils::quoteProtocolField(newTeam.getUuid()) +
-      " " + Utils::quoteProtocolField(newTeam.getName()) + " " +
-      Utils::quoteProtocolField(newTeam.getDescription()) + "\r\n");
+  emitTeamCreated(client, server, newTeam);
 }
 
 void Create::executeChannel(Client& client, Server& server) {
   const auto& context = client.getContext();
-  Team* team = server.getDb().findTeam(context.teamUuid);
+  Team* team = findAccessibleTeam(client, server, context.teamUuid);
   if (team == nullptr) {
-    Server::sendToClient("404 NOT_FOUND TEAM " +
-                             Utils::quoteProtocolField(context.teamUuid) +
-                             "\r\n",
-                         client);
-    return;
-  }
-  if (!team->isUserSubscribed(client.getUserUuid())) {
-    Server::sendToClient("403 FORBIDDEN\r\n", client);
     return;
   }
   const std::vector<std::string>& args = client.getArgs();
@@ -136,50 +234,22 @@ void Create::executeChannel(Client& client, Server& server) {
   }
   channels.emplace_back();
   Channel& channel = channels.back();
-  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
-  uuid_generate(uuidObj);
-  std::array<char, UUID_LEN> uuidStr{};
-  uuid_unparse_lower(uuidObj, uuidStr.data());
-  channel.setUuid(std::string(uuidStr.data()));
+  channel.setUuid(generateUuid());
   channel.setName(channelName);
   channel.setDescription(channelDescription);
 
-  Server::sendToClient(
-      "201 CREATED CHANNEL " + Utils::quoteProtocolField(channel.getUuid()) +
-          " " + Utils::quoteProtocolField(channel.getName()) + " " +
-          Utils::quoteProtocolField(channel.getDescription()) + "\r\n",
-      client);
-  server_event_channel_created(context.teamUuid.c_str(),
-                               channel.getUuid().c_str(),
-                               channel.getName().c_str());
-  server.notifySubscribers(
-      context.teamUuid,
-      "EVENT CHANNEL_CREATED " + Utils::quoteProtocolField(channel.getUuid()) +
-          " " + Utils::quoteProtocolField(channel.getName()) + " " +
-          Utils::quoteProtocolField(channel.getDescription()) + "\r\n");
+  emitChannelCreated(client, server, context.teamUuid, channel);
 }
 
 void Create::executeThread(Client& client, Server& server) {
   const auto& context = client.getContext();
-  const auto& team = server.getDb().findTeam(context.teamUuid);
+  Team* team = findAccessibleTeam(client, server, context.teamUuid);
   if (team == nullptr) {
-    Server::sendToClient("404 NOT_FOUND TEAM " +
-                             Utils::quoteProtocolField(context.teamUuid) +
-                             "\r\n",
-                         client);
     return;
   }
-  if (!team->isUserSubscribed(client.getUserUuid())) {
-    Server::sendToClient("403 FORBIDDEN\r\n", client);
-    return;
-  }
-  const auto& channel =
-      server.getDb().findChannel(context.teamUuid, context.channelUuid);
+  Channel* channel = findChannelOrSend404(client, server, context.teamUuid,
+                                          context.channelUuid);
   if (channel == nullptr) {
-    Server::sendToClient("404 NOT_FOUND CHANNEL " +
-                             Utils::quoteProtocolField(context.channelUuid) +
-                             "\r\n",
-                         client);
     return;
   }
   const std::vector<std::string>& args = client.getArgs();
@@ -202,67 +272,31 @@ void Create::executeThread(Client& client, Server& server) {
     }
   }
   Thread newThread;
-  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
-  uuid_generate(uuidObj);
-  std::array<char, UUID_LEN> uuidStr{};
-  uuid_unparse_lower(uuidObj, uuidStr.data());
-  newThread.setUuid(std::string(uuidStr.data()));
+  newThread.setUuid(generateUuid());
   newThread.setUserUuid(client.getUserUuid());
   newThread.setTitle(threadTitle);
   newThread.setBody(threadMessage);
   newThread.setTimestamp(std::time(nullptr));
   threads.push_back(newThread);
 
-  Server::sendToClient(
-      "201 CREATED THREAD " + Utils::quoteProtocolField(newThread.getUuid()) +
-          " " + Utils::quoteProtocolField(newThread.getUserUuid()) + " " +
-          std::to_string(newThread.getTimestamp()) + " " +
-          Utils::quoteProtocolField(newThread.getTitle()) + " " +
-          Utils::quoteProtocolField(newThread.getBody()) + "\r\n",
-      client);
-  server_event_thread_created(
-      context.channelUuid.c_str(), newThread.getUuid().c_str(),
-      client.getUserUuid().c_str(), newThread.getTitle().c_str(),
-      newThread.getBody().c_str());
-  server.notifySubscribers(
-      context.teamUuid,
-      "EVENT THREAD_CREATED " + Utils::quoteProtocolField(newThread.getUuid()) +
-          " " + Utils::quoteProtocolField(newThread.getUserUuid()) + " " +
-          std::to_string(newThread.getTimestamp()) + " " +
-          Utils::quoteProtocolField(newThread.getTitle()) + " " +
-          Utils::quoteProtocolField(newThread.getBody()) + "\r\n");
+  emitThreadCreated(client, server, context.teamUuid, context.channelUuid,
+                    newThread);
 }
 
 void Create::executeReply(Client& client, Server& server) {
   const auto& context = client.getContext();
-  const auto& team = server.getDb().findTeam(context.teamUuid);
+  Team* team = findAccessibleTeam(client, server, context.teamUuid);
   if (team == nullptr) {
-    Server::sendToClient("404 NOT_FOUND TEAM " +
-                             Utils::quoteProtocolField(context.teamUuid) +
-                             "\r\n",
-                         client);
     return;
   }
-  if (!team->isUserSubscribed(client.getUserUuid())) {
-    Server::sendToClient("403 FORBIDDEN\r\n", client);
-    return;
-  }
-  const auto& channel =
-      server.getDb().findChannel(context.teamUuid, context.channelUuid);
+  Channel* channel = findChannelOrSend404(client, server, context.teamUuid,
+                                          context.channelUuid);
   if (channel == nullptr) {
-    Server::sendToClient("404 NOT_FOUND CHANNEL " +
-                             Utils::quoteProtocolField(context.channelUuid) +
-                             "\r\n",
-                         client);
     return;
   }
-  const auto& thread =
-      server.getDb().findThread(context.channelUuid, context.threadUuid);
+  Thread* thread = findThreadOrSend404(client, server, context.channelUuid,
+                                       context.threadUuid);
   if (thread == nullptr) {
-    Server::sendToClient("404 NOT_FOUND THREAD " +
-                             Utils::quoteProtocolField(context.threadUuid) +
-                             "\r\n",
-                         client);
     return;
   }
   const std::vector<std::string>& args = client.getArgs();
@@ -277,29 +311,12 @@ void Create::executeReply(Client& client, Server& server) {
   }
   auto& replies = thread->getReplies();
   Reply newReply;
-  uuid_t uuidObj;  // NOLINT(misc-include-cleaner)
-  uuid_generate(uuidObj);
-  std::array<char, UUID_LEN> uuidStr{};
-  uuid_unparse_lower(uuidObj, uuidStr.data());
-  newReply.setUuid(std::string(uuidStr.data()));
+  newReply.setUuid(generateUuid());
   newReply.setUserUuid(client.getUserUuid());
   newReply.setBody(replyMessage);
   newReply.setTimestamp(std::time(nullptr));
   replies.push_back(newReply);
 
-  Server::sendToClient(
-      "201 CREATED REPLY " + Utils::quoteProtocolField(context.threadUuid) +
-          " " + Utils::quoteProtocolField(newReply.getUserUuid()) + " " +
-          std::to_string(newReply.getTimestamp()) + " " +
-          Utils::quoteProtocolField(newReply.getBody()) + "\r\n",
-      client);
-  server_event_reply_created(context.threadUuid.c_str(),
-                             client.getUserUuid().c_str(),
-                             newReply.getBody().c_str());
-  server.notifySubscribers(
-      context.teamUuid,
-      "EVENT REPLY_CREATED " + Utils::quoteProtocolField(context.teamUuid) +
-          " " + Utils::quoteProtocolField(context.threadUuid) + " " +
-          Utils::quoteProtocolField(newReply.getUserUuid()) + " " +
-          Utils::quoteProtocolField(newReply.getBody()) + "\r\n");
+  emitReplyCreated(client, server, context.teamUuid, context.threadUuid,
+                   newReply);
 }
