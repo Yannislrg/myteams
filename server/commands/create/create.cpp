@@ -44,7 +44,7 @@ Team* findAccessibleTeam(Client& client, Server& server,
   Team* team = server.getDb().findTeam(teamUuid);
   if (team == nullptr) {
     Server::sendToClient(
-        "404 NOT_FOUND TEAM " + Utils::quoteProtocolField(teamUuid) + "\r\n",
+        "404 NOT_FOUND " + Utils::quoteProtocolField(teamUuid) + "\r\n",
         client);
     return nullptr;
   }
