@@ -21,9 +21,7 @@ extern "C" {
 #include "handlers/ChannelCreatedHandler.hpp"
 #include "handlers/PrivateMessageHandler.hpp"
 #include "handlers/ReplyCreatedHandler.hpp"
-#include "handlers/Response200Handler.hpp"
-#include "handlers/Response201Handler.hpp"
-#include "handlers/ResponseErrorHandler.hpp"
+#include "handlers/ResponseStatusHandler.hpp"
 #include "handlers/TeamCreatedHandler.hpp"
 #include "handlers/ThreadCreatedHandler.hpp"
 #include "handlers/UserLoggedInHandler.hpp"
@@ -60,19 +58,20 @@ void ServerMessageRouter::registerCommandHandlers() {
   registerHandler(std::make_unique<UserLoggedInHandler>());
   registerHandler(std::make_unique<UserLoggedOutHandler>());
   registerHandler(std::make_unique<PrivateMessageHandler>());
-  registerHandler(std::make_unique<Response200Handler>(_user, _shouldDisconnect,
-                                                       _pendingCommand));
-  registerHandler(std::make_unique<Response201Handler>());
-  registerHandler(
-      std::make_unique<ResponseErrorHandler>("400", _pendingCommand));
-  registerHandler(
-      std::make_unique<ResponseErrorHandler>("401", _pendingCommand));
-  registerHandler(
-      std::make_unique<ResponseErrorHandler>("403", _pendingCommand));
-  registerHandler(
-      std::make_unique<ResponseErrorHandler>("404", _pendingCommand));
-  registerHandler(
-      std::make_unique<ResponseErrorHandler>("409", _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "200", _user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "201", _user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "400", _user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "401", _user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "403", _user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "404", _user, _shouldDisconnect, _pendingCommand));
+  registerHandler(std::make_unique<ResponseStatusHandler>(
+      "409", _user, _shouldDisconnect, _pendingCommand));
 }
 
 void ServerMessageRouter::registerListHandlers() {

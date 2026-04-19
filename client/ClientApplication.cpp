@@ -65,7 +65,8 @@ bool ClientApplication::handleStdinEvent(const PollEvent& pollEvent) {
 
   std::string line;
   if (!std::getline(std::cin, line)) {
-    return false;
+    _poller.removeFileDescriptor(STDIN_FILENO);
+    return true;
   }
   if (!line.empty() && line.back() == '\r') {
     line.pop_back();
