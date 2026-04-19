@@ -60,7 +60,7 @@ Channel* findChannelOrSend404(Client& client, Server& server,
                               const std::string& channelUuid) {
   Channel* channel = server.getDb().findChannel(teamUuid, channelUuid);
   if (channel == nullptr) {
-    Server::sendToClient("404 NOT_FOUND CHANNEL " +
+    Server::sendToClient("404 NOT_FOUND " +
                              Utils::quoteProtocolField(channelUuid) + "\r\n",
                          client);
     return nullptr;
